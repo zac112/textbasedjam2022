@@ -32,6 +32,7 @@ class Room:
         newRoom.enterRoom()
         return newRoom
 
+#region methods for subclasses
     def _registerInput(self, gameState : GameState):
         #Inheriting classes implement
         pass
@@ -51,7 +52,9 @@ class Room:
     def _getActions(self) -> list:
         #Inheriting classes implement
         return []
+#endregion
 
+#region methods for menu
     def __menuUp(self):
         self.menuindex = max(0, self.menuindex-1)
         Monitor.clearLines(len(self._getMenuItems())*2)        
@@ -63,8 +66,8 @@ class Room:
         self._displayMenuItems()
 
     def __menuAccept(self):
-        pass
-    
+        self._getMenuItems()[self.menuindex].select()
+
     def __registerMenu(self):
         self._gameState.registerInput(self.__menuUp, 'up')
         self._gameState.registerInput(self.__menuDown, 'down')
@@ -80,14 +83,15 @@ class Room:
         menuitems.extend(self._getActions())
         return menuitems
 
-    def _displayRoomDescription(self):
-        Monitor.print(self.description, Monitor.INSTANT)
-
     def _displayMenuItems(self):
         for i, item in enumerate(self._getMenuItems()):
             if i==self.menuindex: item = '>'+item+'<'
             else: item = " "+item
             Monitor.print(item, Monitor.FAST)
+#endregion
+
+    def _displayRoomDescription(self):
+        Monitor.print(self.description, Monitor.INSTANT)
 
     def getConnectionDescription(self):        
         return self.connectionDescription
