@@ -3,6 +3,7 @@ from InputHandler import InputHandler
 from Room import *
 from GameState import GameState
 from Rooms import Rooms
+from Monitor import Monitor
 
 import sys
 import time

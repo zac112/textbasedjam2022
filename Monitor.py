@@ -1,4 +1,5 @@
 import time
+import os
 
 class Monitor:
     SLOW = 10
@@ -20,7 +21,12 @@ class Monitor:
         for c in text:
             time.sleep(1.0/speed)
             print(c, end="", flush=True)
+        print('\n')
 
     @staticmethod
     def __instantPrint(text :str):
         print(text)
+
+    @staticmethod
+    def clear():
+        os.system("cls")
