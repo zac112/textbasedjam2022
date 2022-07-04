@@ -32,6 +32,8 @@ class Room:
         newRoom.enterRoom()
         return newRoom
 
+    def selectFromMenu(self, fromRoom): fromRoom.changeRoom(self.room)
+
 #region methods for subclasses
     def _registerInput(self, gameState : GameState):
         #Inheriting classes implement
@@ -66,7 +68,7 @@ class Room:
         self._displayMenuItems()
 
     def __menuAccept(self):
-        self._getMenuItems()[self.menuindex].select()
+        self._getMenuItems()[self.menuindex].selectFromMenu(self)
 
     def __registerMenu(self):
         self._gameState.registerInput(self.__menuUp, 'up')
@@ -79,12 +81,12 @@ class Room:
         self._gameState.unregisterInput(self.__menuAccept, 'enter')
 
     def _getMenuItems(self) -> list:
-        menuitems = [self._gameState.getRoom(r).getConnectionDescription() for r in self._connectedRooms]        
+        menuitems = [self._gameState.getRoom(r) for r in self._connectedRooms]        
         menuitems.extend(self._getActions())
         return menuitems
 
     def _displayMenuItems(self):
-        for i, item in enumerate(self._getMenuItems()):
+        for i, item in enumerate([x.getMenuString() for x in self._getMenuItems()]):
             if i==self.menuindex: item = '>'+item+'<'
             else: item = " "+item
             Monitor.print(item, Monitor.FAST)
@@ -93,15 +95,15 @@ class Room:
     def _displayRoomDescription(self):
         Monitor.print(self.description, Monitor.INSTANT)
 
-    def getConnectionDescription(self):        
+    def getMenuString(self):        
         return self.connectionDescription
 
 class RoomPlaneCrash(Room):
         
     description = "You are at the site where you crashed your plane. Smoke is still rising from the engine"
     connectionDescription = "You see smoke rising in the distance where you crashed your plane"
+    room = Rooms.PLANECRASH
 
-    menu = {}
     def _registerInput(self, gameState : GameState):
         gameState.registerInput(self.keypress, "k")
 
@@ -118,6 +120,7 @@ class RoomVillage(Room):
 
     description = "You are in a small village. People are busy all around you."
     connectionDescription = "You think you see a small village some distance away"
+    room = Rooms.VILLAGE
 
     def _registerInput(self, gameState : GameState):
         gameState.registerInput(self.keypress, "k")
@@ -135,7 +138,10 @@ class RoomVillage(Room):
         
 
 class RoomCrossroads(Room):
+
+    description = "You are at a crossroads. A sign next to the road is written in a language you do not recognize"
     connectionDescription = "The road forks some distance away."
+    room = Rooms.CROSSROADS
 
     def _registerInput(self, gameState : GameState):
         gameState.registerInput(self.keypress, "k")
@@ -152,6 +158,11 @@ class RoomCrossroads(Room):
         self._connectedRooms.append(Rooms.BEACH)
 
 class RoomBeach(Room):
+
+    description = "You find yourself on a beach. The sun shines warmly and seagulls screech occasionally."
+    connectionDescription = "You see a sandy beach not far from where you are"    
+    room = Rooms.BEACH
+
     def _registerInput(self, gameState : GameState):
         gameState.registerInput(self.keypress, "k")
 
@@ -167,7 +178,9 @@ class RoomBeach(Room):
 
 class RoomCaveEntrance(Room):
 
+    description = "You end up at a large cave entrance. You see but darkness in the cave."
     connectionDescription = "You think you see a cave entrance in the side of the mountain"
+    room = Rooms.CAVEENTRANCE
 
     def _registerInput(self, gameState : GameState):
         gameState.registerInput(self.keypress, "k")
@@ -184,6 +197,11 @@ class RoomCaveEntrance(Room):
         self._connectedRooms.append(Rooms.CAVE)
 
 class RoomCaveExit(Room):
+
+    description = "You stand next to a small cave entrance in the mountain face."
+    connectionDescription = "You think you see a light up ahead"
+    room = Rooms.CAVEEXIT
+
     def _registerInput(self, gameState : GameState):
         gameState.registerInput(self.keypress, "k")
 
@@ -199,6 +217,11 @@ class RoomCaveExit(Room):
         self._connectedRooms.append(Rooms.CLIFFS)
 
 class RoomCave(Room):
+
+    description = "You are in a cave. After your eyes adjust to the darkness, you are able to find your way."
+    connectionDescription = "Enter the cave?"
+    room = Rooms.CAVE
+
     def _registerInput(self, gameState : GameState):
         gameState.registerInput(self.keypress, "k")
 
@@ -213,6 +236,11 @@ class RoomCave(Room):
         self._connectedRooms.append(Rooms.CAVEEXIT)
 
 class RoomCliffs(Room):
+
+    description = "You stop at a tall cliffside. Waves crash against it some hundreds of feet below you."
+    connectionDescription = "You hear waves from the east"
+    room = Rooms.CLIFFS
+
     def _registerInput(self, gameState : GameState):
         gameState.registerInput(self.keypress, "k")
 
@@ -226,6 +254,11 @@ class RoomCliffs(Room):
         self._connectedRooms.append(Rooms.CAVEEXIT)
 
 class RoomForest(Room):
+
+    description = "You stand at the edge of a relatively dense forest. You see birches and other trees which you are not familiar with."
+    connectionDescription = "A forest begins near you to the north."
+    room = Rooms.FOREST
+
     def _registerInput(self, gameState : GameState):
         gameState.registerInput(self.keypress, "k")
 
@@ -239,6 +272,11 @@ class RoomForest(Room):
         self._connectedRooms.append(Rooms.CAVEEXIT)
 
 class RoomLighthouse(Room):
+
+    description = "You stand at the bottom of a tall lighthouse."
+    connectionDescription = "What looks like a tall tower looms solemnly against the horizon."
+    room = Rooms.LIGHTHOUSE
+
     def _registerInput(self, gameState : GameState):
         gameState.registerInput(self.keypress, "k")
 
