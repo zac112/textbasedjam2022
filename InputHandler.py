@@ -30,7 +30,7 @@ class InputHandler(threading.Thread):
         key = key.lower()
         self.observers.setdefault(key, []).append(observer)
 
-    def removeObserver(self, observer, key):
+    def unregisterObserver(self, observer, key):
         key = key.lower()
         self.observers.setdefault(key, []).remove(observer)
 

@@ -32,7 +32,7 @@ class Timer(threading.Thread):
     def registerObserver(self, observer):
         self.observers.append(observer)
 
-    def removeObserver(self, observer):
+    def unregisterObserver(self, observer):
         self.observers.remove(observer)
 
     def startListening(self):
