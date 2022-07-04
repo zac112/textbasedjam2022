@@ -41,4 +41,5 @@ class Timer(threading.Thread):
 
     def stopListening(self):
         self.running = False
-#python Unityprojects\textbasedjam2022\MainGame.py
+        self.observers.clear()
+

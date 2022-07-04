@@ -14,7 +14,6 @@ class InputHandler(threading.Thread):
     def run(self):       
         print ("Starting " + self.name)
         while(self.running):
-            time.sleep(0.1)
             if msvcrt.kbhit():
                 key = str(msvcrt.getch())[1:].replace("'","")
                 key = self.keycodes.get(key, key)
@@ -41,3 +40,4 @@ class InputHandler(threading.Thread):
 
     def stopListening(self):
         self.running = False
+        self.observers.clear()
