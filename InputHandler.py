@@ -3,7 +3,13 @@ import threading
 import time
 
 class InputHandler(threading.Thread):
-    keycodes = {"\\x1b":"esc"}
+    keycodes = {
+        "\\x1b":"esc"
+        ,"\\xe0H":'up'
+        ,"\\xe0M":'right'
+        ,"\\xe0P":'down'
+        ,"\\xe0K":'left'
+    }
     
     def __init__(self, threadID, name):
         threading.Thread.__init__(self)
@@ -11,11 +17,15 @@ class InputHandler(threading.Thread):
         self.name = name        
         self.observers = {}        
         
+    def trimKey(self, keycode):
+        return str(keycode)[1:].replace("'","")
+
     def run(self):       
         print ("Starting " + self.name)
         while(self.running):
             if msvcrt.kbhit():
-                key = str(msvcrt.getch())[1:].replace("'","")
+                key = self.trimKey(msvcrt.getch())
+                if key =="\\xe0": key += self.trimKey(msvcrt.getch())
                 key = self.keycodes.get(key, key)
                 key = key.lower()
                 self.keypress(key)
