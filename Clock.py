@@ -35,11 +35,11 @@ class Timer(threading.Thread):
     def unregisterObserver(self, observer):
         self.observers.remove(observer)
 
-    def startListening(self):
+    def startCounting(self):
         self.running = True
         self.start()
 
-    def stopListening(self):
+    def stopCounting(self):
         self.running = False
         self.observers.clear()
 

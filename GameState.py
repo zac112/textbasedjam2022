@@ -1,6 +1,7 @@
+from Rooms import Rooms
+
 import InputHandler
 import Clock
-import Rooms
 
 class GameState:
 
@@ -23,7 +24,7 @@ class GameState:
 
     def getRoom(self, room : Rooms) -> Rooms:
         if room not in self._rooms: raise Exception(f"Room {room} not in rooms!")
-        return Rooms[room]
+        return self._rooms[room]
 
 class WriteableGameState(GameState):
 

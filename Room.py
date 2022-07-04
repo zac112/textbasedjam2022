@@ -1,4 +1,5 @@
 from Rooms import Rooms
+from Monitor import Monitor
 
 import GameState
 
@@ -12,13 +13,14 @@ class Room:
     def postInit(self, gameState : GameState):
         self._gameState = gameState
         self._connectRooms()
-        self._
 
     def enterRoom(self):
-        self.registerInput(self._gameState)
+        print("fsd")
+        self._registerInput(self._gameState)
+        self._displayRoomDescription()
 
     def changeRoom(self, newRoom : Rooms):
-        self.unregisterInput(self._gameState)
+        self._unregisterInput(self._gameState)
         if newRoom not in self._connectedRooms: raise Exception(f"Attempting to move into a not connected room from {self.name} to {newRoom}")
         self._gameState.getRoom(newRoom).enterRoom()
         return newRoom
@@ -39,6 +41,10 @@ class Room:
         #Inheriting classes implement
         pass
 
+    def _displayRoomDescription(self):
+        #Inheriting classes implement
+        raise Exception(f"{self.name} does not have a description")
+
 class RoomPlaneCrash(Room):
         
     def _registerInput(self, gameState : GameState):
@@ -52,6 +58,9 @@ class RoomPlaneCrash(Room):
 
     def keypress(self):
         print("Plance crash pressed")
+
+    def _displayRoomDescription(self):
+        Monitor.print("You see a crashed plane.")
 
 class RoomVillage(Room):
     def _registerInput(self, gameState : GameState):
