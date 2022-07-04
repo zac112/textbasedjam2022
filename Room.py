@@ -1,3 +1,4 @@
+from Knowledge import Knowledge
 from Rooms import Rooms
 from Monitor import Monitor
 
@@ -22,6 +23,7 @@ class Room:
         self._displayRoomDescription()
         self._displayMenuItems()
         self.__registerMenu()
+        self._onEnter()
 
     def changeRoom(self, newRoom : Rooms):
         self._unregisterInput(self._gameState)
@@ -51,9 +53,17 @@ class Room:
         #Inheriting classes implement
         pass
 
+    def _onEnter(self):
+        #Inheriting classes implement
+        pass
+
     def _getActions(self) -> list:
         #Inheriting classes implement
         return []
+    
+    def _getConnectionStrings(self) -> dict:
+        #Inheriting classes implement
+        return {}
 #endregion
 
 #region methods for menu
@@ -97,15 +107,17 @@ class Room:
         Monitor.printLine()
 
     def getMenuString(self, room):  
-        return self.connections[room]
+        return self._getConnectionStrings()[room]
 
 class RoomPlaneCrash(Room):
     
     descriptionIndex = 0
     description = "You are at the site where you crashed your plane. Smoke is still rising from the engine"
     connectionDescription = ["You see smoke rising in the distance where you crashed your plane", "You see your plane in the distance"]
-    connections = {Rooms.VILLAGE: connectionDescription[descriptionIndex]}
     room = Rooms.PLANECRASH
+    
+    def _getConnectionStrings(self):
+        return {Rooms.VILLAGE: self.connectionDescription[self.descriptionIndex]}
 
     def _registerInput(self, gameState : GameState):
         gameState.registerInput(self.keypress, "k")
@@ -124,11 +136,18 @@ class RoomVillage(Room):
     descriptionIndex = 0
     description = "You are in a small village. People are busy all around you."
     connectionDescription = ["You think you see a small village some distance away", "You see the village some distance away", "You see Thurstan some distance away"]
-    connections = {Rooms.PLANECRASH: connectionDescription[descriptionIndex]
-                ,Rooms.CROSSROADS: connectionDescription[descriptionIndex]
-                ,Rooms.CAVEENTRANCE: connectionDescription[descriptionIndex]
-                }
     room = Rooms.VILLAGE
+
+    def _onEnter(self):
+        self._gameState.updateKnowledge(Knowledge.VisitedVillage)
+        self.descriptionIndex = 1
+        
+
+    def _getConnectionStrings(self):
+        return {Rooms.PLANECRASH: self.connectionDescription[self.descriptionIndex]
+                ,Rooms.CROSSROADS: self.connectionDescription[self.descriptionIndex]
+                ,Rooms.CAVEENTRANCE: self.connectionDescription[self.descriptionIndex]
+                }
 
     def _registerInput(self, gameState : GameState):
         gameState.registerInput(self.keypress, "k")
@@ -150,12 +169,13 @@ class RoomCrossroads(Room):
     descriptionIndex = 0
     description = "You are at a crossroads. A sign next to the road is written in a language you do not recognize"
     connectionDescription = ["The road forks some distance away."]
-    connections = {Rooms.VILLAGE: connectionDescription[descriptionIndex]
-                ,Rooms.LIGHTHOUSE: connectionDescription[descriptionIndex]
-                ,Rooms.BEACH: connectionDescription[descriptionIndex]
-                }
     room = Rooms.CROSSROADS
 
+    def _getConnectionStrings(self):
+        return {Rooms.VILLAGE: self.connectionDescription[self.descriptionIndex]
+                ,Rooms.LIGHTHOUSE: self.connectionDescription[self.descriptionIndex]
+                ,Rooms.BEACH: self.connectionDescription[self.descriptionIndex]
+                }
     def _registerInput(self, gameState : GameState):
         gameState.registerInput(self.keypress, "k")
 
@@ -175,10 +195,12 @@ class RoomBeach(Room):
     descriptionIndex = 0
     description = "You find yourself on a beach. The sun shines warmly and seagulls screech occasionally."
     connectionDescription = ["You see a sandy beach not far from where you are"]
-    connections = {Rooms.CROSSROADS: connectionDescription[descriptionIndex]
-                ,Rooms.CAVEENTRANCE: connectionDescription[descriptionIndex]
-                }  
     room = Rooms.BEACH
+
+    def _getConnectionStrings(self):
+        return {Rooms.CROSSROADS: self.connectionDescription[self.descriptionIndex]
+                ,Rooms.CAVEENTRANCE: self.connectionDescription[self.descriptionIndex]
+                }  
 
     def _registerInput(self, gameState : GameState):
         gameState.registerInput(self.keypress, "k")
@@ -198,11 +220,13 @@ class RoomCaveEntrance(Room):
     descriptionIndex = 0
     description = "You end up at a large cave entrance. You see but darkness in the cave."
     connectionDescription = ["You think you see a cave entrance in the side of the mountain", "You can head down a corridor which you think takes you back to the village"]
-    connections = {Rooms.BEACH: connectionDescription[descriptionIndex]
-                ,Rooms.VILLAGE: connectionDescription[descriptionIndex]
-                ,Rooms.CAVE: connectionDescription[1]
-                }
     room = Rooms.CAVEENTRANCE
+
+    def _getConnectionStrings(self):
+        return {Rooms.BEACH: self.connectionDescription[self.descriptionIndex]
+                ,Rooms.VILLAGE: self.connectionDescription[self.descriptionIndex]
+                ,Rooms.CAVE: self.connectionDescription[1]
+                }
 
     def _registerInput(self, gameState : GameState):
         gameState.registerInput(self.keypress, "k")
@@ -223,11 +247,13 @@ class RoomCaveExit(Room):
     descriptionIndex = 0
     description = "You stand next to a small cave entrance in the mountain face."
     connectionDescription = ["You can head down the road that will lead you back to the cave.","You think you see a light up ahead"]
-    connections = {Rooms.CAVE: connectionDescription[1]
-                ,Rooms.FOREST: connectionDescription[descriptionIndex]
-                ,Rooms.CLIFFS: connectionDescription[descriptionIndex]
-                }
     room = Rooms.CAVEEXIT
+
+    def _getConnectionStrings(self):
+        return {Rooms.CAVE: self.connectionDescription[1]
+                ,Rooms.FOREST: self.connectionDescription[self.descriptionIndex]
+                ,Rooms.CLIFFS: self.connectionDescription[self.descriptionIndex]
+                }
 
     def _registerInput(self, gameState : GameState):
         gameState.registerInput(self.keypress, "k")
@@ -248,10 +274,12 @@ class RoomCave(Room):
     descriptionIndex = 0
     description = "You are in a cave. After your eyes adjust to the darkness, you are able to find your way."
     connectionDescription = ["Enter the cave?"]
-    connections = {Rooms.CAVEENTRANCE: connectionDescription[descriptionIndex]
-                ,Rooms.CAVEEXIT: connectionDescription[descriptionIndex]
-                }
     room = Rooms.CAVE
+
+    def _getConnectionStrings(self):
+        return {Rooms.CAVEENTRANCE: self.connectionDescription[self.descriptionIndex]
+                ,Rooms.CAVEEXIT: self.connectionDescription[self.descriptionIndex]
+                }
 
     def _registerInput(self, gameState : GameState):
         gameState.registerInput(self.keypress, "k")
@@ -271,8 +299,10 @@ class RoomCliffs(Room):
     descriptionIndex = 0
     description = "You stop at a tall cliffside. Waves crash against it some hundreds of feet below you."
     connectionDescription = ["You hear waves from the east"]
-    connections = {Rooms.CAVEEXIT: connectionDescription[descriptionIndex]}
     room = Rooms.CLIFFS
+
+    def _getConnectionStrings(self):
+        return {Rooms.CAVEEXIT: self.connectionDescription[self.descriptionIndex]}
 
     def _registerInput(self, gameState : GameState):
         gameState.registerInput(self.keypress, "k")
@@ -291,8 +321,10 @@ class RoomForest(Room):
     descriptionIndex = 0
     description = "You stand at the edge of a relatively dense forest. You see birches and other trees which you are not familiar with."
     connectionDescription = ["A forest begins near you to the north."]
-    connections = {Rooms.CAVEEXIT: connectionDescription[descriptionIndex]}
     room = Rooms.FOREST
+
+    def _getConnectionStrings(self):
+        return {Rooms.CAVEEXIT: self.connectionDescription[self.descriptionIndex]}
 
     def _registerInput(self, gameState : GameState):
         gameState.registerInput(self.keypress, "k")
@@ -311,8 +343,10 @@ class RoomLighthouse(Room):
     descriptionIndex = 0
     description = "You stand at the bottom of a tall lighthouse."
     connectionDescription = ["What looks like a tall tower looms solemnly against the horizon."]
-    connections = {Rooms.CROSSROADS: connectionDescription[descriptionIndex]}
     room = Rooms.LIGHTHOUSE
+
+    def _getConnectionStrings(self):
+        return {Rooms.CROSSROADS: self.connectionDescription[self.descriptionIndex]}
 
     def _registerInput(self, gameState : GameState):
         gameState.registerInput(self.keypress, "k")

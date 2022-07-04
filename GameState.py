@@ -30,13 +30,13 @@ class GameState:
         return self._rooms[room]
 
     def updateKnowledge(self, knowledge : Knowledge):
-        level = self.getKnowledgeLevelFor(knowledge[0])
-        if level < knowledge[1]:
-            self._knowledge[knowledge[0]] = knowledge[1]
+        level = self.getKnowledgeLevelFor(knowledge.value[0])
+        if level < knowledge.value[1]:
+            self._knowledge[knowledge.value[0]] = knowledge.value[1]
 
 
     def getKnowledgeLevelFor(self, knowledgeType : KnowledgeType) -> int:        
-        return self._knowledge.get(knowledgeType, (0,0))[1]
+        return self._knowledge.get(knowledgeType, 0)
 
 
 
