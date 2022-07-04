@@ -24,8 +24,8 @@ class Timer(threading.Thread):
     def tick(self):
         self.ticks += 1
         if self.tick in self.observers:
-            for o in self.observers[self.tick]:
-                o(self.ticks)
+            for obs in self.observers[self.tick]:
+                obs(self.ticks)
             
             del self.observers[self.tick]
 

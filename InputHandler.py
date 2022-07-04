@@ -34,8 +34,8 @@ class InputHandler(threading.Thread):
 
     def keypress(self, key):
         #print(key)
-        for o in self.observers.get(key, []):
-            o()
+        for obs in self.observers.get(key, []):
+            obs()
 
     def registerObserver(self, observer, key):
         key = key.lower()

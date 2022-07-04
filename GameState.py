@@ -34,13 +34,5 @@ class GameState:
         if level < knowledge.value[1]:
             self._knowledge[knowledge.value[0]] = knowledge.value[1]
 
-
     def getKnowledgeLevelFor(self, knowledgeType : KnowledgeType) -> int:        
         return self._knowledge.get(knowledgeType, 0)
-
-
-
-class WriteableGameState(GameState):
-
-    def setInputListener(self, inputHandler : InputHandler):
-        pass
