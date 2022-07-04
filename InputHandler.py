@@ -9,6 +9,7 @@ class InputHandler(threading.Thread):
         ,"\\xe0M":'right'
         ,"\\xe0P":'down'
         ,"\\xe0K":'left'
+        ,"\\r":'enter'
     }
     
     def __init__(self, threadID, name):
@@ -32,7 +33,7 @@ class InputHandler(threading.Thread):
         print ("Stopping " + self.name)
 
     def keypress(self, key):
-        print(key)
+        #print(key)
         for o in self.observers.get(key, []):
             o()
 

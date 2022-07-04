@@ -30,3 +30,8 @@ class Monitor:
     @staticmethod
     def clear():
         os.system("cls")
+
+    @staticmethod
+    def clearLines(numLines=1):
+        for i in range(numLines):
+            print("\033[A{}\033[A".format(' '*os.get_terminal_size().columns))
