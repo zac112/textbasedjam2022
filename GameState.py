@@ -1,24 +1,29 @@
 import InputHandler
 import Clock
+import Rooms
 
 class GameState:
 
-    def __init__(self, inputHandler : InputHandler, clock : Clock):
+    def __init__(self, inputHandler : InputHandler, clock : Clock, rooms : dict):
         self._clock = clock
         self._inputHandler = inputHandler
+        self._rooms = rooms
 
-    def registerInput(self, observer : function, key :str):
+    def registerInput(self, observer, key :str):
         self._inputHandler.registerObserver(observer, key)
 
-    def unregisterInput(self, observer : function, key :str):
+    def unregisterInput(self, observer, key :str):
         self._inputHandler.unregisterObserver(observer, key)
 
-    def registerTick(self, observer : function):
+    def registerTick(self, observer):
         self._clock.registerObserver(observer)
 
-    def unregisterTick(self, observer : function):
+    def unregisterTick(self, observer):
         self._clock.unregisterObserver(observer)
 
+    def getRoom(self, room : Rooms) -> Rooms:
+        if room not in self._rooms: raise Exception(f"Room {room} not in rooms!")
+        return Rooms[room]
 
 class WriteableGameState(GameState):
 

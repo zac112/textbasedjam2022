@@ -1,5 +1,4 @@
 import GameState
-import Rooms
 
 class Room:
 
@@ -9,14 +8,14 @@ class Room:
         self.name = name
         
     def postInit(self, gameState : GameState):
-        self.gameState = gameState
+        self._gameState = gameState
         self.__connectRooms()
 
     def enterRoom(self):
-        self.registerInput(self.gameState)
+        self.registerInput(self._gameState)
 
     def changeRoom(self, newRoom):
-        self.unregisterInput(self.gameState)
+        self.unregisterInput(self._gameState)
         newRoom.enterRoom()
         return newRoom
 
@@ -44,7 +43,7 @@ class RoomPlaneCrash(Room):
         print("Plance crash pressed")
 
     def __connectRooms(self):
-        self._connectedRooms.append(Rooms.VILLAGE)
+        self._connectedRooms.append(self._gameState.getRoom("Village"))
 
 class RoomVillage(Room):
     def registerInput(self, gameState : GameState):

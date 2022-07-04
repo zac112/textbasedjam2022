@@ -2,7 +2,7 @@ from Clock import Timer
 from InputHandler import InputHandler
 from Room import *
 from GameState import GameState
-import Rooms
+from Rooms import Rooms
 
 import atexit
 import os
@@ -32,12 +32,31 @@ def initGame():
     inp.startListening()
     inp.registerObserver(quitGame,'esc')
 
-    gameState = GameState(inp, timer)
+    rooms = {
+        Rooms.PLANECRASH: RoomPlaneCrash("Plane crash")
+        , Rooms.VILLAGE: RoomVillage("Village")
+        , Rooms.CROSSROADS: RoomCrossroads("Crossroads")
+        , Rooms.LIGHTHOUSE: RoomLighthouse("Lighthouse")
+        , Rooms.BEACH: RoomBeach("Beach")
+        , Rooms.CAVEENTRANCE: RoomCaveEntrance("Cave Entrance")
+        , Rooms.CAVE: RoomCave("Cave")
+        , Rooms.CAVEEXIT: RoomCaveExit("Cave Exit")
+        , Rooms.CLIFFS: RoomCliffs("Cliffs")
+        , Rooms.FOREST: RoomForest("Forest")
+    }        
+    
+    for r in Rooms:
+        print(r)
 
-    for room in Rooms:
+    gameState = GameState(inp, timer, rooms)
+
+    for key, room in rooms.items():
         room.postInit(gameState)
 
-    Rooms.PLANECRASH.enterRoom()
+    Rooms.PLANECRASH.value.enterRoom()
+
+    print(Rooms["Village"])
+    print(Rooms["Villag1e"])
 
 def quitGame():
     print("cleanup")
