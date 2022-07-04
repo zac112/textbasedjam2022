@@ -1,4 +1,5 @@
 from Rooms import Rooms
+from Knowledge import *
 
 import InputHandler
 import Clock
@@ -9,6 +10,8 @@ class GameState:
         self._clock = clock
         self._inputHandler = inputHandler
         self._rooms = rooms
+        #Knowledgetype -> level
+        self._knowledge = {}
 
     def registerInput(self, observer, key :str):
         self._inputHandler.registerObserver(observer, key)
@@ -25,6 +28,17 @@ class GameState:
     def getRoom(self, room : Rooms) -> Rooms:
         if room not in self._rooms: raise Exception(f"Room {room} not in rooms!")
         return self._rooms[room]
+
+    def updateKnowledge(self, knowledge : Knowledge):
+        level = self.getKnowledgeLevelFor(knowledge[0])
+        if level < knowledge[1]:
+            self._knowledge[knowledge[0]] = knowledge[1]
+
+
+    def getKnowledgeLevelFor(self, knowledgeType : KnowledgeType) -> int:        
+        return self._knowledge.get(knowledgeType, (0,0))[1]
+
+
 
 class WriteableGameState(GameState):
 
