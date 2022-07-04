@@ -43,20 +43,14 @@ def initGame():
         , Rooms.CAVEEXIT: RoomCaveExit("Cave Exit")
         , Rooms.CLIFFS: RoomCliffs("Cliffs")
         , Rooms.FOREST: RoomForest("Forest")
-    }        
+    }     
     
-    for r in Rooms:
-        print(r)
-
     gameState = GameState(inp, timer, rooms)
 
     for key, room in rooms.items():
         room.postInit(gameState)
 
-    Rooms.PLANECRASH.value.enterRoom()
-
-    print(Rooms["Village"])
-    print(Rooms["Villag1e"])
+    rooms[Rooms.PLANECRASH].enterRoom()
 
 def quitGame():
     print("cleanup")

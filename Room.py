@@ -1,3 +1,5 @@
+from Rooms import Rooms
+
 import GameState
 
 class Room:
@@ -19,11 +21,11 @@ class Room:
         newRoom.enterRoom()
         return newRoom
 
-    def registerInput(self, gameState : GameState):
+    def _registerInput(self, gameState : GameState):
         #Inheriting classes implement
         pass
 
-    def unregisterInput(self, gameState : GameState):
+    def _unregisterInput(self, gameState : GameState):
         #Inheriting classes implement
         pass
 
@@ -33,131 +35,142 @@ class Room:
 
 class RoomPlaneCrash(Room):
         
-    def registerInput(self, gameState : GameState):
+    def _registerInput(self, gameState : GameState):
         gameState.registerInput(self.keypress, "k")
 
-    def unregisterInput(self, gameState : GameState):
+    def _unregisterInput(self, gameState : GameState):
         gameState.unregisterInput(self.keypress, "k")
+
+    def __connectRooms(self):
+        self._connectedRooms.append(self._gameState.getRoom(Rooms.VILLAGE))
 
     def keypress(self):
         print("Plance crash pressed")
 
-    def __connectRooms(self):
-        self._connectedRooms.append(self._gameState.getRoom("Village"))
-
 class RoomVillage(Room):
-    def registerInput(self, gameState : GameState):
+    def _registerInput(self, gameState : GameState):
         gameState.registerInput(self.keypress, "k")
 
-    def unregisterInput(self, gameState : GameState):
+    def _unregisterInput(self, gameState : GameState):
         gameState.unregisterInput(self.keypress, "k")
 
     def keypress(self):
         print("Village pressed")
 
     def __connectRooms(self):
-        self._connectedRooms.append(Rooms.PLANECRASH)
+        self._connectedRooms.append(self._gameState.getRoom(Rooms.PLANECRASH))
+        self._connectedRooms.append(self._gameState.getRoom(Rooms.CROSSROADS))
+        self._connectedRooms.append(self._gameState.getRoom(Rooms.CAVEENTRANCE))
         
 
 class RoomCrossroads(Room):
-    def registerInput(self, gameState : GameState):
+    def _registerInput(self, gameState : GameState):
         gameState.registerInput(self.keypress, "k")
 
-    def unregisterInput(self, gameState : GameState):
+    def _unregisterInput(self, gameState : GameState):
         gameState.unregisterInput(self.keypress, "k")
 
     def keypress(self):
         print("Village pressed")
 
     def __connectRooms(self):
-        print("Room methods call")
+        self._connectedRooms.append(self._gameState.getRoom(Rooms.VILLAGE))
+        self._connectedRooms.append(self._gameState.getRoom(Rooms.LIGHTHOUSE))
+        self._connectedRooms.append(self._gameState.getRoom(Rooms.BEACH))
 
 class RoomBeach(Room):
-    def registerInput(self, gameState : GameState):
+    def _registerInput(self, gameState : GameState):
         gameState.registerInput(self.keypress, "k")
 
-    def unregisterInput(self, gameState : GameState):
+    def _unregisterInput(self, gameState : GameState):
         gameState.unregisterInput(self.keypress, "k")
 
     def keypress(self):
         print("Village pressed")
 
     def __connectRooms(self):
-        print("Room methods call")
+        self._connectedRooms.append(self._gameState.getRoom(Rooms.CROSSROADS))
+        self._connectedRooms.append(self._gameState.getRoom(Rooms.CAVEENTRANCE))
+
 class RoomCaveEntrance(Room):
-    def registerInput(self, gameState : GameState):
+    def _registerInput(self, gameState : GameState):
         gameState.registerInput(self.keypress, "k")
 
-    def unregisterInput(self, gameState : GameState):
+    def _unregisterInput(self, gameState : GameState):
         gameState.unregisterInput(self.keypress, "k")
 
     def keypress(self):
         print("Village pressed")
 
     def __connectRooms(self):
-        print("Room methods call")
+        self._connectedRooms.append(self._gameState.getRoom(Rooms.BEACH))
+        self._connectedRooms.append(self._gameState.getRoom(Rooms.VILLAGE))
+        self._connectedRooms.append(self._gameState.getRoom(Rooms.CAVE))
 
 class RoomCaveExit(Room):
-    def registerInput(self, gameState : GameState):
+    def _registerInput(self, gameState : GameState):
         gameState.registerInput(self.keypress, "k")
 
-    def unregisterInput(self, gameState : GameState):
+    def _unregisterInput(self, gameState : GameState):
         gameState.unregisterInput(self.keypress, "k")
 
     def keypress(self):
         print("Village pressed")
 
     def __connectRooms(self):
-        print("Room methods call")
+        self._connectedRooms.append(self._gameState.getRoom(Rooms.CAVE))
+        self._connectedRooms.append(self._gameState.getRoom(Rooms.FOREST))
+        self._connectedRooms.append(self._gameState.getRoom(Rooms.CLIFFS))
 
 class RoomCave(Room):
-    def registerInput(self, gameState : GameState):
+    def _registerInput(self, gameState : GameState):
         gameState.registerInput(self.keypress, "k")
 
-    def unregisterInput(self, gameState : GameState):
+    def _unregisterInput(self, gameState : GameState):
         gameState.unregisterInput(self.keypress, "k")
 
     def keypress(self):
         print("Village pressed")
 
     def __connectRooms(self):
-        print("Room methods call")
+        self._connectedRooms.append(self._gameState.getRoom(Rooms.CAVEENTRANCE))
+        self._connectedRooms.append(self._gameState.getRoom(Rooms.CAVEEXIT))
 
 class RoomCliffs(Room):
-    def registerInput(self, gameState : GameState):
+    def _registerInput(self, gameState : GameState):
         gameState.registerInput(self.keypress, "k")
 
-    def unregisterInput(self, gameState : GameState):
+    def _unregisterInput(self, gameState : GameState):
         gameState.unregisterInput(self.keypress, "k")
 
     def keypress(self):
         print("Village pressed")
 
     def __connectRooms(self):
-        print("Room methods call")
+        self._connectedRooms.append(self._gameState.getRoom(Rooms.CAVEEXIT))
 
 class RoomForest(Room):
-    def registerInput(self, gameState : GameState):
+    def _registerInput(self, gameState : GameState):
         gameState.registerInput(self.keypress, "k")
 
-    def unregisterInput(self, gameState : GameState):
+    def _unregisterInput(self, gameState : GameState):
         gameState.unregisterInput(self.keypress, "k")
 
     def keypress(self):
         print("Village pressed")
         
     def __connectRooms(self):
-        print("Room methods call")
+        self._connectedRooms.append(self._gameState.getRoom(Rooms.CAVEEXIT))
 
 class RoomLighthouse(Room):
-    def registerInput(self, gameState : GameState):
+    def _registerInput(self, gameState : GameState):
         gameState.registerInput(self.keypress, "k")
 
-    def unregisterInput(self, gameState : GameState):
+    def _unregisterInput(self, gameState : GameState):
         gameState.unregisterInput(self.keypress, "k")
 
     def keypress(self):
         print("Village pressed")
         
     def __connectRooms(self):
-        print("Room methods call")
+        self._connectedRooms.append(self._gameState.getRoom(Rooms.CROSSROADS))
