@@ -11,7 +11,7 @@ class Timer(threading.Thread):
         self.threadID = threadID
         self.name = name
         self.ticks = 0
-        self.observers = []        
+        self.observers = {}       
         
     def run(self):       
         print ("Starting " + self.name)
@@ -23,17 +23,21 @@ class Timer(threading.Thread):
         
     def tick(self):
         self.ticks += 1
-        for o in self.observers:
-            o(self.ticks)
+        if self.tick in self.observers:
+            for o in self.observers[self.tick]:
+                o(self.ticks)
+            
+            del self.observers[self.tick]
 
     def getTick(self):
         return self.ticks
 
-    def registerObserver(self, observer):
-        self.observers.append(observer)
 
-    def unregisterObserver(self, observer):
-        self.observers.remove(observer)
+    def registerObserver(self, observer, tick):
+        self.observers.setdefault(tick,[]).append(observer)
+
+    def unregisterObserver(self, observer, tick):
+        self.observers.get(tick,[observer]).remove(observer)
 
     def startCounting(self):
         self.running = True
