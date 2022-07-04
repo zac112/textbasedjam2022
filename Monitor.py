@@ -24,6 +24,10 @@ class Monitor:
         print('\n')
 
     @staticmethod
+    def printLine():
+        print()
+
+    @staticmethod
     def __instantPrint(text :str):
         print(text)
 
