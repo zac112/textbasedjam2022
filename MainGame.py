@@ -41,6 +41,7 @@ def initGame():
 
     for key, room in rooms.items():
         room.postInit(gameState)
+        timer.registerTimeOfDayEvent(room.reEnterRoom)
 
     Monitor.clear()
     rooms[Rooms.PLANECRASH].enterRoom()

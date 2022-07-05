@@ -32,15 +32,7 @@ class GameState:
 
     #Returns the current time as a tuple(day:int,GameTime)
     def getTime(self) -> tuple:
-        tick = self.getTick()
-        day = int(tick/360.0)+1
-        tick = tick%360
-        texts = [(60,GameTime.MIDNIGHT),
-                 (90,GameTime.DAWN),
-                 (270,GameTime.NOON),
-                 (300,GameTime.DUSK),
-                 (360,GameTime.MIDNIGHT)]
-        return (day,[t[1] for t in texts if tick<t[0]][0])
+        return self._clock.getTime()
 
     def getTimeOfDay(self) -> GameTime:
         return self.getTime()[1]

@@ -18,13 +18,18 @@ class Room:
         self._connectRooms()        
         self.roomActive = False
 
-    def enterRoom(self):             
+    def reEnterRoom(self):
+        if not self.roomActive :return
+        self._onEnter()
+        self.refreshScreen()
+        
+    def enterRoom(self):
+        self.roomActive = True
         self._registerEvents()
         self._registerInput(self._gameState)
         self._onEnter()
         self.refreshScreen()
-        self.__registerMenu()                
-        self.roomActive = True
+        self.__registerMenu() 
 
     def changeRoom(self, newRoom : Rooms):
         self._unregisterInput(self._gameState)
@@ -32,15 +37,17 @@ class Room:
         self._unregisterEvents()
         self.roomActive = False
         
-        if newRoom not in self._connectedRooms: raise Exception(f"Attempting to move into a not connected room from {self.name} to {newRoom}. Connected rooms are {[x.name for x in self._connectedRooms]}")        
+        if newRoom not in self._connectedRooms+[self]: raise Exception(f"Attempting to move into a not connected room from {self.name} to {newRoom}. Connected rooms are {[x.name for x in self._connectedRooms]}")        
         newRoom = self._gameState.getRoom(newRoom)
         newRoom.enterRoom()
         return newRoom
 
     def refreshScreen(self):
-        Monitor.clear()
-        self._displayRoomDescription()
+        if not self.roomActive :return
+        
+        Monitor.clear()        
         self._displayApproximateTime()
+        self._displayRoomDescription()
         self.menux, self.menuy = Monitor.getCursorPos()
         self._displayMenuItems()
         
@@ -242,12 +249,13 @@ class RoomVillage(Room):
         availableActions = []
         self.description = ["You reach a small walled town."]
         self._gameState.updateKnowledge(Knowledge.VisitedVillage)
-        self.descriptionIndex = 1
-        print(self._gameState.getTimeOfDay())
+        self.descriptionIndex = 1        
         if self._gameState.getTimeOfDay()==GameTime.MIDNIGHT:
+            self.description[0]+=" The gates are closed."
             self.description.append("You are stopped at the gates by two men armed with spears. \nThey speak a language unknown to you.")
             self.availableActions.append(self.ForceEntry())
-        
+            return
+        self.description[0]+=" The gates are open."
 
     def _getConnectionStrings(self):
         return {Rooms.PLANECRASH: self.connectionDescription[self.descriptionIndex]
