@@ -1,6 +1,7 @@
 from Knowledge import Knowledge
 from Rooms import Rooms
 from Monitor import Monitor
+from MenuItem import MenuItem
 
 import GameState
 
@@ -67,7 +68,12 @@ class Room:
         Monitor.print([t[1] for t in texts if tick<t[0]][0])   
 
     def _getActions(self) -> list:
-        return self.availableActions
+        actions = []
+        for action in self.availableActions:
+            reqs = map(lambda a: self._gameState.fulfillsRequirement(a), action.getRequirements())
+            if all(reqs): actions.append(action)
+            
+        return actions
     
 #region methods for subclasses
     def _registerInput(self, gameState : GameState):
@@ -156,7 +162,7 @@ class Room:
 class RoomPlaneCrash(Room):    
 
 #region events
-    class Birds():
+    class Birds(MenuItem):
         description = "Some birds have flown in to sit on your plane"
         
         def getMenuString(self, room : Rooms):            
@@ -166,7 +172,7 @@ class RoomPlaneCrash(Room):
             Monitor.print("You chase the birds away", delay=1)
             fromRoom._removeEvent(self)
 
-    class ExaminePlane():
+    class ExaminePlane(MenuItem):
         description = "After examining the plane, you might be able to fix it.\nYou only need fuel, a length of hose and some wheels"
         
         def getMenuString(self, room : Rooms):            
@@ -180,6 +186,7 @@ You might be able to fix the plane given the right materials.""", delay=3)
             if self.description not in fromRoom.description :
                 fromRoom.description.append(self.description)
             fromRoom.refreshScreen()
+
 #endregion events
             
     descriptionIndex = 0
@@ -212,16 +219,16 @@ You might be able to fix the plane given the right materials.""", delay=3)
     
 class RoomVillage(Room):
 #region events
-    class ForceEntry():
-        description = "Some birds have flown in to sit on your plane"
-        
+    class ForceEntry(MenuItem):
         def getMenuString(self, room : Rooms):            
             return "Ignore the men and head inside the town."
 
         def selectFromMenu(self, fromRoom : Rooms):
             Monitor.print("You decide to ignore them and keep walking towards the gates. ", delay=1)
             Monitor.print("The soldiers do not hesitate to impale you with their spear. You died.", delay=1)
-            fromRoom._gameState.endGame()            
+            fromRoom._gameState.endGame()
+
+    
 #endregion events
             
     descriptionIndex = 0
