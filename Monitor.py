@@ -17,26 +17,26 @@ class Monitor:
     """
     @staticmethod
     def print(text: str, pos: tuple = None, speed = INSTANT, delay=0):
-        oldPos = Monitor.getCursorPos()
-        if pos:
-            Monitor.setCursorPos(pos[0],pos[1])
-            
         if speed == Monitor.INSTANT: 
             Monitor.__instantPrint(text,delay=delay)
             return
-
+        
+        oldPos = Monitor.getCursorPos()
+        if pos:
+            Monitor.setCursorPos(pos[0],pos[1])
+        
         speed = max(10, speed)
         for c in text:
             time.sleep(1.0/speed)
             print(c, end="", flush=True)
         print()
         
-        time.sleep(delay)
         if pos: Monitor.setCursorPos(oldpos[0],oldpos[1])
+        time.sleep(delay)
 
     @staticmethod
     def printLine():
-        print()
+        Monitor.print("")
 
     @staticmethod
     def __instantPrint(text :str, delay: int=0):
@@ -51,8 +51,8 @@ class Monitor:
     @staticmethod
     def clearLines(numLines=1):
         for i in range(numLines):
-            print("\033[A{}\033[A".format(' '*os.get_terminal_size().columns))
-
+            Monitor.print("\033[A{}\033[A".format(' '*os.get_terminal_size().columns))
+        
     @staticmethod
     def getCursorPos():
         OldStdinMode = ctypes.wintypes.DWORD()

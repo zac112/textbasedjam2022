@@ -174,10 +174,10 @@ class RoomPlaneCrash(Room):
 
         def selectFromMenu(self, fromRoom : Rooms):
             fromRoom._gameState.updateKnowledge(Knowledge.ExaminedPlane)
-#            Monitor.print("""The damage isn't so bad as it looks.
-#You ruptured a fuel line and both wheels on the landing gear are destroyed.
-#You might be able to fix the plane given the right materials.""", delay=3)
-            desc = "After examining the plane, you might be able to fix it.\n You only need fuel, a length of hose and some wheels"
+            Monitor.print("""The damage isn't so bad as it looks.
+You ruptured a fuel line and both wheels on the landing gear are destroyed.
+You might be able to fix the plane given the right materials.""", delay=3)
+            desc = "After examining the plane, you might be able to fix it.\nYou only need fuel, a length of hose and some wheels"
             if desc not in fromRoom.description :
                 fromRoom.description.append(desc)
             fromRoom.refreshScreen()
@@ -193,7 +193,7 @@ class RoomPlaneCrash(Room):
 
     def __addBirdEvent(self, tick):        
         birds = self.Birds()
-        self.addEvent(birds, tick+10)
+        self.addEvent(birds, tick+30)
         
     def _getConnectionStrings(self):
         return {Rooms.VILLAGE: self.connectionDescription[self.descriptionIndex]}

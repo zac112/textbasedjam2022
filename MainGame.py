@@ -4,12 +4,14 @@ from Room import *
 from GameState import GameState
 from Rooms import Rooms
 from Monitor import Monitor
+from threading import Lock
 
 import sys
 import time
 
-timer = Timer(0,"Clock")
-inp = InputHandler(1,"Input")
+lock = Lock()
+timer = Timer(0,"Clock", lock)
+inp = InputHandler(1,"Input", lock)
 
 def initGame():
     timer.startCounting()

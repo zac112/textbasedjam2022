@@ -12,11 +12,12 @@ class InputHandler(threading.Thread):
         ,"\\r":'enter'
     }
     
-    def __init__(self, threadID, name):
+    def __init__(self, threadID, name, lock):
         threading.Thread.__init__(self)
         self.threadID = threadID
         self.name = name        
-        self.observers = {}        
+        self.observers = {}
+        self.lock = lock
         
     def trimKey(self, keycode):
         return str(keycode)[1:].replace("'","")
@@ -26,7 +27,7 @@ class InputHandler(threading.Thread):
         while(self.running):
             if msvcrt.kbhit():
                 key = self.trimKey(msvcrt.getch())
-                if key =="\\xe0": key += self.trimKey(msvcrt.getch())
+                if key =="\\xe0": key += self.trimKey(msvcrt.getch())                
                 key = self.keycodes.get(key, key)
                 key = key.lower()
                 self.keypress(key)
@@ -34,8 +35,10 @@ class InputHandler(threading.Thread):
 
     def keypress(self, key):
         #print(key)
-        for obs in self.observers.get(key, []):
+        self.lock.acquire()
+        for obs in self.observers.get(key, []):            
             obs()
+        self.lock.release()
 
     def registerObserver(self, observer, key):
         key = key.lower()

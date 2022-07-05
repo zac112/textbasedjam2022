@@ -6,12 +6,13 @@ class Timer(threading.Thread):
     ticks = 0
     observers = []
     
-    def __init__(self, threadID, name):
+    def __init__(self, threadID, name, lock):
         threading.Thread.__init__(self)
         self.threadID = threadID
         self.name = name
         self.ticks = 0
-        self.observers = {}       
+        self.observers = {}
+        self.lock = lock
         
     def run(self):       
         print ("Starting " + self.name)
@@ -24,8 +25,10 @@ class Timer(threading.Thread):
     def tick(self):
         self.ticks += 1
         if self.ticks in self.observers:
-            for obs in self.observers[self.ticks]:
+            self.lock.acquire()
+            for obs in self.observers[self.ticks]:                
                 obs(self.ticks)
+            self.lock.release()
             
             self.observers.pop(self.ticks,None)
 
