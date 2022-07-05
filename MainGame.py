@@ -13,9 +13,14 @@ lock = Lock()
 timer = Timer(0,"Clock", lock)
 inp = InputHandler(1,"Input", lock)
 
-def initGame():
-    timer.startCounting()
+def quitGame():
+    timer.stopCounting()
+    inp.stopListening()
+    input("Game over.")
+    sys.exit(0)
     
+def initGame():
+    timer.startCounting()    
     inp.startListening()
     inp.registerObserver(quitGame,'q')
 
@@ -32,7 +37,7 @@ def initGame():
         , Rooms.FOREST: RoomForest("Forest")
     }     
 
-    gameState = GameState(inp, timer, rooms)
+    gameState = GameState(inp, timer, rooms, quitGame)
 
     for key, room in rooms.items():
         room.postInit(gameState)
@@ -40,12 +45,7 @@ def initGame():
     Monitor.clear()
     rooms[Rooms.PLANECRASH].enterRoom()
 
-def quitGame():
-    print("cleanup")
-    timer.stopCounting()
-    inp.stopListening()
-    time.sleep(1)
-    sys.exit(0)
+
     
 if __name__ == '__main__':
     try:

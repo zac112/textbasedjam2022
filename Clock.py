@@ -15,12 +15,9 @@ class Timer(threading.Thread):
         self.lock = lock
         
     def run(self):       
-        print ("Starting " + self.name)
-        self.running = True
         while(self.running):
             time.sleep(1)
             self.tick()
-        print ("Stopping " + self.name)
         
     def tick(self):
         self.ticks += 1

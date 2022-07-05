@@ -66,6 +66,9 @@ class Room:
 
         Monitor.print([t[1] for t in texts if tick<t[0]][0])   
 
+    def _getActions(self) -> list:
+        return self.availableActions
+    
 #region methods for subclasses
     def _registerInput(self, gameState : GameState):
         #Inheriting classes implement
@@ -82,10 +85,6 @@ class Room:
     def _onEnter(self):
         #Inheriting classes implement
         pass
-
-    def _getActions(self) -> list:
-        #Inheriting classes implement
-        return []
 
     def _getEvents(self):
         #Inheriting classes implement
@@ -156,6 +155,7 @@ class Room:
         
 class RoomPlaneCrash(Room):    
 
+#region events
     class Birds():
         description = "Some birds have flown in to sit on your plane"
         
@@ -167,7 +167,7 @@ class RoomPlaneCrash(Room):
             fromRoom._removeEvent(self)
 
     class ExaminePlane():
-        description = "Some birds have flown in to sit on your plane"
+        description = "After examining the plane, you might be able to fix it.\nYou only need fuel, a length of hose and some wheels"
         
         def getMenuString(self, room : Rooms):            
             return "Examine what's left of your plane"
@@ -177,11 +177,11 @@ class RoomPlaneCrash(Room):
             Monitor.print("""The damage isn't so bad as it looks.
 You ruptured a fuel line and both wheels on the landing gear are destroyed.
 You might be able to fix the plane given the right materials.""", delay=3)
-            desc = "After examining the plane, you might be able to fix it.\nYou only need fuel, a length of hose and some wheels"
-            if desc not in fromRoom.description :
-                fromRoom.description.append(desc)
+            if self.description not in fromRoom.description :
+                fromRoom.description.append(self.description)
             fromRoom.refreshScreen()
-    
+#endregion events
+            
     descriptionIndex = 0
     description = ["You are at the site where you crashed your plane. Smoke is still rising from the engine."]
     connectionDescription = ["You see smoke rising in the distance where you crashed your plane", "You see your plane in the distance"]
@@ -209,18 +209,26 @@ You might be able to fix the plane given the right materials.""", delay=3)
 
     def keypress(self):
         self.changeRoom(Rooms.VILLAGE)
-
-    def _getActions(self) -> list:
-        #Inheriting classes implement
-        return self.availableActions
     
 class RoomVillage(Room):
+#region events
+    class ForceEntry():
+        description = "Some birds have flown in to sit on your plane"
+        
+        def getMenuString(self, room : Rooms):            
+            return "Ignore the men and head inside the town."
 
+        def selectFromMenu(self, fromRoom : Rooms):
+            Monitor.print("You decide to ignore them and keep walking towards the gates. ", delay=1)
+            Monitor.print("The soldiers do not hesitate to impale you with their spear. You died.", delay=1)
+            fromRoom._gameState.endGame()            
+#endregion events
+            
     descriptionIndex = 0
-    description = ["You are in a small village. People are busy all around you."]
+    description = ["You reach a small walled town. You are stopped at the gates by two men armed with spears. They speak a language unknown to you."]
     connectionDescription = ["You think you see a small village some distance away", "You see the village some distance away", "You see Thurstan some distance away"]
     room = Rooms.VILLAGE
-    _events = []
+    availableActions = [ForceEntry()]
     
     def _onEnter(self):
         self._gameState.updateKnowledge(Knowledge.VisitedVillage)
@@ -254,7 +262,7 @@ class RoomCrossroads(Room):
     description = ["You are at a crossroads. A sign next to the road is written in a language you do not recognize"]
     connectionDescription = ["The road forks some distance away."]
     room = Rooms.CROSSROADS
-    _events = []
+    availableActions = []
     
     def _getConnectionStrings(self):
         return {Rooms.VILLAGE: self.connectionDescription[self.descriptionIndex]
@@ -281,7 +289,7 @@ class RoomBeach(Room):
     description = ["You find yourself on a beach. The sun shines warmly and seagulls screech occasionally."]
     connectionDescription = ["You see a sandy beach not far from where you are"]
     room = Rooms.BEACH
-    _events = []
+    availableActions = []
 
     def _getConnectionStrings(self):
         return {Rooms.CROSSROADS: self.connectionDescription[self.descriptionIndex]
@@ -307,7 +315,7 @@ class RoomCaveEntrance(Room):
     description = ["You end up at a large cave entrance. You see but darkness in the cave."]
     connectionDescription = ["You think you see a cave entrance in the side of the mountain", "You can head down a corridor which you think takes you back to the village"]
     room = Rooms.CAVEENTRANCE
-    _events = []
+    availableActions = []
 
     def _getConnectionStrings(self):
         return {Rooms.BEACH: self.connectionDescription[self.descriptionIndex]
@@ -335,7 +343,7 @@ class RoomCaveExit(Room):
     description = ["You stand next to a small cave entrance in the mountain face."]
     connectionDescription = ["You can head down the road that will lead you back to the cave.","You think you see a light up ahead"]
     room = Rooms.CAVEEXIT
-    _events = []
+    availableActions = []
 
     def _getConnectionStrings(self):
         return {Rooms.CAVE: self.connectionDescription[1]
@@ -363,7 +371,7 @@ class RoomCave(Room):
     description = ["You are in a cave. After your eyes adjust to the darkness, you are able to find your way."]
     connectionDescription = ["Enter the cave?"]
     room = Rooms.CAVE
-    _events = []
+    availableActions = []
 
     def _getConnectionStrings(self):
         return {Rooms.CAVEENTRANCE: self.connectionDescription[self.descriptionIndex]
@@ -389,7 +397,7 @@ class RoomCliffs(Room):
     description = ["You stop at a tall cliffside. Waves crash against it some hundreds of feet below you."]
     connectionDescription = ["You hear waves from the east"]
     room = Rooms.CLIFFS
-    _events = []
+    availableActions = []
 
     def _getConnectionStrings(self):
         return {Rooms.CAVEEXIT: self.connectionDescription[self.descriptionIndex]}
@@ -412,7 +420,7 @@ class RoomForest(Room):
     description = ["You stand at the edge of a relatively dense forest. You see birches and other trees which you are not familiar with."]
     connectionDescription = ["A forest begins near you to the north."]
     room = Rooms.FOREST
-    _events = []
+    availableActions = []
 
     def _getConnectionStrings(self):
         return {Rooms.CAVEEXIT: self.connectionDescription[self.descriptionIndex]}
@@ -435,7 +443,7 @@ class RoomLighthouse(Room):
     description = ["You stand at the bottom of a tall lighthouse."]
     connectionDescription = ["What looks like a tall tower looms solemnly against the horizon."]
     room = Rooms.LIGHTHOUSE
-    _events = []
+    availableActions = []
 
     def _getConnectionStrings(self):
         return {Rooms.CROSSROADS: self.connectionDescription[self.descriptionIndex]}

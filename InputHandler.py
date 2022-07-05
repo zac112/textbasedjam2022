@@ -23,7 +23,6 @@ class InputHandler(threading.Thread):
         return str(keycode)[1:].replace("'","")
 
     def run(self):       
-        print ("Starting " + self.name)
         while(self.running):
             if msvcrt.kbhit():
                 key = self.trimKey(msvcrt.getch())
@@ -31,7 +30,6 @@ class InputHandler(threading.Thread):
                 key = self.keycodes.get(key, key)
                 key = key.lower()
                 self.keypress(key)
-        print ("Stopping " + self.name)
 
     def keypress(self, key):
         #print(key)

@@ -6,10 +6,11 @@ import Clock
 
 class GameState:
 
-    def __init__(self, inputHandler : InputHandler, clock : Clock, rooms : dict):
+    def __init__(self, inputHandler : InputHandler, clock : Clock, rooms : dict, gameEndCallback):
         self._clock = clock
         self._inputHandler = inputHandler
         self._rooms = rooms
+        self.endGame = gameEndCallback
         #Knowledgetype -> level
         self._knowledge = {}
 
