@@ -162,15 +162,31 @@ class RoomPlaneCrash(Room):
         def getMenuString(self, room : Rooms):            
             return "Chase the birds"
 
-        def selectFromMenu(self, fromRoom):
+        def selectFromMenu(self, fromRoom : Rooms):
             Monitor.print("You chase the birds away", delay=1)
             fromRoom._removeEvent(self)
+
+    class ExaminePlane():
+        description = "Some birds have flown in to sit on your plane"
         
+        def getMenuString(self, room : Rooms):            
+            return "Examine what's left of your plane"
+
+        def selectFromMenu(self, fromRoom : Rooms):
+            fromRoom._gameState.updateKnowledge(Knowledge.ExaminedPlane)
+#            Monitor.print("""The damage isn't so bad as it looks.
+#You ruptured a fuel line and both wheels on the landing gear are destroyed.
+#You might be able to fix the plane given the right materials.""", delay=3)
+            desc = "After examining the plane, you might be able to fix it.\n You only need fuel, a length of hose and some wheels"
+            if desc not in fromRoom.description :
+                fromRoom.description.append(desc)
+            fromRoom.refreshScreen()
+    
     descriptionIndex = 0
-    description = ["You are at the site where you crashed your plane. Smoke is still rising from the engine"]
+    description = ["You are at the site where you crashed your plane. Smoke is still rising from the engine."]
     connectionDescription = ["You see smoke rising in the distance where you crashed your plane", "You see your plane in the distance"]
     room = Rooms.PLANECRASH    
-    availableActions = []
+    availableActions = [ExaminePlane()]
     
     def _getEvents(self):
         return [(self.__addBirdEvent,5)]
