@@ -1,5 +1,6 @@
 from Monitor import Monitor
 from Rooms import *
+from GameTime import GameTime
 
 class MenuItem:
 
@@ -13,3 +14,9 @@ class MenuItem:
 
     def getRequirements(self) -> list:
         return []
+
+    def getAllowedTimes(self) -> list:
+        return [GameTime.MIDNIGHT,
+                GameTime.DAWN,
+                GameTime.NOON,
+                GameTime.DUSK]

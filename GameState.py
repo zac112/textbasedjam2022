@@ -1,5 +1,6 @@
 from Rooms import Rooms
 from Knowledge import *
+from GameTime import GameTime
 
 import InputHandler
 import Clock
@@ -28,7 +29,22 @@ class GameState:
 
     def getTick(self):
         return self._clock.getTick()
-    
+
+    #Returns the current time as a tuple(day:int,GameTime)
+    def getTime(self) -> tuple:
+        tick = self.getTick()
+        day = int(tick/360.0)+1
+        tick = tick%360
+        texts = [(60,GameTime.MIDNIGHT),
+                 (90,GameTime.DAWN),
+                 (270,GameTime.NOON),
+                 (300,GameTime.DUSK),
+                 (360,GameTime.MIDNIGHT)]
+        return (day,[t[1] for t in texts if tick<t[0]][0])
+
+    def getTimeOfDay(self) -> GameTime:
+        return self.getTime()[1]
+        
     def getRoom(self, room : Rooms) -> Rooms:
         if room not in self._rooms: raise Exception(f"Room {room} not in rooms!")
         return self._rooms[room]

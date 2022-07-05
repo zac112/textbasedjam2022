@@ -24,6 +24,7 @@ class InputHandler(threading.Thread):
 
     def run(self):       
         while(self.running):
+            time.sleep(0.1)
             if msvcrt.kbhit():
                 key = self.trimKey(msvcrt.getch())
                 if key =="\\xe0": key += self.trimKey(msvcrt.getch())                

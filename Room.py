@@ -2,6 +2,7 @@ from Knowledge import Knowledge
 from Rooms import Rooms
 from Monitor import Monitor
 from MenuItem import MenuItem
+from GameTime import GameTime
 
 import GameState
 
@@ -20,9 +21,9 @@ class Room:
     def enterRoom(self):             
         self._registerEvents()
         self._registerInput(self._gameState)
-        self.refreshScreen()
-        self.__registerMenu()        
         self._onEnter()
+        self.refreshScreen()
+        self.__registerMenu()                
         self.roomActive = True
 
     def changeRoom(self, newRoom : Rooms):
@@ -56,22 +57,20 @@ class Room:
             self._gameState.unregisterEvent(obs,tick)
 
     def _displayApproximateTime(self):
-        tick = self._gameState.getTick()
-        day = int(tick/360.0)+1
-        tick = tick%360
-        texts = [(60,"It's very dark"),
-                 (120,"Sun is rising"),
-                 (180,"The sun is at its highest"),
-                 (240,"The sun is setting"),
-                 (360,"It's very dark")]
-
-        Monitor.print([t[1] for t in texts if tick<t[0]][0])   
+        texts = {GameTime.MIDNIGHT:"It's very dark",
+                 GameTime.DAWN:"Sun is rising",
+                 GameTime.NOON:"The sun is at its highest",
+                 GameTime.DUSK:"The sun is setting"}
+        time = self._gameState.getTime()[1]
+        Monitor.print(texts[time])
 
     def _getActions(self) -> list:
         actions = []
         for action in self.availableActions:
             reqs = map(lambda a: self._gameState.fulfillsRequirement(a), action.getRequirements())
-            if all(reqs): actions.append(action)
+            if not all(reqs): continue
+            if self._gameState.getTimeOfDay() not in action.getAllowedTimes(): continue
+            actions.append(action)
             
         return actions
     
@@ -228,18 +227,26 @@ class RoomVillage(Room):
             Monitor.print("The soldiers do not hesitate to impale you with their spear. You died.", delay=1)
             fromRoom._gameState.endGame()
 
+        def getAllowedTimes(self) -> list:
+            return [GameTime.MIDNIGHT]
     
 #endregion events
             
     descriptionIndex = 0
-    description = ["You reach a small walled town. You are stopped at the gates by two men armed with spears. They speak a language unknown to you."]
+    description = ["You reach a small walled town."]
     connectionDescription = ["You think you see a small village some distance away", "You see the village some distance away", "You see Thurstan some distance away"]
     room = Rooms.VILLAGE
-    availableActions = [ForceEntry()]
+    availableActions = []
     
     def _onEnter(self):
+        availableActions = []
+        self.description = ["You reach a small walled town."]
         self._gameState.updateKnowledge(Knowledge.VisitedVillage)
         self.descriptionIndex = 1
+        print(self._gameState.getTimeOfDay())
+        if self._gameState.getTimeOfDay()==GameTime.MIDNIGHT:
+            self.description.append("You are stopped at the gates by two men armed with spears. \nThey speak a language unknown to you.")
+            self.availableActions.append(self.ForceEntry())
         
 
     def _getConnectionStrings(self):
