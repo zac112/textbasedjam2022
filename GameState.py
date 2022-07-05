@@ -19,12 +19,15 @@ class GameState:
     def unregisterInput(self, observer, key :str):
         self._inputHandler.unregisterObserver(observer, key)
 
-    def registerTick(self, observer):
-        self._clock.registerObserver(observer)
+    def registerEvent(self, observer, tick):
+        self._clock.registerObserver(observer, tick)
 
-    def unregisterTick(self, observer):
-        self._clock.unregisterObserver(observer)
+    def unregisterEvent(self, observer, tick):
+        self._clock.unregisterObserver(observer, tick)
 
+    def getTick(self):
+        return self._clock.getTick()
+    
     def getRoom(self, room : Rooms) -> Rooms:
         if room not in self._rooms: raise Exception(f"Room {room} not in rooms!")
         return self._rooms[room]

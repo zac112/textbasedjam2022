@@ -21,7 +21,7 @@ class Monitor:
         for c in text:
             time.sleep(1.0/speed)
             print(c, end="", flush=True)
-        print('\n')
+        print()
 
     @staticmethod
     def printLine():
@@ -30,6 +30,7 @@ class Monitor:
     @staticmethod
     def __instantPrint(text :str):
         print(text)
+        print()
 
     @staticmethod
     def clear():

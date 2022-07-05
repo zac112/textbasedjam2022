@@ -32,11 +32,10 @@ class Timer(threading.Thread):
     def getTick(self):
         return self.ticks
 
-
-    def registerObserver(self, observer, tick):
+    def registerEvent(self, observer, tick):
         self.observers.setdefault(tick,[]).append(observer)
 
-    def unregisterObserver(self, observer, tick):
+    def unregisterEvent(self, observer, tick):
         self.observers.get(tick,[observer]).remove(observer)
 
     def startCounting(self):
