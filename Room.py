@@ -13,35 +13,47 @@ class Room:
     def postInit(self, gameState : GameState):
         self._gameState = gameState
         self._connectedRooms = []
-        self._connectRooms()
-        self._registerEvents()
+        self._connectRooms()        
+        self.roomActive = False
 
-    def enterRoom(self):
-        Monitor.clear()
-        self._menuitems = self._getMenuItems()
+    def enterRoom(self):             
+        self._registerEvents()
         self._registerInput(self._gameState)
-        self._displayRoomDescription()
-        self._displayApproximateTime()
-        self._displayMenuItems()
+        self.refreshScreen()
         self.__registerMenu()        
         self._onEnter()
+        self.roomActive = True
 
     def changeRoom(self, newRoom : Rooms):
         self._unregisterInput(self._gameState)
         self.__unregisterMenu()
-
+        self._unregisterEvents()
+        self.roomActive = False
+        
         if newRoom not in self._connectedRooms: raise Exception(f"Attempting to move into a not connected room from {self.name} to {newRoom}. Connected rooms are {[x.name for x in self._connectedRooms]}")        
         newRoom = self._gameState.getRoom(newRoom)
         newRoom.enterRoom()
         return newRoom
 
+    def refreshScreen(self):
+        Monitor.clear()
+        self._displayRoomDescription()
+        self._displayApproximateTime()
+        self.menux, self.menuy = Monitor.getCursorPos()
+        self._displayMenuItems()
+        
     def selectFromMenu(self, fromRoom): fromRoom.changeRoom(self.room)
 
-    def _registerEvents(self):
-        for e in self._events:
-            obs, tick = e
+    def _registerEvents(self):        
+        for e in self._getEvents():
+            (obs, tick) = e
             self._gameState.registerEvent(obs,tick)
-        
+
+    def _unregisterEvents(self):        
+        for e in self._getEvents():
+            (obs, tick) = e
+            self._gameState.unregisterEvent(obs,tick)
+
     def _displayApproximateTime(self):
         tick = self._gameState.getTick()
         day = int(tick/360.0)+1
@@ -53,8 +65,7 @@ class Room:
                  (360,"It's very dark")]
 
         Monitor.print([t[1] for t in texts if tick<t[0]][0])   
-        
-            
+
 #region methods for subclasses
     def _registerInput(self, gameState : GameState):
         #Inheriting classes implement
@@ -75,6 +86,10 @@ class Room:
     def _getActions(self) -> list:
         #Inheriting classes implement
         return []
+
+    def _getEvents(self):
+        #Inheriting classes implement
+        return []
     
     def _getConnectionStrings(self) -> dict:
         #Inheriting classes implement
@@ -83,13 +98,11 @@ class Room:
 
 #region methods for menu
     def __menuUp(self):
-        self.menuindex = max(0, self.menuindex-1)
-        Monitor.clearLines(len(self._getMenuItems()))        
+        self.menuindex = max(0, self.menuindex-1)      
         self._displayMenuItems()
     
     def __menuDown(self):
         self.menuindex = min(len(self._getMenuItems())-1, self.menuindex+1)
-        Monitor.clearLines(len(self._getMenuItems()))
         self._displayMenuItems()
 
     def __menuAccept(self):
@@ -111,27 +124,61 @@ class Room:
         return menuitems
 
     def _displayMenuItems(self):
+        Monitor.setCursorPos(self.menux,self.menuy)
         for i, item in enumerate([x.getMenuString(self.room) for x in self._getMenuItems()]):
             if i==self.menuindex: item = '>'+item+'<'
-            else: item = " "+item
-            Monitor.print(item, Monitor.FAST)
+            else: item = " "+item+" "
+            Monitor.print(item, speed=Monitor.FAST)
 #endregion
 
     def _displayRoomDescription(self):
-        Monitor.print(self.description, Monitor.INSTANT)
+        for line in self.description:
+            Monitor.print(line)
         Monitor.printLine()
 
-    def getMenuString(self, room):  
+    def getMenuString(self, room : Rooms):  
         return self._getConnectionStrings()[room]
 
-class RoomPlaneCrash(Room):
-    
+    def addEvent(self, event, endtick):
+        self.availableActions.append(event)
+        self._gameState.registerEvent(lambda a:self._removeEvent(event),endtick)  
+        self.description.append(event.description)
+        self.refreshScreen()
+
+    def _removeEvent(self,event):
+        self.availableActions = [x for x in self.availableActions if x != event]        
+        try:
+            self.description.remove(event.description)
+            self.__menuUp()
+            self.refreshScreen()
+        except: pass
+        
+        
+class RoomPlaneCrash(Room):    
+
+    class Birds():
+        description = "Some birds have flown in to sit on your plane"
+        
+        def getMenuString(self, room : Rooms):            
+            return "Chase the birds"
+
+        def selectFromMenu(self, fromRoom):
+            Monitor.print("You chase the birds away", delay=1)
+            fromRoom._removeEvent(self)
+        
     descriptionIndex = 0
-    description = "You are at the site where you crashed your plane. Smoke is still rising from the engine"
+    description = ["You are at the site where you crashed your plane. Smoke is still rising from the engine"]
     connectionDescription = ["You see smoke rising in the distance where you crashed your plane", "You see your plane in the distance"]
-    room = Rooms.PLANECRASH
-    _events = []
+    room = Rooms.PLANECRASH    
+    availableActions = []
     
+    def _getEvents(self):
+        return [(self.__addBirdEvent,5)]
+
+    def __addBirdEvent(self, tick):        
+        birds = self.Birds()
+        self.addEvent(birds, tick+10)
+        
     def _getConnectionStrings(self):
         return {Rooms.VILLAGE: self.connectionDescription[self.descriptionIndex]}
 
@@ -147,10 +194,14 @@ class RoomPlaneCrash(Room):
     def keypress(self):
         self.changeRoom(Rooms.VILLAGE)
 
+    def _getActions(self) -> list:
+        #Inheriting classes implement
+        return self.availableActions
+    
 class RoomVillage(Room):
 
     descriptionIndex = 0
-    description = "You are in a small village. People are busy all around you."
+    description = ["You are in a small village. People are busy all around you."]
     connectionDescription = ["You think you see a small village some distance away", "You see the village some distance away", "You see Thurstan some distance away"]
     room = Rooms.VILLAGE
     _events = []
@@ -173,7 +224,7 @@ class RoomVillage(Room):
         gameState.unregisterInput(self.keypress, "k")
 
     def keypress(self):
-        print("Village pressed")
+        print(Monitor.cursorPos())
 
     def _connectRooms(self):
         self._connectedRooms.append(Rooms.PLANECRASH)
@@ -184,7 +235,7 @@ class RoomVillage(Room):
 class RoomCrossroads(Room):
 
     descriptionIndex = 0
-    description = "You are at a crossroads. A sign next to the road is written in a language you do not recognize"
+    description = ["You are at a crossroads. A sign next to the road is written in a language you do not recognize"]
     connectionDescription = ["The road forks some distance away."]
     room = Rooms.CROSSROADS
     _events = []
@@ -211,7 +262,7 @@ class RoomCrossroads(Room):
 class RoomBeach(Room):
 
     descriptionIndex = 0
-    description = "You find yourself on a beach. The sun shines warmly and seagulls screech occasionally."
+    description = ["You find yourself on a beach. The sun shines warmly and seagulls screech occasionally."]
     connectionDescription = ["You see a sandy beach not far from where you are"]
     room = Rooms.BEACH
     _events = []
@@ -237,7 +288,7 @@ class RoomBeach(Room):
 class RoomCaveEntrance(Room):
 
     descriptionIndex = 0
-    description = "You end up at a large cave entrance. You see but darkness in the cave."
+    description = ["You end up at a large cave entrance. You see but darkness in the cave."]
     connectionDescription = ["You think you see a cave entrance in the side of the mountain", "You can head down a corridor which you think takes you back to the village"]
     room = Rooms.CAVEENTRANCE
     _events = []
@@ -265,7 +316,7 @@ class RoomCaveEntrance(Room):
 class RoomCaveExit(Room):
 
     descriptionIndex = 0
-    description = "You stand next to a small cave entrance in the mountain face."
+    description = ["You stand next to a small cave entrance in the mountain face."]
     connectionDescription = ["You can head down the road that will lead you back to the cave.","You think you see a light up ahead"]
     room = Rooms.CAVEEXIT
     _events = []
@@ -293,7 +344,7 @@ class RoomCaveExit(Room):
 class RoomCave(Room):
 
     descriptionIndex = 0
-    description = "You are in a cave. After your eyes adjust to the darkness, you are able to find your way."
+    description = ["You are in a cave. After your eyes adjust to the darkness, you are able to find your way."]
     connectionDescription = ["Enter the cave?"]
     room = Rooms.CAVE
     _events = []
@@ -319,7 +370,7 @@ class RoomCave(Room):
 class RoomCliffs(Room):
 
     descriptionIndex = 0
-    description = "You stop at a tall cliffside. Waves crash against it some hundreds of feet below you."
+    description = ["You stop at a tall cliffside. Waves crash against it some hundreds of feet below you."]
     connectionDescription = ["You hear waves from the east"]
     room = Rooms.CLIFFS
     _events = []
@@ -342,7 +393,7 @@ class RoomCliffs(Room):
 class RoomForest(Room):
 
     descriptionIndex = 0
-    description = "You stand at the edge of a relatively dense forest. You see birches and other trees which you are not familiar with."
+    description = ["You stand at the edge of a relatively dense forest. You see birches and other trees which you are not familiar with."]
     connectionDescription = ["A forest begins near you to the north."]
     room = Rooms.FOREST
     _events = []
@@ -365,7 +416,7 @@ class RoomForest(Room):
 class RoomLighthouse(Room):
 
     descriptionIndex = 0
-    description = "You stand at the bottom of a tall lighthouse."
+    description = ["You stand at the bottom of a tall lighthouse."]
     connectionDescription = ["What looks like a tall tower looms solemnly against the horizon."]
     room = Rooms.LIGHTHOUSE
     _events = []

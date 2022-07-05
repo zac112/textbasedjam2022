@@ -16,13 +16,13 @@ class Monitor:
     speed: how many letters per second; see class attributes (optional)
     """
     @staticmethod
-    def print(text: str, pos: tuple = None, speed = INSTANT):
+    def print(text: str, pos: tuple = None, speed = INSTANT, delay=0):
         oldPos = Monitor.getCursorPos()
         if pos:
             Monitor.setCursorPos(pos[0],pos[1])
             
         if speed == Monitor.INSTANT: 
-            Monitor.__instantPrint(text)
+            Monitor.__instantPrint(text,delay=delay)
             return
 
         speed = max(10, speed)
@@ -30,7 +30,8 @@ class Monitor:
             time.sleep(1.0/speed)
             print(c, end="", flush=True)
         print()
-
+        
+        time.sleep(delay)
         if pos: Monitor.setCursorPos(oldpos[0],oldpos[1])
 
     @staticmethod
@@ -38,8 +39,9 @@ class Monitor:
         print()
 
     @staticmethod
-    def __instantPrint(text :str):
+    def __instantPrint(text :str, delay: int=0):
         print(text)
+        time.sleep(delay)
         print()
 
     @staticmethod

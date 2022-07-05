@@ -20,10 +20,10 @@ class GameState:
         self._inputHandler.unregisterObserver(observer, key)
 
     def registerEvent(self, observer, tick):
-        self._clock.registerObserver(observer, tick)
+        self._clock.registerEvent(observer, tick)
 
     def unregisterEvent(self, observer, tick):
-        self._clock.unregisterObserver(observer, tick)
+        self._clock.unregisterEvent(observer, tick)
 
     def getTick(self):
         return self._clock.getTick()

@@ -23,11 +23,11 @@ class Timer(threading.Thread):
         
     def tick(self):
         self.ticks += 1
-        if self.tick in self.observers:
-            for obs in self.observers[self.tick]:
+        if self.ticks in self.observers:
+            for obs in self.observers[self.ticks]:
                 obs(self.ticks)
             
-            del self.observers[self.tick]
+            self.observers.pop(self.ticks,None)
 
     def getTick(self):
         return self.ticks
@@ -36,7 +36,8 @@ class Timer(threading.Thread):
         self.observers.setdefault(tick,[]).append(observer)
 
     def unregisterEvent(self, observer, tick):
-        self.observers.get(tick,[observer]).remove(observer)
+        try: self.observers[tick].remove(observer)
+        except: pass
 
     def startCounting(self):
         self.running = True
