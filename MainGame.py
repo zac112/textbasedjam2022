@@ -15,7 +15,7 @@ def initGame():
     timer.startCounting()
     
     inp.startListening()
-    inp.registerObserver(quitGame,'esc')
+    inp.registerObserver(quitGame,'q')
 
     rooms = {
         Rooms.PLANECRASH: RoomPlaneCrash("Plane crash")
@@ -35,6 +35,7 @@ def initGame():
     for key, room in rooms.items():
         room.postInit(gameState)
 
+    Monitor.clear()
     rooms[Rooms.PLANECRASH].enterRoom()
 
 def quitGame():
