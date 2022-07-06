@@ -101,20 +101,22 @@ class RoomVillageInside(RoomInside):
 
 class RoomCaveInside(RoomInside):
     class Torch(Thread):
-            def __init__(self, pos, lock):
+            def __init__(self, pos, lock, room):
                 Thread.__init__(self)
                 self.anims = ["ý","ỹ","ỳ"]
                 self.pos = pos
                 self.lock = lock
                 self.running = True
+                self.room = room
 
             def run(self):                
                 while self.running:
                     sleep(random.random())
-                    if not self.running: break
-                    self.lock.acquire()
-                    Monitor.draw(self.anims[random.randint(0,2)],pos=self.pos)
-                    self.lock.release()
+                    if not self.running: break                    
+                    if self.pos in self.room.visibleCells:
+                        self.lock.acquire()
+                        Monitor.draw(self.anims[random.randint(0,2)],pos=self.pos)
+                        self.lock.release()
 
             def terminate(self):
                 self.running = False
@@ -134,7 +136,7 @@ class RoomCaveInside(RoomInside):
            ....                          ¤
            ....                          ¤
             ....  y......y.......        ¤
-             ....................        ¤
+             ...................y        ¤
              y....................       ¤
              ...     ....     ....       ¤
            .....     ....     ....       ¤
@@ -154,7 +156,8 @@ class RoomCaveInside(RoomInside):
         
     def _onEnter(self):
         Monitor.clear()
-        
+
+        self.visibleCells = self.floodFill(self.pos)
         self.forbidden = []
         self.torches = []
         for y,line in enumerate(self.textmap,1):
@@ -163,7 +166,7 @@ class RoomCaveInside(RoomInside):
                 if c in [' ','╚','═','/','_','╝','║','│','\\']:
                     self.forbidden.append((x,y))
                 if c in ['y']:
-                    self.torches.append(self.Torch((x,y),self._gameState.lock))
+                    self.torches.append(self.Torch((x,y),self._gameState.lock, self))
         self.lightTorches()
         
         self.doors = {
@@ -196,9 +199,13 @@ class RoomCaveInside(RoomInside):
         
     def refreshScreen(self):
         if not self.roomActive :return
-        
+                
         Monitor.clear()
-        [Monitor.draw("".join(line).replace("."," ")) for line in self.textmap]
+        for y,line in enumerate(self.textmap):
+            for x,c in enumerate(line):
+                if (x,y) not in self.visibleCells: continue
+                Monitor.draw(self.textmap[y][x].replace("."," "),pos=(x,y+1))
+
         self.drawPlayer()
 
     def move(self, movement):
@@ -206,11 +213,40 @@ class RoomCaveInside(RoomInside):
         x,y = self.pos
         newPos = movement(x,y)
         if newPos in self.forbidden: return
-        Monitor.draw(self.textmap[y-1][x].replace("."," "), pos=self.pos)
+
+        self.visibleCells = self.floodFill(newPos)        
         self.pos = newPos
-        self.drawPlayer()
+        self.refreshScreen()
         self.doors.get(self.pos,lambda:None)()
-    
+
+    #returns set of visible cells from pos
+    def floodFill(self, pos) -> set:
+        def hasSightline(player,target,textmap):
+            sign = lambda a: 0 if a==0 else a//abs(a)            
+            x,y = target
+            while (x,y) != player:                
+                if textmap[y][x] == " ":return False
+                x -= sign(x-player[0])
+                if textmap[y][x] == " ":return False
+                y -= sign(y-player[1])
+            return True
+            
+        pos = (pos[0],pos[1]-1)
+        queue = [pos]
+        visited = set()
+        while queue:            
+            x,y = queue.pop(0)
+            try: self.textmap[y][x]
+            except: continue
+            
+            if self.textmap[y][x]==" ": continue
+            if (x,y) in visited: continue
+            if not hasSightline(pos,(x,y),self.textmap):continue
+            visited.add((x,y))
+            
+            queue.extend([(x+1,y),(x-1,y),(x,y+1),(x,y-1)])            
+        return visited
+            
     def _getConnectionString(self, fromRoom):
         return {Rooms.CAVEENTRANCE: self.connectionDescription[self.descriptionIndex]
                 ,Rooms.CAVEEXIT: self.connectionDescription[self.descriptionIndex]
