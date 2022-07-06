@@ -45,7 +45,7 @@ class Timer(threading.Thread):
         day = int(tick/360.0)+1
         tick = tick%360
         texts = [#(60,GameTime.MIDNIGHT),
-                 (0,GameTime.MIDNIGHT),
+                 (6,GameTime.MIDNIGHT),
                  (90,GameTime.DAWN),
                  (270,GameTime.NOON),
                  (300,GameTime.DUSK),

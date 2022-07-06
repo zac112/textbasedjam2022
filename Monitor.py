@@ -18,7 +18,7 @@ class Monitor:
     speed: how many letters per second; see class attributes (optional)
     """
     @staticmethod
-    def print(text: str, pos: tuple = None, speed = INSTANT, delay=False, printline=True):
+    def print(text: str, pos: tuple = None, speed = INSTANT, delay=True, printline=True):
         if speed == Monitor.INSTANT: 
             Monitor.__instantPrint(text,delay=delay)
             return

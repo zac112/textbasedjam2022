@@ -66,7 +66,7 @@ class Room:
                  GameTime.NOON:"The sun is at its highest",
                  GameTime.DUSK:"The sun is setting"}
         time = self._gameState.getTime()[1]
-        Monitor.print(texts[time])
+        Monitor.print(texts[time], delay=False)
 
     def _getActions(self) -> list:
         actions = []
@@ -136,12 +136,12 @@ class Room:
         for i, item in enumerate([self._getMenuString(x) for x in self._getMenuItems()]):        
             if i==self.menuindex: item = '>'+item+'<'
             else: item = " "+item+" "
-            Monitor.print(item, speed=Monitor.FAST)
+            Monitor.print(item, speed=Monitor.FAST, delay=False)
 #endregion
 
     def _displayRoomDescription(self):
         for line in self.description:
-            Monitor.print(line)
+            Monitor.print(line, delay=False)
         Monitor.printLine()
 
     def _getMenuString(self, item):        
@@ -172,7 +172,7 @@ class RoomPlaneCrash(Room):
             return "Chase the birds"
 
         def selectFromMenu(self, fromRoom : Rooms):
-            Monitor.print("You chase the birds away", delay=True)
+            Monitor.print("You chase the birds away")
             fromRoom._gameState.tookAction(Actions.ChasedBirds)
             fromRoom._removeEvent(self)
 
@@ -186,7 +186,7 @@ class RoomPlaneCrash(Room):
             fromRoom._gameState.updateKnowledge(Knowledge.ExaminedPlane)
             Monitor.print("""The damage isn't so bad as it looks.
 You ruptured a fuel line and both wheels on the landing gear are destroyed.
-You might be able to fix the plane given the right materials.""", delay=True)
+You might be able to fix the plane given the right materials.""")
             if self.description not in fromRoom.description :
                 fromRoom.description.append(self.description)
             fromRoom.refreshScreen()
@@ -200,7 +200,7 @@ You might be able to fix the plane given the right materials.""", delay=True)
     availableActions = [ExaminePlane()]
     
     def _getEvents(self):
-        return [(self._addBirdEvent,5)]
+        return [(self._addBirdEvent,50)]
 
     def _addBirdEvent(self, tick):        
         birds = self.Birds()
@@ -228,8 +228,8 @@ class RoomVillage(Room):
             return "Ignore the men and head inside the town."
 
         def selectFromMenu(self, fromRoom : Rooms):
-            Monitor.print("You decide to ignore them and keep walking towards the gates. ", delay=True)
-            Monitor.print("The soldiers do not hesitate to impale you with their spear. You died.", delay=True)
+            Monitor.print("You decide to ignore them and keep walking towards the gates. ")
+            Monitor.print("The soldiers do not hesitate to impale you with their spear. You died.")
             fromRoom._gameState.endGame()
 
         def getAllowedTimes(self) -> list:
@@ -240,7 +240,7 @@ class RoomVillage(Room):
             return "Head inside the town."
 
         def selectFromMenu(self, fromRoom : Rooms):
-            Monitor.print("You enter the village", delay=True)            
+            Monitor.print("You enter the village")            
             fromRoom.changeRoom(Rooms.VILLAGEINSIDE)
 
         def getAllowedTimes(self) -> list:
@@ -262,7 +262,9 @@ class RoomVillage(Room):
         self.descriptionIndex = 1        
         if self._gameState.getTimeOfDay()==GameTime.MIDNIGHT:
             self.description[0]+=" The gates are closed."
-            self.description.append("You are stopped at the gates by two men armed with spears. \nThey speak a language unknown to you.")
+            dialog = {True:"They say entry is not allowed at night",
+                      False:"They speak a language unknown to you."}
+            self.description.append("You are stopped at the gates by two men armed with spears. \n"+dialog[self_gameState.fulfillsRequirement(Knowledge.LearnedLanguage)])
             self.availableActions.append(self.ForceEntry())
             return
         self.description[0]+=" The gates are open."
