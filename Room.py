@@ -101,7 +101,7 @@ class Room:
         #Inheriting classes implement
         return []
     
-    def _getConnectionStrings(self) -> dict:
+    def _getConnectionString(self) -> dict:
         #Inheriting classes implement
         return {}
 #endregion
@@ -135,7 +135,7 @@ class Room:
 
     def _displayMenuItems(self):
         Monitor.setCursorPos(self.menupos)
-        for i, item in enumerate([x.getMenuString(self.room) for x in self._getMenuItems()]):
+        for i, item in enumerate([self._getMenuString(x) for x in self._getMenuItems()]):        
             if i==self.menuindex: item = '>'+item+'<'
             else: item = " "+item+" "
             Monitor.print(item, speed=Monitor.FAST)
@@ -146,8 +146,8 @@ class Room:
             Monitor.print(line)
         Monitor.printLine()
 
-    def getMenuString(self, room : Rooms):  
-        return self._getConnectionStrings()[room]
+    def _getMenuString(self, item):        
+        return item._getConnectionString(self.room)
 
     def addEvent(self, event, endtick):
         self.availableActions.append(event)
@@ -170,7 +170,7 @@ class RoomPlaneCrash(Room):
     class Birds(MenuItem):
         description = "Some birds have flown in to sit on your plane"
         
-        def getMenuString(self, room : Rooms):            
+        def _getConnectionString(self, fromRoom):            
             return "Chase the birds"
 
         def selectFromMenu(self, fromRoom : Rooms):
@@ -180,7 +180,7 @@ class RoomPlaneCrash(Room):
     class ExaminePlane(MenuItem):
         description = "After examining the plane, you might be able to fix it.\nYou only need fuel, a length of hose and some wheels"
         
-        def getMenuString(self, room : Rooms):            
+        def _getConnectionString(self, fromRoom):            
             return "Examine what's left of your plane"
 
         def selectFromMenu(self, fromRoom : Rooms):
@@ -207,8 +207,8 @@ You might be able to fix the plane given the right materials.""", delay=3)
         birds = self.Birds()
         self.addEvent(birds, tick+30)
         
-    def _getConnectionStrings(self):
-        return {Rooms.VILLAGE: self.connectionDescription[self.descriptionIndex]}
+    def _getConnectionString(self, fromRoom):
+        return {Rooms.VILLAGE: self.connectionDescription[self.descriptionIndex]}[fromRoom]
 
     def _registerInput(self, gameState : GameState):
         gameState.registerInput(self.keypress, "k")
@@ -225,7 +225,7 @@ You might be able to fix the plane given the right materials.""", delay=3)
 class RoomVillage(Room):
 #region events
     class ForceEntry(MenuItem):
-        def getMenuString(self, room : Rooms):            
+        def _getConnectionString(self, fromRoom):           
             return "Ignore the men and head inside the town."
 
         def selectFromMenu(self, fromRoom : Rooms):
@@ -237,7 +237,7 @@ class RoomVillage(Room):
             return [GameTime.MIDNIGHT]
 
     class VillageInside(MenuItem):
-        def getMenuString(self, room : Rooms):            
+        def _getConnectionString(self, fromRoom):            
             return "Head inside the town."
 
         def selectFromMenu(self, fromRoom : Rooms):
@@ -257,7 +257,7 @@ class RoomVillage(Room):
     availableActions = []
     
     def _onEnter(self):
-        availableActions = []
+        self.availableActions = []
         self.description = ["You reach a small walled town."]
         self._gameState.updateKnowledge(Knowledge.VisitedVillage)
         self.descriptionIndex = 1        
@@ -269,11 +269,11 @@ class RoomVillage(Room):
         self.description[0]+=" The gates are open."
         self.availableActions.append(self.VillageInside())
 
-    def _getConnectionStrings(self):
+    def _getConnectionString(self, fromRoom):
         return {Rooms.PLANECRASH: self.connectionDescription[self.descriptionIndex]
                 ,Rooms.CROSSROADS: self.connectionDescription[self.descriptionIndex]
                 ,Rooms.CAVEENTRANCE: self.connectionDescription[self.descriptionIndex]
-                }
+                }[fromRoom]
 
     def _registerInput(self, gameState : GameState):
         gameState.registerInput(self.keypress, "k")
@@ -298,11 +298,12 @@ class RoomCrossroads(Room):
     room = Rooms.CROSSROADS
     availableActions = []
     
-    def _getConnectionStrings(self):
+    def _getConnectionString(self, fromRoom):
         return {Rooms.VILLAGE: self.connectionDescription[self.descriptionIndex]
                 ,Rooms.LIGHTHOUSE: self.connectionDescription[self.descriptionIndex]
                 ,Rooms.BEACH: self.connectionDescription[self.descriptionIndex]
-                }
+                }[fromRoom]
+    
     def _registerInput(self, gameState : GameState):
         gameState.registerInput(self.keypress, "k")
 
@@ -325,10 +326,10 @@ class RoomBeach(Room):
     room = Rooms.BEACH
     availableActions = []
 
-    def _getConnectionStrings(self):
+    def _getConnectionString(self, fromRoom):
         return {Rooms.CROSSROADS: self.connectionDescription[self.descriptionIndex]
                 ,Rooms.CAVEENTRANCE: self.connectionDescription[self.descriptionIndex]
-                }  
+                }[fromRoom]
 
     def _registerInput(self, gameState : GameState):
         gameState.registerInput(self.keypress, "k")
@@ -351,11 +352,11 @@ class RoomCaveEntrance(Room):
     room = Rooms.CAVEENTRANCE
     availableActions = []
 
-    def _getConnectionStrings(self):
+    def _getConnectionString(self, fromRoom):
         return {Rooms.BEACH: self.connectionDescription[self.descriptionIndex]
                 ,Rooms.VILLAGE: self.connectionDescription[self.descriptionIndex]
                 ,Rooms.CAVE: self.connectionDescription[1]
-                }
+                }[fromRoom]
 
     def _registerInput(self, gameState : GameState):
         gameState.registerInput(self.keypress, "k")
@@ -379,11 +380,11 @@ class RoomCaveExit(Room):
     room = Rooms.CAVEEXIT
     availableActions = []
 
-    def _getConnectionStrings(self):
+    def _getConnectionString(self, fromRoom):
         return {Rooms.CAVE: self.connectionDescription[1]
                 ,Rooms.FOREST: self.connectionDescription[self.descriptionIndex]
                 ,Rooms.CLIFFS: self.connectionDescription[self.descriptionIndex]
-                }
+                }[fromRoom]
 
     def _registerInput(self, gameState : GameState):
         gameState.registerInput(self.keypress, "k")
@@ -407,10 +408,10 @@ class RoomCave(Room):
     room = Rooms.CAVE
     availableActions = []
 
-    def _getConnectionStrings(self):
+    def _getConnectionString(self, fromRoom):
         return {Rooms.CAVEENTRANCE: self.connectionDescription[self.descriptionIndex]
                 ,Rooms.CAVEEXIT: self.connectionDescription[self.descriptionIndex]
-                }
+                }[fromRoom]
 
     def _registerInput(self, gameState : GameState):
         gameState.registerInput(self.keypress, "k")
@@ -433,8 +434,8 @@ class RoomCliffs(Room):
     room = Rooms.CLIFFS
     availableActions = []
 
-    def _getConnectionStrings(self):
-        return {Rooms.CAVEEXIT: self.connectionDescription[self.descriptionIndex]}
+    def _getConnectionString(self, fromRoom):
+        return {Rooms.CAVEEXIT: self.connectionDescription[self.descriptionIndex]}[fromRoom]
 
     def _registerInput(self, gameState : GameState):
         gameState.registerInput(self.keypress, "k")
@@ -456,8 +457,8 @@ class RoomForest(Room):
     room = Rooms.FOREST
     availableActions = []
 
-    def _getConnectionStrings(self):
-        return {Rooms.CAVEEXIT: self.connectionDescription[self.descriptionIndex]}
+    def _getConnectionString(self, fromRoom):
+        return {Rooms.CAVEEXIT: self.connectionDescription[self.descriptionIndex]}[fromRoom]
 
     def _registerInput(self, gameState : GameState):
         gameState.registerInput(self.keypress, "k")
@@ -479,8 +480,8 @@ class RoomLighthouse(Room):
     room = Rooms.LIGHTHOUSE
     availableActions = []
 
-    def _getConnectionStrings(self):
-        return {Rooms.CROSSROADS: self.connectionDescription[self.descriptionIndex]}
+    def _getConnectionString(self, fromRoom):
+        return {Rooms.CROSSROADS: self.connectionDescription[self.descriptionIndex]}[fromRoom]
 
     def _registerInput(self, gameState : GameState):
         gameState.registerInput(self.keypress, "k")

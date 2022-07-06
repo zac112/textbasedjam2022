@@ -16,6 +16,7 @@ class RoomVillageInside(Room):
     connectionDescription = []
     room = Rooms.VILLAGEINSIDE
     availableActions = []
+    pos = (14,14)
     textmap = """╔═══════════════════════════╗¤
 ║      ,,,,,,,,,,,,         ║¤
 ║     /░░░░░░░░░░░░\        ║¤
@@ -34,7 +35,6 @@ class RoomVillageInside(Room):
     
     def _onEnter(self):
         Monitor.clear()
-        self.pos = (14,14)
         
         self.forbidden = []
         for y,line in enumerate(self.textmap,1):
@@ -44,9 +44,12 @@ class RoomVillageInside(Room):
         self.doors = {
             (13,6):lambda:self.changeRoom(Rooms.CASTLEINSIDE),
             (14,6):lambda:self.changeRoom(Rooms.CASTLEINSIDE),
-            (15,6):lambda:self.changeRoom(Rooms.CASTLEINSIDE)
+            (15,6):lambda:self.changeRoom(Rooms.CASTLEINSIDE),
             #(20,11):,
             #(7,11):,
+            (13,15):lambda:self.changeRoom(Rooms.VILLAGE),
+            (14,15):lambda:self.changeRoom(Rooms.VILLAGE),
+            (15,15):lambda:self.changeRoom(Rooms.VILLAGE)
             }
         
     def _registerMenu(self):

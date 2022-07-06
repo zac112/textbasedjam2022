@@ -21,13 +21,6 @@ class RoomCastleInside(Room):
         }            
         self.dialog.append(menuOptions)                    
         Monitor.clear()
-
-    def _displayMenuItems(self):
-        Monitor.setCursorPos(self.menupos)
-        for i, item in enumerate(self._getMenuItems()):
-            if i==self.menuindex: item = '>'+item+'<'
-            else: item = " "+item+" "
-            Monitor.print(item, speed=Monitor.FAST)
         
     def exitRoom(self):
         self.changeRoom(Rooms.VILLAGEINSIDE)
@@ -35,5 +28,8 @@ class RoomCastleInside(Room):
     def _getMenuItems(self) -> list:
         return list(self.dialog[-1].keys())
 
+    def _getMenuString(self, item):
+        return item
+    
     def _menuAccept(self):
         self.dialog[-1][self._getMenuItems()[self.menuindex]]()
