@@ -37,7 +37,6 @@ class Room:
         self._unregisterEvents()
         self.roomActive = False
         
-        if newRoom not in self._connectedRooms+[self]: raise Exception(f"Attempting to move into a not connected room from {self.name} to {newRoom}. Connected rooms are {[x.name for x in self._connectedRooms]}")        
         newRoom = self._gameState.getRoom(newRoom)
         newRoom.enterRoom()
         return newRoom
@@ -48,7 +47,7 @@ class Room:
         Monitor.clear()        
         self._displayApproximateTime()
         self._displayRoomDescription()
-        self.menux, self.menuy = Monitor.getCursorPos()
+        self.menupos = Monitor.getCursorPos()
         self._displayMenuItems()
         
     def selectFromMenu(self, fromRoom): fromRoom.changeRoom(self.room)
@@ -135,7 +134,7 @@ class Room:
         return menuitems
 
     def _displayMenuItems(self):
-        Monitor.setCursorPos(self.menux,self.menuy)
+        Monitor.setCursorPos(self.menupos)
         for i, item in enumerate([x.getMenuString(self.room) for x in self._getMenuItems()]):
             if i==self.menuindex: item = '>'+item+'<'
             else: item = " "+item+" "
@@ -236,7 +235,19 @@ class RoomVillage(Room):
 
         def getAllowedTimes(self) -> list:
             return [GameTime.MIDNIGHT]
-    
+
+    class VillageInside(MenuItem):
+        def getMenuString(self, room : Rooms):            
+            return "Head inside the town."
+
+        def selectFromMenu(self, fromRoom : Rooms):
+            Monitor.print("You enter the village", delay=1)            
+            fromRoom.changeRoom(Rooms.VILLAGEINSIDE)
+
+        def getAllowedTimes(self) -> list:
+            return [GameTime.DUSK,
+                    GameTime.NOON,
+                    GameTime.DAWN]
 #endregion events
             
     descriptionIndex = 0
@@ -256,6 +267,7 @@ class RoomVillage(Room):
             self.availableActions.append(self.ForceEntry())
             return
         self.description[0]+=" The gates are open."
+        self.availableActions.append(self.VillageInside())
 
     def _getConnectionStrings(self):
         return {Rooms.PLANECRASH: self.connectionDescription[self.descriptionIndex]

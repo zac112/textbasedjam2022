@@ -16,7 +16,7 @@ class Monitor:
     speed: how many letters per second; see class attributes (optional)
     """
     @staticmethod
-    def print(text: str, pos: tuple = None, speed = INSTANT, delay=0):
+    def print(text: str, pos: tuple = None, speed = INSTANT, delay=0, printline=True):
         if speed == Monitor.INSTANT: 
             Monitor.__instantPrint(text,delay=delay)
             return
@@ -29,7 +29,8 @@ class Monitor:
         for c in text:
             time.sleep(1.0/speed)
             print(c, end="", flush=True)
-        print()
+
+        if printline:print()
         
         if pos: Monitor.setCursorPos(oldpos[0],oldpos[1])
         time.sleep(delay)
@@ -79,5 +80,15 @@ class Monitor:
         return (-1, -1)        
 
     @staticmethod
-    def setCursorPos(x,y):
-        print("\033[%d;%dH" % (y, x))
+    def positionCursor(pos):
+        if pos: return(f"\033[{pos[1]};{pos[0]}f")
+        return ""
+    
+    @staticmethod
+    def setCursorPos(pos):
+        print(Monitor.positionCursor(pos))        
+
+    @staticmethod
+    def draw(text, pos:tuple=None, printline=False):        
+        print(f"{Monitor.positionCursor(pos)}{text}", end="", flush=True)
+        

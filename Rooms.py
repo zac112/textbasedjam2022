@@ -11,4 +11,5 @@ class Rooms(Enum):
     CAVEEXIT = "Cave Exit"
     CLIFFS = "Cliffs"
     FOREST = "Forest"
+    VILLAGEINSIDE = "Inside the village"
     

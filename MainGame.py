@@ -5,7 +5,7 @@ from GameState import GameState
 from Rooms import Rooms
 from Monitor import Monitor
 from threading import Lock
-
+from RoomVillageInside import RoomVillageInside
 import sys
 import time
 
@@ -35,6 +35,7 @@ def initGame():
         , Rooms.CAVEEXIT: RoomCaveExit("Cave Exit")
         , Rooms.CLIFFS: RoomCliffs("Cliffs")
         , Rooms.FOREST: RoomForest("Forest")
+        , Rooms.VILLAGEINSIDE: RoomVillageInside("Inside the village")
     }     
 
     gameState = GameState(inp, timer, rooms, quitGame)
