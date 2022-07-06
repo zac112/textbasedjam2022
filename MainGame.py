@@ -1,13 +1,14 @@
 from Room import *
 from Enums import *
 from RoomDialog import *
+from RoomInside import *
 
 from Clock import Timer
 from InputHandler import InputHandler
 from GameState import GameState
 from Monitor import Monitor
 from threading import Lock
-from RoomVillageInside import RoomVillageInside
+
 
 import sys
 import time
@@ -34,7 +35,7 @@ def initGame():
         , Rooms.LIGHTHOUSE: RoomLighthouse("Lighthouse")
         , Rooms.BEACH: RoomBeach("Beach")
         , Rooms.CAVEENTRANCE: RoomCaveEntrance("Cave Entrance")
-        , Rooms.CAVE: RoomCave("Cave")
+        , Rooms.CAVEINSIDE: RoomCaveInside("Inside Cave")
         , Rooms.CAVEEXIT: RoomCaveExit("Cave Exit")
         , Rooms.CLIFFS: RoomCliffs("Cliffs")
         , Rooms.FOREST: RoomForest("Forest")
@@ -50,7 +51,8 @@ def initGame():
         timer.registerTimeOfDayEvent(room.reEnterRoom)
 
     Monitor.clear()
-    rooms[Rooms.PLANECRASH].enterRoom()
+    #rooms[Rooms.PLANECRASH].enterRoom()
+    rooms[Rooms.CAVEINSIDE].enterRoom()
 
 
     

@@ -60,14 +60,16 @@ class Rooms(Enum):
     CROSSROADS = "Crossroads"
     LIGHTHOUSE = "Lighthouse"
     BEACH = "Beach"
-    CAVEENTRANCE = "Cave Entrance"
-    CAVE = "Cave"
+    CAVEENTRANCE = "Cave Entrance"    
     CAVEEXIT = "Cave Exit"
+    CAVE1 = "Upper cave"
+    CAVE2 = "Lower cave"
     CLIFFS = "Cliffs"
     FOREST = "Forest"
     VILLAGEINSIDE = "Inside the village"
     CASTLEINSIDE = "Inside the castle in village"
     LABORATORYINSIDE = "Inside the village; right house"
+    CAVEINSIDE = "Inside the cave"
 
 class Actions(Enum):
     BluePotion = auto()

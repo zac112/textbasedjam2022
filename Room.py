@@ -183,6 +183,10 @@ class RoomPlaneCrash(Room):
             return "Examine what's left of your plane"
 
         def selectFromMenu(self, fromRoom : Rooms):
+            if fromRoom._gameState.getTimeOfDay == GameTime.MIDNIGHT:
+                Monitor.print("It is too dark to examine the plane.")
+                return
+            
             fromRoom._gameState.updateKnowledge(Knowledge.ExaminedPlane)
             Monitor.print("""The damage isn't so bad as it looks.
 You ruptured a fuel line and both wheels on the landing gear are destroyed.
@@ -264,7 +268,7 @@ class RoomVillage(Room):
             self.description[0]+=" The gates are closed."
             dialog = {True:"They say entry is not allowed at night",
                       False:"They speak a language unknown to you."}
-            self.description.append("You are stopped at the gates by two men armed with spears. \n"+dialog[self_gameState.fulfillsRequirement(Knowledge.LearnedLanguage)])
+            self.description.append("You are stopped at the gates by two men armed with spears. \n"+dialog[self._gameState.fulfillsRequirement(Knowledge.LearnedLanguage)])
             self.availableActions.append(self.ForceEntry())
             return
         self.description[0]+=" The gates are open."
@@ -356,7 +360,7 @@ class RoomCaveEntrance(Room):
     def _getConnectionString(self, fromRoom):
         return {Rooms.BEACH: self.connectionDescription[self.descriptionIndex]
                 ,Rooms.VILLAGE: self.connectionDescription[self.descriptionIndex]
-                ,Rooms.CAVE: self.connectionDescription[1]
+                ,Rooms.CAVEINSIDE: self.connectionDescription[1]
                 }[fromRoom]
 
     def _registerInput(self, gameState : GameState):
@@ -371,7 +375,7 @@ class RoomCaveEntrance(Room):
     def _connectRooms(self):
         self._connectedRooms.append(Rooms.BEACH)
         self._connectedRooms.append(Rooms.VILLAGE)
-        self._connectedRooms.append(Rooms.CAVE)
+        self._connectedRooms.append(Rooms.CAVEINSIDE)
 
 class RoomCaveExit(Room):
 
@@ -382,7 +386,7 @@ class RoomCaveExit(Room):
     availableActions = []
 
     def _getConnectionString(self, fromRoom):
-        return {Rooms.CAVE: self.connectionDescription[1]
+        return {Rooms.CAVEINSIDE: self.connectionDescription[1]
                 ,Rooms.FOREST: self.connectionDescription[self.descriptionIndex]
                 ,Rooms.CLIFFS: self.connectionDescription[self.descriptionIndex]
                 }[fromRoom]
@@ -397,35 +401,9 @@ class RoomCaveExit(Room):
         print("Village pressed")
 
     def _connectRooms(self):
-        self._connectedRooms.append(Rooms.CAVE)
+        self._connectedRooms.append(Rooms.CAVEINSIDE)
         self._connectedRooms.append(Rooms.FOREST)
         self._connectedRooms.append(Rooms.CLIFFS)
-
-class RoomCave(Room):
-
-    descriptionIndex = 0
-    description = ["You are in a cave. After your eyes adjust to the darkness, you are able to find your way."]
-    connectionDescription = ["Enter the cave?"]
-    room = Rooms.CAVE
-    availableActions = []
-
-    def _getConnectionString(self, fromRoom):
-        return {Rooms.CAVEENTRANCE: self.connectionDescription[self.descriptionIndex]
-                ,Rooms.CAVEEXIT: self.connectionDescription[self.descriptionIndex]
-                }[fromRoom]
-
-    def _registerInput(self, gameState : GameState):
-        gameState.registerInput(self.keypress, "k")
-
-    def _unregisterInput(self, gameState : GameState):
-        gameState.unregisterInput(self.keypress, "k")
-
-    def keypress(self):
-        print("Village pressed")
-
-    def _connectRooms(self):
-        self._connectedRooms.append(Rooms.CAVEENTRANCE)
-        self._connectedRooms.append(Rooms.CAVEEXIT)
 
 class RoomCliffs(Room):
 
