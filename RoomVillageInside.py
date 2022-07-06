@@ -26,7 +26,7 @@ class RoomVillageInside(Room):
 ║          .▒▒▒.            ║¤
 ║    ___   .▒▒▒.  ___       ║¤
 ║   /   \  .▒▒▒. /   \      ║¤
-║   │ _ │  .▒▒▒. │   │      ║¤
+║   │ _ │  .▒▒▒. │ _ │      ║¤
 ║   │_█_│...▒▒▒..│_█_│      ║¤
 ║     ▒▒▒▒▒▒▒▒▒▒▒▒▒▒        ║¤
 ║           ▒▒▒             ║¤
@@ -45,7 +45,7 @@ class RoomVillageInside(Room):
             (13,6):lambda:self.changeRoom(Rooms.CASTLEINSIDE),
             (14,6):lambda:self.changeRoom(Rooms.CASTLEINSIDE),
             (15,6):lambda:self.changeRoom(Rooms.CASTLEINSIDE),
-            #(20,11):,
+            (20,11):lambda:self.changeRoom(Rooms.LABORATORYINSIDE),
             #(7,11):,
             (13,15):lambda:self.changeRoom(Rooms.VILLAGE),
             (14,15):lambda:self.changeRoom(Rooms.VILLAGE),

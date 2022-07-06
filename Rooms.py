@@ -13,3 +13,4 @@ class Rooms(Enum):
     FOREST = "Forest"
     VILLAGEINSIDE = "Inside the village"
     CASTLEINSIDE = "Inside the castle in village"
+    LABORATORYINSIDE = "Inside the village; right house"

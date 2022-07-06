@@ -27,9 +27,9 @@ class Room:
         self.roomActive = True
         self._registerEvents()
         self._registerInput(self._gameState)
+        self._registerMenu()
         self._onEnter()
-        self.refreshScreen()
-        self._registerMenu() 
+        self.refreshScreen()         
 
     def changeRoom(self, newRoom : Rooms):
         self._unregisterInput(self._gameState)
@@ -174,7 +174,7 @@ class RoomPlaneCrash(Room):
             return "Chase the birds"
 
         def selectFromMenu(self, fromRoom : Rooms):
-            Monitor.print("You chase the birds away", delay=1)
+            Monitor.print("You chase the birds away", delay=True)
             fromRoom._removeEvent(self)
 
     class ExaminePlane(MenuItem):
@@ -187,7 +187,7 @@ class RoomPlaneCrash(Room):
             fromRoom._gameState.updateKnowledge(Knowledge.ExaminedPlane)
             Monitor.print("""The damage isn't so bad as it looks.
 You ruptured a fuel line and both wheels on the landing gear are destroyed.
-You might be able to fix the plane given the right materials.""", delay=3)
+You might be able to fix the plane given the right materials.""", delay=True)
             if self.description not in fromRoom.description :
                 fromRoom.description.append(self.description)
             fromRoom.refreshScreen()
@@ -229,8 +229,8 @@ class RoomVillage(Room):
             return "Ignore the men and head inside the town."
 
         def selectFromMenu(self, fromRoom : Rooms):
-            Monitor.print("You decide to ignore them and keep walking towards the gates. ", delay=1)
-            Monitor.print("The soldiers do not hesitate to impale you with their spear. You died.", delay=1)
+            Monitor.print("You decide to ignore them and keep walking towards the gates. ", delay=True)
+            Monitor.print("The soldiers do not hesitate to impale you with their spear. You died.", delay=True)
             fromRoom._gameState.endGame()
 
         def getAllowedTimes(self) -> list:
@@ -241,7 +241,7 @@ class RoomVillage(Room):
             return "Head inside the town."
 
         def selectFromMenu(self, fromRoom : Rooms):
-            Monitor.print("You enter the village", delay=1)            
+            Monitor.print("You enter the village", delay=True)            
             fromRoom.changeRoom(Rooms.VILLAGEINSIDE)
 
         def getAllowedTimes(self) -> list:

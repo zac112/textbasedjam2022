@@ -10,13 +10,15 @@ class Monitor:
     MEDIUM = 100
     FAST = 1000
     INSTANT = -1
+
+    readingSpeed=20.0
     """
     Prints the given text on the monitor
     text: the text to print
     speed: how many letters per second; see class attributes (optional)
     """
     @staticmethod
-    def print(text: str, pos: tuple = None, speed = INSTANT, delay=0, printline=True):
+    def print(text: str, pos: tuple = None, speed = INSTANT, delay=False, printline=True):
         if speed == Monitor.INSTANT: 
             Monitor.__instantPrint(text,delay=delay)
             return
@@ -33,7 +35,8 @@ class Monitor:
         if printline:print()
         
         if pos: Monitor.setCursorPos(oldpos[0],oldpos[1])
-        time.sleep(delay)
+
+        if delay: time.sleep(int(len(text)/Monitor.readingSpeed+0.5))
 
     @staticmethod
     def printLine():
