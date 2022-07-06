@@ -1,8 +1,6 @@
-from Knowledge import Knowledge
-from Rooms import Rooms
+from Enums import *
 from Monitor import Monitor
 from MenuItem import MenuItem
-from GameTime import GameTime
 from Room import *
 
 class RoomVillageInside(Room):

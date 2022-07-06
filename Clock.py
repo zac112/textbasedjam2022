@@ -1,4 +1,4 @@
-from GameTime import GameTime
+from Enums import GameTime
 
 import threading
 import time

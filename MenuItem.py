@@ -1,6 +1,5 @@
 from Monitor import Monitor
-from Rooms import *
-from GameTime import GameTime
+from Enums import *
 
 class MenuItem:
 

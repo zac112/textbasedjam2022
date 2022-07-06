@@ -1,9 +1,7 @@
-from Knowledge import Knowledge
-from Rooms import Rooms
 from Monitor import Monitor
 from MenuItem import MenuItem
-from GameTime import GameTime
 from Room import Room
+from Enums import *
 
 class RoomDialog(Room):
     def _getMenuItems(self) -> list:
@@ -72,7 +70,7 @@ class RoomLaboratoryInside(RoomDialog):
                        "Let me think about this...":lambda:self._advanceDialog(None)})
 
         frescoDialog = (["""You see three frescos on the walls.
-One has a yellow cloaked figure falking to a group of people.
+One has a yellow cloaked figure talking to a group of people.
 The second is a depiction of a sunset over a strikingly blue ocean, with something in the sky. Could be a bird or just a smudge.
 The third one depicts a battlefield with a two-headed figure in red armor victoriously poised over the corpse of a horrendous beast."""],
                       {"Stop looking at the frescos":lambda:self._advanceDialog(None)})
@@ -90,6 +88,7 @@ The third one depicts a battlefield with a two-headed figure in red armor victor
             method()
             Monitor.print("Several scientists (presumably) barge in the room and begin questioning you.",delay=True)
             Monitor.print("To your great surprise, you undestand these people and are able to talk your way out of being thrown in jail.",delay=True)
+            self._gameState.updateKnowledge(Knowledge.LearnedLanguage)
             RoomLaboratoryInside.machineUsed= True
             self.exitRoom()
         return a

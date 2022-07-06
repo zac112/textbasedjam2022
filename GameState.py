@@ -1,6 +1,4 @@
-from Rooms import Rooms
-from Knowledge import *
-from GameTime import GameTime
+from Enums import *
 
 import InputHandler
 import Clock

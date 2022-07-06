@@ -36,7 +36,7 @@ class Monitor:
         
         if pos: Monitor.setCursorPos(oldpos[0],oldpos[1])
 
-        if delay: time.sleep(int(len(text)/Monitor.readingSpeed+0.5))
+        if delay: time.sleep(len(text)/Monitor.readingSpeed)
 
     @staticmethod
     def printLine():
