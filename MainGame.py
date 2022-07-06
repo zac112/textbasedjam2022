@@ -44,13 +44,14 @@ def initGame():
         , Rooms.LABORATORYINSIDE: RoomLaboratoryInside("Inside the village")
     }
     
-    gameState = GameState(inp, timer, rooms, quitGame)
+    gameState = GameState(inp, timer, rooms, quitGame, lock)
 
     for key, room in rooms.items():
         room.postInit(gameState)
         timer.registerTimeOfDayEvent(room.reEnterRoom)
 
     Monitor.clear()
+    print("\x1b[?25l") #hide cursor
     #rooms[Rooms.PLANECRASH].enterRoom()
     rooms[Rooms.CAVEINSIDE].enterRoom()
 

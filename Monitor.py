@@ -92,6 +92,6 @@ class Monitor:
         print(Monitor.positionCursor(pos))        
 
     @staticmethod
-    def draw(text, pos:tuple=None, printline=False):        
+    def draw(text, pos:tuple=None, printline=False):
         print(f"{Monitor.positionCursor(pos)}{text}", end="", flush=True)
         

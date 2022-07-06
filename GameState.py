@@ -5,7 +5,12 @@ import Clock
 
 class GameState:
 
-    def __init__(self, inputHandler : InputHandler, clock : Clock, rooms : dict, gameEndCallback):
+    def __init__(self,
+                 inputHandler : InputHandler,
+                 clock : Clock,
+                 rooms : dict,
+                 gameEndCallback,
+                 lock):
         self._clock = clock
         self._inputHandler = inputHandler
         self._rooms = rooms
@@ -13,6 +18,7 @@ class GameState:
         #Knowledgetype -> level
         self._knowledge = {}
         self._actions = set()
+        self.lock = lock
 
     def registerInput(self, observer, key :str):
         self._inputHandler.registerObserver(observer, key)

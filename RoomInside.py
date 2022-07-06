@@ -3,6 +3,11 @@ from Monitor import Monitor
 from MenuItem import MenuItem
 from Room import *
 
+from threading import Thread
+from time import sleep
+
+import random
+
 class RoomInside(Room):
     def _registerMenu(self):
         self._gameState.registerInput(self.up, "up")
@@ -22,7 +27,10 @@ class RoomInside(Room):
         Monitor.clear()
         [Monitor.draw(line) for line in self.textmap]
         self.drawPlayer()
-        
+
+    def reEnterRoom(self):
+        pass
+    
     def drawPlayer(self):
         Monitor.draw('☺',pos=self.pos)
 
@@ -92,52 +100,70 @@ class RoomVillageInside(RoomInside):
             }
 
 class RoomCaveInside(RoomInside):
-            
+    class Torch(Thread):
+            def __init__(self, pos, lock):
+                Thread.__init__(self)
+                self.anims = ["ý","ỹ","ỳ"]
+                self.pos = pos
+                self.lock = lock
+                self.running = True
+
+            def run(self):                
+                while self.running:
+                    sleep(random.random())
+                    if not self.running: break
+                    self.lock.acquire()
+                    Monitor.draw(self.anims[random.randint(0,2)],pos=self.pos)
+                    self.lock.release()
+
+            def terminate(self):
+                self.running = False
+                
     descriptionIndex = 0
     description = ["You stand in the middle of a large marketplace."]
     connectionDescription = ["Enter the cave?"]
     room = Rooms.CAVEINSIDE
     availableActions = []
     pos = (2,15)
-    textmap = """                                        ¤
-             ...»                       ¤
-             .                          ¤
-            ..                          ¤
-            y.                          ¤
-           ....                         ¤
-           ....                         ¤
-           ....                         ¤
-            ....  y......y.......       ¤
-             ....................       ¤
-             y....................      ¤
-             ...     ....     ....      ¤
-           .....     ....     ....      ¤
-.▓▒░...........      ....     y...      ¤
-.▓▒░..........y       ..      ....      ¤
-.▓▒..y.........       ..      .......░▒▓¤
-                      ..       ......░▒▓¤
-                      ..       ...y..░▒▓¤
-                  «.....                ¤
-                                        ¤""".split('¤')
+    textmap = """                                         ¤
+             ...»                        ¤
+             .                           ¤
+            ..                           ¤
+            y.                           ¤
+           ....                          ¤
+           ....                          ¤
+           ....                          ¤
+            ....  y......y.......        ¤
+             ....................        ¤
+             y....................       ¤
+             ...     ....     ....       ¤
+           .....     ....     ....       ¤
+▓▓▒░...........      ....     y...       ¤
+▓▓▒░..........y       ..      ....       ¤
+▓▓▒..y.........       ..      .......░▒▓▓¤
+                      ..       ......░▒▓▓¤
+                      ..       ...y..░▒▓▓¤
+                  «.....                 ¤
+                                         ¤""".split('¤')
 
-    torchlight = """.░░░░.¤
-░▒▓▒░¤
+    torchlight = """...░.¤
+.▒▓▒.¤
 ░▓y▓░¤
-░▒▓▒░¤
-.░░░.¤""".split("¤")
-    
-    torches = ["ý","ỹ","ỳ"]
+.▒▓▒.¤
+..░..¤""".split("¤")
+        
     def _onEnter(self):
         Monitor.clear()
         
         self.forbidden = []
         self.torches = []
         for y,line in enumerate(self.textmap,1):
+            self.textmap[y-1] = list(line)
             for x,c in enumerate(line):
                 if c in [' ','╚','═','/','_','╝','║','│','\\']:
                     self.forbidden.append((x,y))
                 if c in ['y']:
-                    self.torches.append((x,y))
+                    self.torches.append(self.Torch((x,y),self._gameState.lock))
         self.lightTorches()
         
         self.doors = {
@@ -145,36 +171,38 @@ class RoomCaveInside(RoomInside):
             (1,15):lambda:self.changeRoom(Rooms.CAVEENTRANCE),
             (1,16):lambda:self.changeRoom(Rooms.CAVEENTRANCE),
             (17,2):lambda:self.changeRoom(Rooms.CAVE1),
-            (9,19):lambda:self.changeRoom(Rooms.CAVE2),
-            (39,16):lambda:self.changeRoom(Rooms.CAVEEXIT),
-            (39,17):lambda:self.changeRoom(Rooms.CAVEEXIT),
-            (39,18):lambda:self.changeRoom(Rooms.CAVEEXIT)
+            (19,19):lambda:self.changeRoom(Rooms.CAVE2),
+            (41,16):lambda:self.changeRoom(Rooms.CAVEEXIT),
+            (41,17):lambda:self.changeRoom(Rooms.CAVEEXIT),
+            (41,18):lambda:self.changeRoom(Rooms.CAVEEXIT)
             }
 
-    def lightTorches(self):
-        for y,line in enumerate(self.textmap):
-            self.textmap[y] = list(line)
+    def _onExit(self):
+        for t in self.torches:
+            t.terminate()
         
-        for pos in self.torches:
-            for y, line in enumerate(self.torchlight,-3):
+    def lightTorches(self):
+        for pos in [t.pos for t in self.torches]:
+            for y, line in enumerate(self.torchlight,-3):                
                 for x, char in enumerate(line,-3):
                     mapx,mapy = x+pos[0],y+pos[1]           
                     try:
                         if self.textmap[mapy][mapx] != '.' or char == "\n" or mapy < 0 or mapx < 0: continue                        
                         self.textmap[mapy][mapx] = char
                     except: pass
-        
-        for y,line in enumerate(self.textmap):
-            self.textmap[y] = "".join(line)
 
+        for t in self.torches:
+            t.start()
+        
     def refreshScreen(self):
         if not self.roomActive :return
-
+        
         Monitor.clear()
-        [Monitor.draw(line.replace("."," ")) for line in self.textmap]
+        [Monitor.draw("".join(line).replace("."," ")) for line in self.textmap]
         self.drawPlayer()
 
     def move(self, movement):
+        if not self.roomActive :return
         x,y = self.pos
         newPos = movement(x,y)
         if newPos in self.forbidden: return
@@ -182,8 +210,11 @@ class RoomCaveInside(RoomInside):
         self.pos = newPos
         self.drawPlayer()
         self.doors.get(self.pos,lambda:None)()
-        
+    
     def _getConnectionString(self, fromRoom):
         return {Rooms.CAVEENTRANCE: self.connectionDescription[self.descriptionIndex]
                 ,Rooms.CAVEEXIT: self.connectionDescription[self.descriptionIndex]
                 }[fromRoom]
+
+    
+        

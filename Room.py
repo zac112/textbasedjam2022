@@ -18,22 +18,23 @@ class Room:
 
     def reEnterRoom(self):
         if not self.roomActive :return
-        self._onEnter()
+        self._onEnter()        
         self.refreshScreen()
         
-    def enterRoom(self):
-        self.roomActive = True
+    def enterRoom(self):        
         self._registerEvents()
         self._registerInput(self._gameState)
         self._registerMenu()
         self._onEnter()
-        self.refreshScreen()         
+        self.roomActive = True
+        self.refreshScreen()
 
     def changeRoom(self, newRoom : Rooms):
         self._unregisterInput(self._gameState)
         self._unregisterMenu()
         self._unregisterEvents()
-        self.roomActive = False
+        self._onExit()
+        self.roomActive = False        
         
         newRoom = self._gameState.getRoom(newRoom)
         newRoom.enterRoom()
@@ -92,6 +93,10 @@ class Room:
         pass
 
     def _onEnter(self):
+        #Inheriting classes implement
+        pass
+    
+    def _onExit(self):
         #Inheriting classes implement
         pass
 

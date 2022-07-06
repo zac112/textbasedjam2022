@@ -25,15 +25,15 @@ class Timer(threading.Thread):
         time = self.getTime()
         if time[1] != self.currentTime:
             self.currentTime = time[1]
-            self.lock.acquire()
-            [obs() for obs in self.timeObservers]
-            self.lock.release()
+            with self.lock:
+                [obs() for obs in self.timeObservers]
             
+
+        
         if self.ticks in self.eventObservers:
-            self.lock.acquire()
-            for obs in self.eventObservers[self.ticks]:                
-                obs(self.ticks)
-            self.lock.release()
+            with self.lock:
+                for obs in self.eventObservers[self.ticks]:                
+                    obs(self.ticks)
             self.eventObservers.pop(self.ticks,None)
 
     def getTick(self):
