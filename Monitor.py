@@ -11,7 +11,7 @@ class Monitor:
     FAST = 1000
     INSTANT = -1
 
-    readingSpeed=20.0
+    readingSpeed=30.0
     """
     Prints the given text on the monitor
     text: the text to print
@@ -45,7 +45,7 @@ class Monitor:
     @staticmethod
     def __instantPrint(text :str, delay: int=0):
         print(text)
-        time.sleep(delay)
+        time.sleep(len(text)/Monitor.readingSpeed)
         print()
 
     @staticmethod

@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import Enum, auto
 
 class KnowledgeType(Enum):
     BEAST = 1
@@ -68,3 +68,9 @@ class Rooms(Enum):
     VILLAGEINSIDE = "Inside the village"
     CASTLEINSIDE = "Inside the castle in village"
     LABORATORYINSIDE = "Inside the village; right house"
+
+class Actions(Enum):
+    BluePotion = auto()
+    RedPotion = auto()
+    YellowPotion = auto()
+    ChasedBirds = auto()

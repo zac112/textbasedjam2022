@@ -173,6 +173,7 @@ class RoomPlaneCrash(Room):
 
         def selectFromMenu(self, fromRoom : Rooms):
             Monitor.print("You chase the birds away", delay=True)
+            fromRoom._gameState.tookAction(Actions.ChasedBirds)
             fromRoom._removeEvent(self)
 
     class ExaminePlane(MenuItem):

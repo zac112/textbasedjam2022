@@ -53,10 +53,9 @@ class RoomLaboratoryInside(RoomDialog):
     connectionDescription = []
     room = Rooms.LABORATORYINSIDE
     availableActions = []
-    machineUsed = False
     
     def _onEnter(self):
-        if RoomLaboratoryInside.machineUsed:
+        if self._gameState.fulfillsRequirement(Knowledge.LearnedLanguage):
             Monitor.print("You think about entering the room with the machine. You decide against it.", delay=True)
             self.exitRoom()
             return
@@ -89,7 +88,6 @@ The third one depicts a battlefield with a two-headed figure in red armor victor
             Monitor.print("Several scientists (presumably) barge in the room and begin questioning you.",delay=True)
             Monitor.print("To your great surprise, you undestand these people and are able to talk your way out of being thrown in jail.",delay=True)
             self._gameState.updateKnowledge(Knowledge.LearnedLanguage)
-            RoomLaboratoryInside.machineUsed= True
             self.exitRoom()
         return a
     
@@ -97,16 +95,19 @@ The third one depicts a battlefield with a two-headed figure in red armor victor
         Monitor.print("You press the red button and the machine whirrs to life.",delay=True)
         Monitor.print("WHRR R R GZZGZZ (BLUB BLUB BLUB BLUB)",speed=Monitor.SLOW ,delay=True)
         Monitor.print("You grab the bottle of blood-like liquid produced by the machine and chug it in one go.",delay=True)
+        self._gameState.tookAction(Actions.RedPotion)
         
     def yellowButton(self):
         Monitor.print("You press the yellow button and the machine whirrs to life.",delay=True)
         Monitor.print("CHUGCHUG CHCH CGCGCGCG (BLUB BLUB BLUB BLUB)",speed=Monitor.SLOW ,delay=True)
         Monitor.print("You grab the bottle of almost transparent liquid produced by the machine and chug it in one go.",delay=True)
+        self._gameState.tookAction(Actions.YellowPotion)
 
     def blueButton(self):
         Monitor.print("You press the red button and the machine whirrs to life.",delay=True)
         Monitor.print("WHOOSH WHOOSH WHS WHS WHS WSWSWSWSWS (BLUB BLUB BLUB BLUB)",speed=Monitor.SLOW ,delay=True)
         Monitor.print("You grab the bottle of water-like liquid produced by the machine and chug it in one go.",delay=True)
+        self._gameState.tookAction(Actions.BluePotion)
         
     def exitRoom(self):
         self.changeRoom(Rooms.VILLAGEINSIDE)

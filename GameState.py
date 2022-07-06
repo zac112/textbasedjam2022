@@ -12,6 +12,7 @@ class GameState:
         self.endGame = gameEndCallback
         #Knowledgetype -> level
         self._knowledge = {}
+        self._actions = set()
 
     def registerInput(self, observer, key :str):
         self._inputHandler.registerObserver(observer, key)
@@ -52,3 +53,9 @@ class GameState:
         if req not in self._knowledge: return False
         
         return self.getKnowledgeLevelFor(req) >= reqlev
+
+    def tookAction(self, action : Actions):
+        self._actions.add(action)
+
+    def hasAction(self, action : Actions):
+        return action in self._actions
