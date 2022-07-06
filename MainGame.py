@@ -6,6 +6,7 @@ from Rooms import Rooms
 from Monitor import Monitor
 from threading import Lock
 from RoomVillageInside import RoomVillageInside
+from RoomCastleInside import RoomCastleInside
 import sys
 import time
 
@@ -36,6 +37,7 @@ def initGame():
         , Rooms.CLIFFS: RoomCliffs("Cliffs")
         , Rooms.FOREST: RoomForest("Forest")
         , Rooms.VILLAGEINSIDE: RoomVillageInside("Inside the village")
+        , Rooms.CASTLEINSIDE: RoomCastleInside("Inside the village")
     }     
 
     gameState = GameState(inp, timer, rooms, quitGame)

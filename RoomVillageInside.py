@@ -6,21 +6,10 @@ from GameTime import GameTime
 from Room import *
 
 class RoomVillageInside(Room):
-#region events
-    class VillageInside(MenuItem):
-        def getMenuString(self, room : Rooms):            
-            return "Head inside the town."
+#region locations
 
-        def selectFromMenu(self, fromRoom : Rooms):
-            Monitor.print("You decide to ignore them and keep walking towards the gates. ", delay=1)
-            Monitor.print("The soldiers do not hesitate to impale you with their spear. You died.", delay=1)
             
-
-        def getAllowedTimes(self) -> list:
-            return [GameTime.DUSK,
-                    GameTime.NOON,
-                    GameTime.DAWN]
-#endregion events
+#endregion locations
             
     descriptionIndex = 0
     description = ["You stand in the middle of a large marketplace."]
@@ -41,36 +30,36 @@ class RoomVillageInside(Room):
 ║     ▒▒▒▒▒▒▒▒▒▒▒▒▒▒        ║¤
 ║           ▒▒▒             ║¤
 ║           ▒▒▒             ║¤
-╚═══════════▒▒▒═════════════╝¤""".split('¤')
+╚═══════════■■■═════════════╝¤""".split('¤')
     
     def _onEnter(self):
         Monitor.clear()
-        self.pos = (15,14)
+        self.pos = (14,14)
         
         self.forbidden = []
         for y,line in enumerate(self.textmap,1):
             for x,c in enumerate(line):
                 if c in [',','╚','═','/','_','╝','║','│','\\']:
-                    self.forbidden.append((x,y))            
-
-    def enterRoom(self):
-        self.roomActive = True
-        self._registerEvents()
-        self._registerInput(self._gameState)
-        self._onEnter()
-        self.refreshScreen()
+                    self.forbidden.append((x,y))
+        self.doors = {
+            (13,6):lambda:self.changeRoom(Rooms.CASTLEINSIDE),
+            (14,6):lambda:self.changeRoom(Rooms.CASTLEINSIDE),
+            (15,6):lambda:self.changeRoom(Rooms.CASTLEINSIDE)
+            #(20,11):,
+            #(7,11):,
+            }
         
-    def _registerInput(self, gameState : GameState):
-        gameState.registerInput(self.up, "up")
-        gameState.registerInput(self.down, "down")
-        gameState.registerInput(self.left, "left")
-        gameState.registerInput(self.right, "right")
+    def _registerMenu(self):
+        self._gameState.registerInput(self.up, "up")
+        self._gameState.registerInput(self.down, "down")
+        self._gameState.registerInput(self.left, "left")
+        self._gameState.registerInput(self.right, "right")
 
-    def _unregisterInput(self, gameState : GameState):
-        gameState.unregisterInput(self.up, "up")
-        gameState.unregisterInput(self.down, "down")
-        gameState.unregisterInput(self.left, "left")
-        gameState.unregisterInput(self.right, "right")
+    def _unregisterMenu(self):
+        self._gameState.unregisterInput(self.up, "up")
+        self._gameState.unregisterInput(self.down, "down")
+        self._gameState.unregisterInput(self.left, "left")
+        self._gameState.unregisterInput(self.right, "right")
 
     def refreshScreen(self):
         if not self.roomActive :return
@@ -89,6 +78,8 @@ class RoomVillageInside(Room):
         Monitor.draw(self.textmap[y-1][x], pos=self.pos)
         self.pos = newPos
         self.drawPlayer()
+        self.doors.get(self.pos,lambda:None)()
+            
         
     def right(self):
         self.move(lambda x,y: (min(x+1,len(self.textmap[0])), y))        
@@ -101,4 +92,6 @@ class RoomVillageInside(Room):
         
     def up(self):
         self.move(lambda x,y: (x, max(y-1,1)))
-        
+
+    def enterCastle(self):
+        self._unregisterInput(self._gameState)

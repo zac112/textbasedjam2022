@@ -29,11 +29,11 @@ class Room:
         self._registerInput(self._gameState)
         self._onEnter()
         self.refreshScreen()
-        self.__registerMenu() 
+        self._registerMenu() 
 
     def changeRoom(self, newRoom : Rooms):
         self._unregisterInput(self._gameState)
-        self.__unregisterMenu()
+        self._unregisterMenu()
         self._unregisterEvents()
         self.roomActive = False
         
@@ -107,26 +107,26 @@ class Room:
 #endregion
 
 #region methods for menu
-    def __menuUp(self):
+    def _menuUp(self):
         self.menuindex = max(0, self.menuindex-1)      
         self._displayMenuItems()
     
-    def __menuDown(self):
+    def _menuDown(self):
         self.menuindex = min(len(self._getMenuItems())-1, self.menuindex+1)
         self._displayMenuItems()
 
-    def __menuAccept(self):
+    def _menuAccept(self):
         self._getMenuItems()[self.menuindex].selectFromMenu(self)
 
-    def __registerMenu(self):
-        self._gameState.registerInput(self.__menuUp, 'up')
-        self._gameState.registerInput(self.__menuDown, 'down')
-        self._gameState.registerInput(self.__menuAccept, 'enter')
+    def _registerMenu(self):
+        self._gameState.registerInput(self._menuUp, 'up')
+        self._gameState.registerInput(self._menuDown, 'down')
+        self._gameState.registerInput(self._menuAccept, 'enter')
 
-    def __unregisterMenu(self):
-        self._gameState.unregisterInput(self.__menuUp, 'up')
-        self._gameState.unregisterInput(self.__menuDown, 'down')
-        self._gameState.unregisterInput(self.__menuAccept, 'enter')
+    def _unregisterMenu(self):
+        self._gameState.unregisterInput(self._menuUp, 'up')
+        self._gameState.unregisterInput(self._menuDown, 'down')
+        self._gameState.unregisterInput(self._menuAccept, 'enter')
 
     def _getMenuItems(self) -> list:
         menuitems = [self._gameState.getRoom(r) for r in self._connectedRooms]        
@@ -159,7 +159,7 @@ class Room:
         self.availableActions = [x for x in self.availableActions if x != event]        
         try:
             self.description.remove(event.description)
-            self.__menuUp()
+            self._menuUp()
             self.refreshScreen()
         except: pass
         
@@ -201,9 +201,9 @@ You might be able to fix the plane given the right materials.""", delay=3)
     availableActions = [ExaminePlane()]
     
     def _getEvents(self):
-        return [(self.__addBirdEvent,5)]
+        return [(self._addBirdEvent,5)]
 
-    def __addBirdEvent(self, tick):        
+    def _addBirdEvent(self, tick):        
         birds = self.Birds()
         self.addEvent(birds, tick+30)
         
