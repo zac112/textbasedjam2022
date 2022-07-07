@@ -44,7 +44,7 @@ def initGame():
     Monitor.clear()
     print("\x1b[?25l") #hide cursor
     #rooms[Rooms.PLANECRASH].enterRoom()
-    rooms[Rooms.CAVE1].enterRoom()
+    rooms[Rooms.LIGHTHOUSE].enterRoom()
 
 
     

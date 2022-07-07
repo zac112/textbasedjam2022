@@ -9,18 +9,20 @@ class KnowledgeType(Enum):
     LIGHTHOUSE = 6
     QUEST_ARARIEL = 7
     ISLAND_SINK = 8
+    LANGUAGE = 9
 
 class Knowledge(Enum):
     KnowsOfBeast = (KnowledgeType.BEAST,1)
     SeenBeast = (KnowledgeType.BEAST,2)
     FoughtBeast = (KnowledgeType.BEAST,3)
     DefeatedBeast = (KnowledgeType.BEAST,4)
+
+    LearnedLanguage = (KnowledgeType.LANGUAGE,1)
     
-    VisitedVillage = (KnowledgeType.CULTURE,1)
-    LearnedLanguage = (KnowledgeType.CULTURE,2)
-    LearnedVillageName = (KnowledgeType.CULTURE,3)
-    LearnedVillageHistory = (KnowledgeType.CULTURE,4)
-    VillagersAcceptYou = (KnowledgeType.CULTURE,5) #Preregs max QUEST_ARARIEL & LIGHTHOUSE
+    VisitedVillage = (KnowledgeType.CULTURE,1)    
+    LearnedVillageName = (KnowledgeType.CULTURE,2)
+    LearnedVillageHistory = (KnowledgeType.CULTURE,3)
+    VillagersAcceptYou = (KnowledgeType.CULTURE,4) #Preregs max QUEST_ARARIEL & LIGHTHOUSE
     
     ExaminedPlane = (KnowledgeType.PLANE,1)
     FixedPlane = (KnowledgeType.PLANE,2) #Prereqs max PLANEWING & PLANEFUEL
@@ -72,6 +74,7 @@ class Rooms(Enum):
     CAVE1 = 'RoomCave1Inside("Upper Cave")'
     ARARIELJEWEL = 'RoomArarielDialogue("Arariel jewel dialog")'
     EAGLEDIALOG = 'RoomEagleDialogue("Lighthouse eagle dialog")'
+    #shopkeeper; steal hose for plane
 
 class Actions(Enum):
     BluePotion = auto()
@@ -79,3 +82,4 @@ class Actions(Enum):
     YellowPotion = auto()
     ChasedBirds = auto()
     MetEagle = auto()
+    EagleQuest = auto() #axe

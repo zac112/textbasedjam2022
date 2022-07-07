@@ -16,6 +16,7 @@ class RoomDialog(Room):
         self.refreshScreen()
 
     def _advanceDialog(self, nextDialog):
+        Monitor.clear()
         if nextDialog: self.dialog.append(nextDialog)
         else: self.dialog.pop()
 
@@ -139,7 +140,7 @@ class RoomArarielDialogue(RoomDialog):
     def pickupJewel(self):
         Monitor.print("You pick up the beautiful jewel and are surprised by its weight. As you stuff it in your pocket, you hear a faint rumble.")
         Monitor.print("The rumbling grows lowder")
-        Monitor.print("You begin to feel light headed. Uh-oh; you now understand the situation:")
+        Monitor.print("You begin to feel light headed. Uh-oh; you now understand the situation: streams of vapor are rising from cracks in the floor.")
         Monitor.print("POISON GAS!!!", speed=Monitor.SLOW)
         self._gameState.updateKnowledge(Knowledge.CollectedTearOfArariel)
         self.exitRoom()
@@ -150,29 +151,54 @@ class RoomArarielDialogue(RoomDialog):
 class RoomEagleDialogue(RoomDialog):
     descriptionIndex = 0
     connectionDescription = []
-    room = Rooms.ARARIELJEWEL
+    room = Rooms.EAGLEDIALOG
     availableActions = []
     
     def _onEnter(self):
-        ararielDialogLang = {True:"This must be the tear of Arariel.",
-                          False:"A jewel sits on top of it."}
-        self.description = [f"You find a pedestal surrounded by torches. {ararielDialogLang[self._gameState.fulfillsRequirement(Knowledge.LearnedOfTearOfArariel)]}.",
-                            "You approach a majestic pedestal that seems to glow. Though it might be the surrounding torches too."]
+        whyHere = (["The lighthouse of Emradir has fallen into disrepair and its fire long since burned out, as the townsfolk are scared to leave the safety of their walls.",
+         "The repairs may be beyond your skill, but what you could do is gather magic wood to relight the lighthouse beacon. Will you do this?"],
+            {
+            'Sure... I guess':lambda:self.acceptQuest(),
+            'No way!':lambda:self.declineQuest()
+            })
+        
+        questionsDesc=["You have a lot of questions. Might as well ask the bird, right?"]
+        questions={
+            'What is this place?':lambda:self.whatPlace(),
+            'Why did you summon me here?':lambda:self._advanceDialog(whyHere),
+            'How can you talk in my head?':lambda:self.howInMyHead(),
+            'Leave the Eagle': self.exitRoom
+        }
 
+        self.description = ["The Eagle seems to be telepathically communicating with you.",
+                            "It says it does not want to harm you, but can you trust it?"]
         menuOptions={
-            'Pick up the jewel':lambda:self.pickupJewel(),
-            'Leave': self.exitRoom
+            'Talk to the Eagle':lambda:self._advanceDialog((questionsDesc,questions)),
+            'Leave the Eagle': self.exitRoom
         }            
         self.dialog = [(self.description,menuOptions)]
         Monitor.clear()
 
-    def pickupJewel(self):
-        Monitor.print("You pick up the beautiful jewel and are surprised by its weight. As you stuff it in your pocket, you hear a faint rumble.")
-        Monitor.print("The rumbling grows lowder")
-        Monitor.print("You begin to feel light headed. Uh-oh; you now understand the situation:")
-        Monitor.print("POISON GAS!!!", speed=Monitor.SLOW)
-        self._gameState.updateKnowledge(Knowledge.CollectedTearOfArariel)
-        self.exitRoom()
+    def whatPlace(self):
+        Monitor.print("You have ended up on the island of Atlantis. \nThis is the lighthouse of Emradir, which has shed its protective light on the island for hundreds of years.")
+        Monitor.print("ATLANTIS??!?", speed=Monitor.SLOW, printline=False)
+        Monitor.print("You shout in dismay.")
+        Monitor.print("Yes, replied the eagle. The island is cursed; it sinks, only to be brought back by The Beast.")
+        Monitor.print("The Beast. At least the Atlanteans aren't good at naming things...")
+        Monitor.print("Your arrogance may yet be the end of you. No one who has went to face The Beast has ever returned.")
+        self._gameState.updateKnowledge(Knowledge.KnowsOfBeast)
+
+    def acceptQuest(self):
+        Monitor.print("Here, take this axe and head to the forest of Vestunm beyond the mountain.")
+        self._gameState.tookAction(Actions.EagleQuest)
+        self._advanceDialog(None)
+
+    def declineQuest(self):
+        Monitor.print("Your destiny is your own.")
+        self._advanceDialog(None)
+
+    def howInMyHead(self):
+        Monitor.print("The world is a mysterious place, young human.")
         
     def exitRoom(self):
-        self.changeRoom(Rooms.CAVE1)
+        self.changeRoom(Rooms.LIGHTHOUSE)

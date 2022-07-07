@@ -65,9 +65,12 @@ class Room:
         if not self._shouldDisplayApproximateTime(): return
         
         texts = {GameTime.MIDNIGHT:"It's very dark",
-                 GameTime.DAWN:"Sun is rising",
+                 GameTime.DAWN:"The sun is rising",
+                 GameTime.MORNING:"It's morning",
                  GameTime.NOON:"The sun is at its highest",
+                 GameTime.EVENING:"It's past midday",
                  GameTime.DUSK:"The sun is setting"}
+        
         time = self._gameState.getTime()[1]
         Monitor.print(texts[time], delay=False)
 
@@ -265,7 +268,9 @@ class RoomVillage(Room):
 
         def getAllowedTimes(self) -> list:
             return [GameTime.DUSK,
+                    GameTime.MORNING,
                     GameTime.NOON,
+                    GameTime.EVENING,
                     GameTime.DAWN]
 #endregion events
             
@@ -369,7 +374,8 @@ class RoomBeach(Room):
         return [(self.shipwreck,360)]
 
     def shipwreck(self):
-        pass
+        #Shipwreck gives you fuel. Only happens midnight if lighthouse is not fixed
+        raise Exception("Event not implemented")
 
 class RoomCaveEntrance(Room):
 
@@ -509,10 +515,10 @@ class RoomLighthouse(Room):
         self._connectedRooms.append(Rooms.CROSSROADS)
 
     def getGlobalEvents(self):
-        return [(self.eagleArrives,180)]
+        return [(self.eagleArrives,10)]
 
     def eagleArrives(self,tick):
-        self.addEvent(Eagle(),tick+60)
+        self.addEvent(self.Eagle(),tick+60)
         if self.roomActive:
             Monitor.print("An eagle lands near the lighthouse.",speed=Monitor.SLOW)
         else:
