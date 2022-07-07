@@ -113,7 +113,7 @@ class RoomCaveInside(RoomInside):
                 while self.running:
                     sleep(random.random())
                     if not self.running: break                    
-                    if self.pos in self.room.visibleCells:
+                    if (self.pos[0],self.pos[1]-1) in self.room.visibleCells:
                         self.lock.acquire()
                         Monitor.draw(self.anims[random.randint(0,2)],pos=self.pos)
                         self.lock.release()
@@ -225,7 +225,7 @@ class RoomCaveInside(RoomInside):
         self.doors.get(self.pos,lambda:None)()
 
     #returns set of visible cells from pos
-    def floodFill(self, pos) -> set:
+    def floodFill(self, pos, distance=3) -> set:
         def hasSightline(player,target,textmap):
             sign = lambda a: 0 if a==0 else a//abs(a)            
             x,y = target
@@ -235,21 +235,27 @@ class RoomCaveInside(RoomInside):
                 y -= sign(y-player[1])
                 if textmap[y][x] in self._getForbiddenChars():return False
             return True
-            
-        pos = (pos[0],pos[1]-1)
+
+        level = 0
+        pos = (level,(pos[0],pos[1]-1))
         queue = [pos]
         visited = set()
         while queue:            
-            x,y = queue.pop(0)
+            level,(x,y) = queue.pop(0)
+
+            if level > distance:continue
             try: self.textmap[y][x]
             except: continue
                         
             if (x,y) in visited: continue
-            if not hasSightline(pos,(x,y),self.textmap):continue
+            if not hasSightline(pos[1],(x,y),self.textmap):continue
             visited.add((x,y))
             if self.textmap[y][x] in self._getForbiddenChars(): continue
-            
-            queue.extend([(x+1,y),(x-1,y),(x,y+1),(x,y-1)])            
+            newLevel = level+1
+            queue.extend([(newLevel,(x+1,y)),
+                          (newLevel,(x-1,y)),
+                          (newLevel,(x,y+1)),
+                          (newLevel,(x,y-1))])            
         return visited
             
     def _getConnectionString(self, fromRoom):
@@ -279,20 +285,27 @@ class RoomCave1Inside(RoomCaveInside):
   ............  .      #        ......  ¤
              .  ..#........#    ......  ¤
       #.......  .   .     .     ......  ¤
-         .      .   .     .     ......  ¤
-         .          .  .......  ##.###  ¤
+         .      .   .   .....   ......  ¤
+         .          .  .y...y.  ##.###  ¤
          .          .  .......   #.#    ¤
-       ..............  .......   #.##   ¤
+       ..............  .y...y.   #.##   ¤
        .               .......   #..#   ¤
    .........           .y...y.   ####   ¤
-   .........           ..┌¥┐..          ¤
-   .........           ..└-┘..          ¤
+   .........           .......          ¤
    .........           .y...y.          ¤
+   .........           .......          ¤
+                       .y...y.          ¤
+                       .......          ¤
+                       .y...y.          ¤
+                       ..┌¥┐..          ¤
+                       ..└-┘..          ¤
+                       .y...y.          ¤
+                       .......          ¤
                                         ¤""".split('¤')
 
     def _onEnter(self):
         super()._onEnter()
-        if True or self._gameState.fulfillsRequirement(Knowledge.CollectedTearOfArariel):
+        if self._gameState.fulfillsRequirement(Knowledge.CollectedTearOfArariel):
             
             self.startCollapse()
             self.collapsing = True
@@ -300,7 +313,7 @@ class RoomCave1Inside(RoomCaveInside):
     def startCollapse(self):
         if self.collapsing: return
         self._gameState.registerEvent(self.collapse, self._gameState.getTick()+2)
-        self.nextCollapses = [(27,21)]
+        self.nextCollapses = [(27,27)]
 
     def collapse(self, ticks):
         newPositions = []
@@ -325,7 +338,7 @@ class RoomCave1Inside(RoomCaveInside):
             option = lambda:self.changeRoom(Rooms.ARARIELJEWEL)
             
         return {(13,2):lambda:self.changeRoom(Rooms.CAVEINSIDE),
-                (27,19):option
+                (27,25):option
                 }
     
     def _getForbiddenChars(self):
