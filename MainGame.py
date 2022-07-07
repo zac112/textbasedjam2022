@@ -52,6 +52,8 @@ def initGame():
         room.postInit(gameState)
         if room._shouldDisplayApproximateTime():
             timer.registerTimeOfDayEvent(room.reEnterRoom)
+        for event in room.getGlobalEvents():
+            timer.registerEvent(*event)
 
     Monitor.clear()
     print("\x1b[?25l") #hide cursor

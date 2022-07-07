@@ -112,6 +112,12 @@ class Room:
 
     def _shouldDisplayApproximateTime(self):
         return True
+
+    def getGlobalEvents(self):
+        #Inheriting classes implement
+        #Global events are important plot points that happen regardless of player involvement
+        #list[(method,tick)]
+        return []
 #endregion
 
 #region methods for menu
@@ -449,7 +455,7 @@ class RoomForest(Room):
     def _getConnectionString(self, fromRoom):
         return {Rooms.CAVEEXIT: self.connectionDescription[self.descriptionIndex]}[fromRoom]
 
-    def _registerInput(self, gameState : GameState):
+    def _registerInput(self):
         gameState.registerInput(self.keypress, "k")
 
     def _unregisterInput(self, gameState : GameState):
@@ -483,3 +489,12 @@ class RoomLighthouse(Room):
         
     def _connectRooms(self):
         self._connectedRooms.append(Rooms.CROSSROADS)
+
+    def getGlobalEvents(self):
+        return [(self.eagleArrives,180)]
+
+    def eagleArrives(self,tick):
+        if self.roomActive:
+            Monitor.print("An eagle lands near the lighthouse.",speed=Monitor.SLOW)
+        else:
+            Monitor.print("You have a vision of an eagle flying towards a lighthouse.",speed=Monitor.SLOW)
