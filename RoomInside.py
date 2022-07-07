@@ -79,6 +79,9 @@ class RoomVillageInside(RoomInside):
 ║           ▒▒▒             ║¤
 ║           ▒▒▒             ║¤
 ╚═══════════■■■═════════════╝¤""".split('¤')
+
+    def _getTownAttackListener(self):
+        return lambda isAttacked: self.theBeastAttacks() if isAttacked else self.theBeastLeaves()
     
     def _onEnter(self):
         Monitor.clear()
@@ -98,6 +101,16 @@ class RoomVillageInside(RoomInside):
             (14,15):lambda:self.changeRoom(Rooms.VILLAGE),
             (15,15):lambda:self.changeRoom(Rooms.VILLAGE)
             }
+        
+    def theBeastAttacks(self):
+        self.underAttack = True
+        Monitor.print("You hear a screech and look up. You see a monstrous flying creature.")
+        Monitor.print("A house near you explodes! The town is under attack!")
+        Monitor.print("Townsfolk emerge from their houses to fight the Beast.")
+
+    def theBeastLeaves(self):
+        self.underAttack = False
+        Monitor.print("The creature stops attacking the town and retreats towards the mountains")
 
 class RoomCaveInside(RoomInside):
     class Torch(Thread):

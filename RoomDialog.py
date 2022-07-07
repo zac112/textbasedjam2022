@@ -30,8 +30,16 @@ class RoomCastleInside(RoomDialog):
     connectionDescription = []
     room = Rooms.LABORATORYINSIDE
     availableActions = []
+
+    def _getTownAttackListener(self):
+        return lambda isAttacked: self.theBeastAttacks() if isAttacked else self.theBeastLeaves()
     
     def _onEnter(self):
+        if self.underAttack:
+            Monitor.print("There is nobody here; they're all fighting outside!")
+            self.exitRoom()
+            return
+        
         self.description = ["You enter a huge castle in this small village. You see a royal figure sitting on a throne."]
         self.dialog = []
         kingDialogLang = {True:": Who are you?",
@@ -55,6 +63,12 @@ class RoomCastleInside(RoomDialog):
     def exitRoom(self):
         self.changeRoom(Rooms.VILLAGEINSIDE)
 
+    def theBeastAttacks(self):
+        self.underAttack = True
+
+    def theBeastLeaves(self):
+        self.underAttack = False
+        
 class RoomLaboratoryInside(RoomDialog):
     descriptionIndex = 0
     connectionDescription = []
