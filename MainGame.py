@@ -42,6 +42,7 @@ def initGame():
         , Rooms.VILLAGEINSIDE: RoomVillageInside("Inside the village")
         , Rooms.CASTLEINSIDE: RoomCastleInside("Inside the village")
         , Rooms.LABORATORYINSIDE: RoomLaboratoryInside("Inside the village")
+        , Rooms.CAVE1: RoomCave1Inside("Inside the village")
     }
     
     gameState = GameState(inp, timer, rooms, quitGame, lock)
@@ -53,7 +54,7 @@ def initGame():
     Monitor.clear()
     print("\x1b[?25l") #hide cursor
     #rooms[Rooms.PLANECRASH].enterRoom()
-    rooms[Rooms.CAVEINSIDE].enterRoom()
+    rooms[Rooms.CAVE1].enterRoom()
 
 
     

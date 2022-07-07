@@ -163,13 +163,16 @@ class RoomCaveInside(RoomInside):
         for y,line in enumerate(self.textmap,1):
             self.textmap[y-1] = list(line)
             for x,c in enumerate(line):
-                if c in [' ','╚','═','/','_','╝','║','│','\\']:
+                if c in self._getForbiddenChars():
                     self.forbidden.append((x,y))
                 if c in ['y']:
                     self.torches.append(self.Torch((x,y),self._gameState.lock, self))
         self.lightTorches()
         
-        self.doors = {
+        self.doors = self._getDoors()
+
+    def _getDoors(self):
+        return {
             (1,14):lambda:self.changeRoom(Rooms.CAVEENTRANCE),
             (1,15):lambda:self.changeRoom(Rooms.CAVEENTRANCE),
             (1,16):lambda:self.changeRoom(Rooms.CAVEENTRANCE),
@@ -183,7 +186,10 @@ class RoomCaveInside(RoomInside):
     def _onExit(self):
         for t in self.torches:
             t.terminate()
-        
+
+    def _getForbiddenChars(self):
+        return [' ']
+    
     def lightTorches(self):
         for pos in [t.pos for t in self.torches]:
             for y, line in enumerate(self.torchlight,-3):                
@@ -224,11 +230,11 @@ class RoomCaveInside(RoomInside):
         def hasSightline(player,target,textmap):
             sign = lambda a: 0 if a==0 else a//abs(a)            
             x,y = target
-            while (x,y) != player:                
-                if textmap[y][x] == " ":return False
+            while (x,y) != player:                                
                 x -= sign(x-player[0])
-                if textmap[y][x] == " ":return False
+                if textmap[y][x] in self._getForbiddenChars():return False
                 y -= sign(y-player[1])
+                if textmap[y][x] in self._getForbiddenChars():return False
             return True
             
         pos = (pos[0],pos[1]-1)
@@ -238,11 +244,11 @@ class RoomCaveInside(RoomInside):
             x,y = queue.pop(0)
             try: self.textmap[y][x]
             except: continue
-            
-            if self.textmap[y][x]==" ": continue
+                        
             if (x,y) in visited: continue
             if not hasSightline(pos,(x,y),self.textmap):continue
             visited.add((x,y))
+            if self.textmap[y][x] in self._getForbiddenChars(): continue
             
             queue.extend([(x+1,y),(x-1,y),(x,y+1),(x,y-1)])            
         return visited
@@ -252,5 +258,36 @@ class RoomCaveInside(RoomInside):
                 ,Rooms.CAVEEXIT: self.connectionDescription[self.descriptionIndex]
                 }[fromRoom]
 
+
+class RoomCave1Inside(RoomCaveInside):
+    room = Rooms.CAVE1
+    availableActions = []
+    pos = (14,2)
+    textmap = """
+                                        ¤
+   .....    »..............y........    ¤
+   .....       y....#####  .       .    ¤
+   .........    ..###      .  ........  ¤
+   .....   .    .##        .  . .    .  ¤
+           .    .  ............ . .. .  ¤
+           .    .  .   .        #  ...  ¤
+  ..............y  .   .    .           ¤
+  .        #    .  .   ...............  ¤
+  ............  .      #        ......  ¤
+             .  ..#........#    ......  ¤
+      #.......  .   .     .     ......  ¤
+         .      .   .     .     ......  ¤
+         .          .  .......  ##.###  ¤
+         .          .  .......   #.#    ¤
+       ..............  .......   #.##   ¤
+       .               .......   #..#   ¤
+   .........           .......   ####   ¤
+   .........           ..┌¥┐..          ¤
+   .........           ..└-┘..          ¤
+   .........           .......          ¤ """.split('¤')
     
-        
+    def _getDoors(self):
+        return { (13,2):lambda:self.changeRoom(Rooms.CAVEINSIDE) }
+    
+    def _getForbiddenChars(self):
+        return [' ','└','-','┘','┌','┐','#']
