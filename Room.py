@@ -15,6 +15,7 @@ class Room:
         self._connectedRooms = []
         self._connectRooms()        
         self.roomActive = False
+        self._gameState.registerTownAttackListener(self._getTownAttackListener())
 
     def reEnterRoom(self):
         if not self.roomActive :return
@@ -116,6 +117,12 @@ class Room:
     def _shouldDisplayApproximateTime(self):
         return True
 
+    def _getTownAttackListener(self):
+        def listener(isAttacking):
+            if not self.roomActive: return
+            if isAttacking: Monitor.print("The skies darken as a monstrous figure blocks the sun. It seems to be headed towards the town.")
+            else: Monitor.print("You see the monstrous beast flying away from the town, over the mountain.")
+        return listener
 #endregion
 
 #region methods for menu

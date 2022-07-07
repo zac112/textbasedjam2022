@@ -19,11 +19,15 @@ class GameState:
         self._knowledge = {}
         self._actions = set()
         self.lock = lock
+        self._inventory = set()
+        self.townattackListeners = []
 
     def registerGlobalEvents(self):
+        beastAttackTime = 20
         globalEvents = [(self._rooms[Rooms.BEACH].shipwreck,360),
                         (self._rooms[Rooms.LIGHTHOUSE].eagleArrives,180),
-                        (self._rooms[Rooms.SHOPKEEPERDIALOG].theBeastAttacks,10)
+                        (lambda _:self.notifyTownAttacked(True),beastAttackTime),
+                        (lambda _:self.notifyTownAttacked(False),beastAttackTime+60)
                         ]
         for event in globalEvents:
             self.registerEvent(*event)
@@ -37,6 +41,9 @@ class GameState:
         if level < knowledge.value[1]:
             self._knowledge[knowledge.value[0]] = knowledge.value[1]
 
+    def fulfillsRequirements(self, requirements : list):
+        return all(map(lambda a:self.fulfillsRequirement(a),requirements))
+    
     def fulfillsRequirement(self, requirement: Knowledge):
         req,reqlev = requirement.value
         if req not in self._knowledge: return False
@@ -45,9 +52,11 @@ class GameState:
 
     def tookAction(self, action : Actions): self._actions.add(action)
     def hasAction(self, action : Actions): return action in self._actions
+    def hasActions(self, actions : list): return all(map(lambda a:self.hasAction(a),actions))
     def addItem(self, item : Items): self._inventory.add(item)
     def removeItem(self, item : Items): self._inventory.remove(item)
-    def hasItem(self, item : Item): return item in self._inventory
+    def hasItem(self, item : Items): return item in self._inventory
+    def hasAnyItem(self, items): return any(map(lambda a:self.hasItem(a),items))
     def getTick(self): return self._clock.getTick()
     #Returns the current time as a tuple(day:int,GameTime)
     def getTime(self) -> tuple: return self._clock.getTime()
@@ -58,3 +67,11 @@ class GameState:
     def unregisterInput(self, observer, key :str): self._inputHandler.unregisterObserver(observer, key)
     def registerEvent(self, observer, tick): self._clock.registerEvent(observer, tick)
     def unregisterEvent(self, observer, tick): self._clock.unregisterEvent(observer, tick)
+
+    def registerTownAttackListener(self,obs):
+        self.townattackListeners.append(obs)
+        
+    def notifyTownAttacked(self, isAttacked):
+        for obs in self.townattackListeners:
+            obs(isAttacked)
+    

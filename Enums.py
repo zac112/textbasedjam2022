@@ -87,5 +87,22 @@ class Actions(Enum):
     YellowPotion = auto()
     ChasedBirds = auto()
     MetEagle = auto()
-    EagleQuest = auto() #axe
-    SwordBought = auto() #lose axe, gain sword
+    EagleQuest = auto() 
+    SwordBought = auto()
+    StoleSwordFromShopkeeper = auto()
+    TradedAxeToShopkeeper = auto()
+    StoleAxeFromShopkeeper = auto()
+    TradedTearToShopkeeper = auto()
+    StoleTearFromShopkeeper = auto()
+    GaveTearToKing = auto()
+
+class Items(Enum):
+    Tear = auto()
+    Axe = auto()
+    Sword = auto()
+    SwordOfArariel = auto()
+    Fuel = auto()
+    Wheels = auto()
+    Hose = auto()
+    Wood = auto()
+    

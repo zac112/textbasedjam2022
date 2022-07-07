@@ -19,6 +19,7 @@ class RoomDialog(Room):
         Monitor.clear()
         if nextDialog: self.dialog.append(nextDialog)
         else: self.dialog.pop()
+        self.refreshScreen()
 
     def _shouldDisplayApproximateTime(self):
         return False
@@ -35,7 +36,7 @@ class RoomCastleInside(RoomDialog):
         self.dialog = []
         kingDialogLang = {True:": Who are you?",
                           False:", but you do not understand him."}
-        kingDialog = (["The king talks with a booming voice"+kingDialogLang[self_gameState.fulfillsRequirement(Knowledge.LearnedLanguage)]],
+        kingDialog = (["The king talks with a booming voice"+kingDialogLang[self._gameState.fulfillsRequirement(Knowledge.LearnedLanguage)]],
                       {"Answer":lambda:self.answerKing(None)})
         menuOptions={
             'Talk to King':lambda:self.talkToKing(kingDialog),
@@ -204,73 +205,98 @@ class RoomEagleDialogue(RoomDialog):
         self.changeRoom(Rooms.LIGHTHOUSE)
 
 class RoomShopkeeperDialogue(RoomDialog):
-    class Sword(MenuItem):
-        description = "You see a rusty sword hanging on the wall."
-        
-        def _getConnectionString(self, fromRoom):            
-            return "Scavenge the flotsam"
-
-        def selectFromMenu(self, fromRoom : Rooms):
-            Monitor.print("You begin to rummage through the debris.")
-            if fromRoom._gameState.getTimeOfDay == GameTime.MIDNIGHT:
-                Monitor.print('However, it is too dark to find anything.')
-                return
-            Monitor.print('The sun glimmers from a metallic object half-buried in the sand.')
-            Monitor.print('You dig it out and find a jerry can full of kerosene!')
-            fromRoom._gameState.tookAction(Actions.FoundFuel)
-            self._gameState.updateKnowledge(Knowledge.CollectedFuelMaterial)
-            fromRoom._removeEvent(self)
-            
     descriptionIndex = 0
     connectionDescription = []
     room = Rooms.SHOPKEEPERDIALOG
     availableActions = []
+    underAttack = False
+
+    def _getTownAttackListener(self):
+        return lambda isAttacked: self.theBeastAttacks() if isAttacked else self.theBeastLeaves()
     
     def _onEnter(self):
-        """
-        whyHere = (["The lighthouse of Emradir has fallen into disrepair and its fire long since burned out, as the townsfolk are scared to leave the safety of their walls.",
-         "The repairs may be beyond your skill, but what you could do is gather magic wood to relight the lighthouse beacon. Will you do this?"],
-            {
-            'Sure... I guess':lambda:self.acceptQuest(),
-            'No way!':lambda:self.declineQuest()
-            })
-        
-        questionsDesc=["You have a lot of questions. Might as well ask the bird, right?"]
-        questions={
-            'What is this place?':lambda:self.whatPlace(),
-            'Why did you summon me here?':lambda:self._advanceDialog(whyHere),
-            'How can you talk in my head?':lambda:self.howInMyHead(),
-            'Leave the Eagle': self.exitRoom
-        }
-"""
-        self.description = ['"Welcome stranger. I accept trades and gold." the shopkeeper greets you as you enter.',
+        menuOptions={}        
+        if self.underAttack:
+            self.description = ['You are alone in the shop. You hear sounds of battle outside.']
+            if self._gameState.hasAction(Actions.TradedTearToShopkeeper) and \
+            not self._gameState.hasAction(Actions.StoleTearFromShopkeeper):
+                menuOptions['Steal back the Jewel'] = lambda:self.stealItem(Items.Tear)
+            if self._gameState.hasAction(Actions.TradedAxeToShopkeeper) and \
+            not self._gameState.hasAction(Actions.StoleAxeFromShopkeeper):
+                menuOptions['Steal back the axe'] = lambda:self.stealItem(Items.Axe) 
+            if not self._gameState.hasAnyItem([Items.Sword, Items.SwordOfArariel]) and \
+            not self._gameState.hasAction(Actions.StoleSwordFromShopkeeper):
+                menuOptions['Steal the sword'] = lambda:self.stealItem(Items.Sword, hadBefore=False)
+            if not self._gameState.hasItem(Items.Hose) and \
+                    self._gameState.fulfillsRequirements([
+                    Knowledge.ExaminedPlane,
+                    Knowledge.FoundFuelHose]):
+                menuOptions['Steal the fuel hose'] = lambda:self.stealItem(Items.Hose)
+        else:
+            self.description = ['"Welcome stranger. I accept trades and gold." the shopkeeper greets you as you enter.',
                             "You see all kinds of utilities for everyday life; none of which are of interest to you.",
-                            "The shopkeeper keeps a close eye on you as you browse the wares."
-                            ]
-        
-        menuOptions={}
-        if not self._gameState.hasAction(Actions.SwordBought):
-            menuOptions['Examine a sword hanging on the wall'] = self.examineSword
-        if self._gameState.fulfillsRequirement(Knowledge.ExaminedPlane):
-            menuOptions['Inquire about a fuel hose'] = self.askHose
-            
+                            "The shopkeeper keeps a close eye on you as you browse the wares."]            
+            if not self._gameState.hasAnyItem([Items.Sword, Items.SwordOfArariel]):
+                self.description.append("You see a rusty sword hanging on the wall.")
+                menuOptions['Examine the sword hanging on the wall'] = self.examineSword
+            if self._gameState.fulfillsRequirement(Knowledge.ExaminedPlane) and not self._gameState.hasItem(Items.Hose):
+                menuOptions['Inquire about a fuel hose'] = self.askHose            
+                    
         menuOptions['Leave the shop'] = self.exitRoom
         
         self.dialog = [(self.description,menuOptions)]
         Monitor.clear()
 
     def askHose(self):
-        pass
+        Monitor.print("The shopkeeper thinks a while about your request.")
+        Monitor.print("After some time he moves to rummage around a pile of goods and digs up a length of a plastic tube.")
+        Monitor.print('"Will this do?" He asks. "I could part with it for a few gold coins."')
+        Monitor.print("You don't have any money, so you just thank him for his time.")
+        self._gameState.updateKnowledge(Knowledge.FoundFuelHose)
+        
     
     def examineSword(self):
-        pass
-    
-    def theBeastAttacks(self, tick):
-        self.underAttack(True)
-        self.addEvent(lambda a:self.underAttack(false),tick+60)
-        
-    def underAttack(self, underAttack):
-        self.underAttack = underAttack
+        Monitor.print("The sword is a bit rusty and very dirty.")
+        Monitor.print("You notice a curious indentation in the crossguard; as if something was pried out of it.")
+        Monitor.print("The shopkeeper notices your interest and lets you know it is for sale.")
+
+        if self._gameState.hasAnyItem([Items.Tear, Items.Axe]):
+            desc = ['You consider if you have anything valuable enough to barter for it.']
+            dialog = {}
+            if self._gameState.hasItem(Item.Tear):
+                dialog["Offer your jewel in trade."] = lambda:self.tradeForSword(Item.Tear)
+            if self._gameState.hasItem(Item.Axe):
+                dialog["Offer your jewel in trade."] = lambda:self.tradeForSword(Item.Axe)
+            dialog["Leave the sword"] = self.refreshScreen
+            self._advanceDialog((desc,dialog))
+
+    def stealItem(self,item,hadBefore = True):
+        Monitor.print("Now with all the commotion outside, you decide to act.")
+        if hadBefore:
+            Monitor.print("You steal back your item from the shopkeeper.")
+        self._gameState.addItem(item)
+
+        act = self._gameState.tookAction
+        {Items.Sword:lambda:act(Actions.StoleSwordFromShopkeeper),
+         Items.Axe:lambda:act(Actions.StoleAxeFromShopkeeper),
+         Items.Tear:lambda:act(Actions.StoleTearFromShopkeeper)}[item]()
+        self.reEnterRoom()
+
+    def theBeastAttacks(self):        
+        self.underAttack = True        
+        self._gameState.updateKnowledge(Knowledge.SeenBeast)
+        if self.roomActive:
+            Monitor.print("You hear a screech outside followed by an explosion")
+            Monitor.print("The shopkeeper grabs a nearby crowssbow and bolts, then runs outside.                         ")
+            self.reEnterRoom()
+
+    def theBeastLeaves(self):
+        self.underAttack = False
+        if self.roomActive:
+            Monitor.print("You hear the sounds of battle die down outside.")
+            Monitor.print("The shopkeeper returns behind the counter sweaty and bloodied.")
+            self.reEnterRoom()
+            
 
     def exitRoom(self):
         self.changeRoom(Rooms.VILLAGEINSIDE)

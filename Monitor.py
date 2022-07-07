@@ -45,7 +45,7 @@ class Monitor:
     @staticmethod
     def __instantPrint(text :str, delay: int=0):
         print(text)
-        time.sleep(len(text)/Monitor.readingSpeed)
+        if delay: time.sleep(len(text)/Monitor.readingSpeed)
         print()
 
     @staticmethod
