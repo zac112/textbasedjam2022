@@ -50,9 +50,10 @@ class Knowledge(Enum):
 class GameTime(Enum):    
     MIDNIGHT = 0
     DAWN = 1
-    NOON = 2
-    EVENING = 3
-    DUSK = 4
+    MORNING = 2
+    NOON = 3
+    EVENING = 4
+    DUSK = 5
 
 class Rooms(Enum):
     PLANECRASH = 'RoomPlaneCrash("Plane Crash")'
