@@ -21,15 +21,15 @@ class RoomInside(Room):
         self._gameState.unregisterInput(self.left, "left")
         self._gameState.unregisterInput(self.right, "right")
 
+    def _shouldDisplayApproximateTime(self):
+        return False
+    
     def refreshScreen(self):
         if not self.roomActive :return
 
         Monitor.clear()
         [Monitor.draw(line) for line in self.textmap]
         self.drawPlayer()
-
-    def reEnterRoom(self):
-        pass
     
     def drawPlayer(self):
         Monitor.draw('☺',pos=self.pos)

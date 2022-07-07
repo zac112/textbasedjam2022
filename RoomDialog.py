@@ -18,6 +18,9 @@ class RoomDialog(Room):
     def _advanceDialog(self, nextDialog):
         if nextDialog: self.dialog.append(nextDialog)
         else: self.dialog.pop()
+
+    def _shouldDisplayApproximateTime(self):
+        return False
         
 class RoomCastleInside(RoomDialog):
 

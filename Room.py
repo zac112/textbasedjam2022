@@ -62,6 +62,8 @@ class Room:
             self._gameState.unregisterEvent(obs,tick)
 
     def _displayApproximateTime(self):
+        if not self._shouldDisplayApproximateTime(): return
+        
         texts = {GameTime.MIDNIGHT:"It's very dark",
                  GameTime.DAWN:"Sun is rising",
                  GameTime.NOON:"The sun is at its highest",
@@ -107,6 +109,9 @@ class Room:
     def _getConnectionString(self) -> dict:
         #Inheriting classes implement
         return {}
+
+    def _shouldDisplayApproximateTime(self):
+        return True
 #endregion
 
 #region methods for menu

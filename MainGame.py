@@ -50,10 +50,7 @@ def initGame():
 
     for key, room in rooms.items():
         room.postInit(gameState)
-        if room in [Rooms.VILLAGE,Rooms.CROSSROADS,
-                    Rooms.LIGHTHOUSE,Rooms.BEACH,
-                    Rooms.CAVEENTRANCE,Rooms.CAVEEXIT,
-                    Rooms.CLIFFS,Rooms.FOREST]:
+        if room._shouldDisplayApproximateTime():
             timer.registerTimeOfDayEvent(room.reEnterRoom)
 
     Monitor.clear()
