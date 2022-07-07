@@ -287,7 +287,8 @@ class RoomCave1Inside(RoomCaveInside):
    .........           .y...y.   ####   ¤
    .........           ..┌¥┐..          ¤
    .........           ..└-┘..          ¤
-   .........           .y...y.          ¤ """.split('¤')
+   .........           .y...y.          ¤
+                                        ¤""".split('¤')
 
     def _onEnter(self):
         super()._onEnter()
@@ -308,7 +309,7 @@ class RoomCave1Inside(RoomCaveInside):
             try:self.textmap[y-1][x]
             except:continue
             
-            if self.textmap[y-1][x] == " ":continue
+            if self.textmap[y-1][x] in [" ","¤"]:continue
             self.textmap[y-1][x] = "¤"            
             if pos in self.visibleCells: Monitor.draw("¤",pos=pos)
             newPositions.extend([(x+1,y),(x-1,y),(x,y+1),(x,y-1)])
@@ -331,4 +332,8 @@ class RoomCave1Inside(RoomCaveInside):
         return [' ','└','-','┘','┌','┐','#']
 
     def isLethalTile(self, pos):
-        return self.textmap[pos[1]-1][pos[0]]=="¤"
+        result = self.textmap[pos[1]-1][pos[0]]=="¤"
+        if result:
+            for t in self.torches:
+                t.terminate()
+        return result

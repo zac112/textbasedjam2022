@@ -68,5 +68,6 @@ class Timer(threading.Thread):
 
     def stopCounting(self):
         self.running = False
-        self.eventObservers.clear()
+        self.eventObservers = {}
+        self.timeObservers = []
 

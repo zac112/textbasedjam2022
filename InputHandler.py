@@ -53,4 +53,4 @@ class InputHandler(threading.Thread):
 
     def stopListening(self):
         self.running = False
-        self.observers.clear()
+        self.observers = {}
