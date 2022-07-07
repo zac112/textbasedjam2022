@@ -369,7 +369,7 @@ class RoomBeach(Room):
         return [(self.shipwreck,360)]
 
     def shipwreck(self):
-        
+        pass
 
 class RoomCaveEntrance(Room):
 
@@ -485,6 +485,7 @@ class RoomLighthouse(Room):
             Monitor.print("As you cautiously walk towards the eagle, you hear a soft, calming voice in your head.")
             Monitor.print('"Fear not, for I will not harm you."')
             fromRoom._gameState.tookAction(Actions.MetEagle)
+            fromRoom.changeRoom(Rooms.EAGLEDIALOG)
             
     descriptionIndex = 0
     description = ["You stand at the bottom of a tall lighthouse."]

@@ -55,23 +55,22 @@ class GameTime(Enum):
     DUSK = 4
 
 class Rooms(Enum):
-    PLANECRASH = "Plane Crash"
-    VILLAGE = "Village"
-    CROSSROADS = "Crossroads"
-    LIGHTHOUSE = "Lighthouse"
-    BEACH = "Beach"
-    CAVEENTRANCE = "Cave Entrance"    
-    CAVEEXIT = "Cave Exit"
-    CAVE1 = "Upper cave"
-    CAVE2 = "Lower cave"
-    CLIFFS = "Cliffs"
-    FOREST = "Forest"
-    VILLAGEINSIDE = "Inside the village"
-    CASTLEINSIDE = "Inside the castle in village"
-    LABORATORYINSIDE = "Inside the village; right house"
-    CAVEINSIDE = "Inside the cave"
-    ARARIELJEWEL = "Arariel jewel dialog"
-    EAGLEDIALOG = "Lighthouse eagle dialog"
+    PLANECRASH = 'RoomPlaneCrash("Plane Crash")'
+    VILLAGE = 'RoomVillage("Village")'
+    CROSSROADS = 'RoomCrossroads("Crossroads")'
+    LIGHTHOUSE = 'RoomLighthouse("Lighthouse")'
+    BEACH = 'RoomBeach("Beach")'
+    CAVEENTRANCE = 'RoomCaveEntrance("Cave Entrance")'
+    CAVEEXIT = 'RoomCaveExit("Cave Exit")'    
+    CLIFFS = 'RoomCliffs("Cliffs")'
+    FOREST = 'RoomForest("Forest")'
+    VILLAGEINSIDE = 'RoomVillageInside("Inside the village")'
+    CASTLEINSIDE = 'RoomCastleInside("Inside the castle in village")'
+    LABORATORYINSIDE = 'RoomLaboratoryInside("Inside the village; right house")'
+    CAVEINSIDE = 'RoomCaveInside("Inside the cave")'
+    CAVE1 = 'RoomCave1Inside("Upper Cave")'
+    ARARIELJEWEL = 'RoomArarielDialogue("Arariel jewel dialog")'
+    EAGLEDIALOG = 'RoomEagleDialogue("Lighthouse eagle dialog")'
 
 class Actions(Enum):
     BluePotion = auto()

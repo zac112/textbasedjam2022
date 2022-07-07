@@ -146,3 +146,33 @@ class RoomArarielDialogue(RoomDialog):
         
     def exitRoom(self):
         self.changeRoom(Rooms.CAVE1)
+
+class RoomEagleDialogue(RoomDialog):
+    descriptionIndex = 0
+    connectionDescription = []
+    room = Rooms.ARARIELJEWEL
+    availableActions = []
+    
+    def _onEnter(self):
+        ararielDialogLang = {True:"This must be the tear of Arariel.",
+                          False:"A jewel sits on top of it."}
+        self.description = [f"You find a pedestal surrounded by torches. {ararielDialogLang[self._gameState.fulfillsRequirement(Knowledge.LearnedOfTearOfArariel)]}.",
+                            "You approach a majestic pedestal that seems to glow. Though it might be the surrounding torches too."]
+
+        menuOptions={
+            'Pick up the jewel':lambda:self.pickupJewel(),
+            'Leave': self.exitRoom
+        }            
+        self.dialog = [(self.description,menuOptions)]
+        Monitor.clear()
+
+    def pickupJewel(self):
+        Monitor.print("You pick up the beautiful jewel and are surprised by its weight. As you stuff it in your pocket, you hear a faint rumble.")
+        Monitor.print("The rumbling grows lowder")
+        Monitor.print("You begin to feel light headed. Uh-oh; you now understand the situation:")
+        Monitor.print("POISON GAS!!!", speed=Monitor.SLOW)
+        self._gameState.updateKnowledge(Knowledge.CollectedTearOfArariel)
+        self.exitRoom()
+        
+    def exitRoom(self):
+        self.changeRoom(Rooms.CAVE1)

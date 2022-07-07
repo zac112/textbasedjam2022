@@ -28,27 +28,13 @@ def initGame():
     inp.startListening()
     inp.registerObserver(quitGame,'q')
 
-    rooms = {
-        Rooms.PLANECRASH: RoomPlaneCrash("Plane crash")
-        , Rooms.VILLAGE: RoomVillage("Village")
-        , Rooms.CROSSROADS: RoomCrossroads("Crossroads")
-        , Rooms.LIGHTHOUSE: RoomLighthouse("Lighthouse")
-        , Rooms.BEACH: RoomBeach("Beach")
-        , Rooms.CAVEENTRANCE: RoomCaveEntrance("Cave Entrance")
-        , Rooms.CAVEINSIDE: RoomCaveInside("Inside Cave")
-        , Rooms.CAVEEXIT: RoomCaveExit("Cave Exit")
-        , Rooms.CLIFFS: RoomCliffs("Cliffs")
-        , Rooms.FOREST: RoomForest("Forest")
-        , Rooms.VILLAGEINSIDE: RoomVillageInside("Inside the village")
-        , Rooms.CASTLEINSIDE: RoomCastleInside("Inside the village")
-        , Rooms.LABORATORYINSIDE: RoomLaboratoryInside("Inside the village")
-        , Rooms.CAVE1: RoomCave1Inside("Inside the village")
-        , Rooms.ARARIELJEWEL: RoomArarielDialogue("Arariel jewel")
-    }
-    
+    rooms = {}    
     gameState = GameState(inp, timer, rooms, quitGame, lock)
 
-    for key, room in rooms.items():
+    for entry in Rooms:
+        #a bit of eval-magic to workaround the circular import
+        room = eval(entry.value)
+        rooms[entry]=room
         room.postInit(gameState)
         if room._shouldDisplayApproximateTime():
             timer.registerTimeOfDayEvent(room.reEnterRoom)
