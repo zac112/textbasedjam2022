@@ -8,12 +8,11 @@ class GameState:
     def __init__(self,
                  inputHandler : InputHandler,
                  clock : Clock,
-                 rooms : dict,
                  gameEndCallback,
                  lock):
         self._clock = clock
         self._inputHandler = inputHandler
-        self._rooms = rooms
+        self._rooms = {}
         #Callback ends the game
         self.endGame = gameEndCallback
         #Knowledgetype -> level
@@ -33,6 +32,12 @@ class GameState:
     def unregisterEvent(self, observer, tick):
         self._clock.unregisterEvent(observer, tick)
 
+    def registerGlobalEvents(self):
+        globalEvents = [(self._rooms[Rooms.BEACH].shipwreck,360),
+                        (self._rooms[Rooms.LIGHTHOUSE].eagleArrives,180),
+                        (self._rooms[Rooms.SHOPKEEPERDIALOG].theBeastAttacks,10)
+                        ]
+        
     def getTick(self):
         return self._clock.getTick()
 

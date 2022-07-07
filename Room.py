@@ -116,11 +116,6 @@ class Room:
     def _shouldDisplayApproximateTime(self):
         return True
 
-    def getGlobalEvents(self):
-        #Inheriting classes implement
-        #Global events are important plot points that happen regardless of player involvement
-        #list[(method,tick)]
-        return []
 #endregion
 
 #region methods for menu
@@ -146,8 +141,9 @@ class Room:
         self._gameState.unregisterInput(self._menuAccept, 'enter')
 
     def _getMenuItems(self) -> list:
-        menuitems = [self._gameState.getRoom(r) for r in self._connectedRooms]        
+        menuitems = []
         menuitems.extend(self._getActions())
+        menuitems.extend([self._gameState.getRoom(r) for r in self._connectedRooms])        
         return menuitems
 
     def _displayMenuItems(self):
@@ -387,9 +383,6 @@ class RoomBeach(Room):
         self._connectedRooms.append(Rooms.CROSSROADS)
         self._connectedRooms.append(Rooms.CAVEENTRANCE)
 
-    def getGlobalEvents(self):
-        return [(self.shipwreck,3)]
-
     def shipwreck(self, ticks):
         if self._gameState.fulfillsRequirement(Knowledge.FixedLighthouse): return
 
@@ -537,9 +530,6 @@ class RoomLighthouse(Room):
         
     def _connectRooms(self):
         self._connectedRooms.append(Rooms.CROSSROADS)
-
-    def getGlobalEvents(self):
-        return [(self.eagleArrives,10)]
 
     def eagleArrives(self,tick):
         self.addEvent(self.Eagle(),tick+60)

@@ -28,23 +28,22 @@ def initGame():
     inp.startListening()
     inp.registerObserver(quitGame,'q')
 
-    rooms = {}    
-    gameState = GameState(inp, timer, rooms, quitGame, lock)
 
+    gameState = GameState(inp, timer, quitGame, lock)
     for entry in Rooms:
         #a bit of eval-magic to workaround the circular import
         room = eval(entry.value)
-        rooms[entry]=room
+        gameState._rooms[entry]=room
         room.postInit(gameState)
         if room._shouldDisplayApproximateTime():
             timer.registerTimeOfDayEvent(room.reEnterRoom)
-        for event in room.getGlobalEvents():
-            timer.registerEvent(*event)
+
+    gameState.registerGlobalEvents()
 
     Monitor.clear()
     print("\x1b[?25l") #hide cursor
     #rooms[Rooms.PLANECRASH].enterRoom()
-    rooms[Rooms.LIGHTHOUSE].enterRoom()
+    gameState._rooms[Rooms.VILLAGEINSIDE].enterRoom()
 
 
     

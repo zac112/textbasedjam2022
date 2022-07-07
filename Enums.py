@@ -1,20 +1,21 @@
 from enum import Enum, auto
 
 class KnowledgeType(Enum):
-    BEAST = 1
-    CULTURE = 2
-    PLANE = 3
-    PLANEWHEEL = 4
-    PLANEFUEL = 5
-    LIGHTHOUSE = 6
-    QUEST_ARARIEL = 7
-    ISLAND_SINK = 8
-    LANGUAGE = 9
+    BEAST = auto()
+    CULTURE = auto()
+    PLANE = auto()
+    PLANEWHEEL = auto()
+    PLANEFUEL = auto()
+    PLANEHOSE = auto()
+    LIGHTHOUSE = auto()
+    QUEST_ARARIEL = auto()
+    ISLAND_SINK = auto()
+    LANGUAGE = auto()
 
 class Knowledge(Enum):
     KnowsOfBeast = (KnowledgeType.BEAST,1)
     SeenBeast = (KnowledgeType.BEAST,2)
-    FoughtBeast = (KnowledgeType.BEAST,3)
+    FoughtBeast = (KnowledgeType.BEAST,3) #Requires sword
     DefeatedBeast = (KnowledgeType.BEAST,4)
 
     LearnedLanguage = (KnowledgeType.LANGUAGE,1)
@@ -76,6 +77,7 @@ class Rooms(Enum):
     CAVE1 = 'RoomCave1Inside("Upper Cave")'
     ARARIELJEWEL = 'RoomArarielDialogue("Arariel jewel dialog")'
     EAGLEDIALOG = 'RoomEagleDialogue("Lighthouse eagle dialog")'
+    SHOPKEEPERDIALOG = 'RoomShopkeeperDialogue("Town shopkeeper; left house")'
     #shopkeeper; steal hose for plane
 
 class Actions(Enum):
@@ -85,3 +87,4 @@ class Actions(Enum):
     ChasedBirds = auto()
     MetEagle = auto()
     EagleQuest = auto() #axe
+    SwordBought = auto() #lose axe, gain sword

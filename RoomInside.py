@@ -93,7 +93,7 @@ class RoomVillageInside(RoomInside):
             (14,6):lambda:self.changeRoom(Rooms.CASTLEINSIDE),
             (15,6):lambda:self.changeRoom(Rooms.CASTLEINSIDE),
             (20,11):lambda:self.changeRoom(Rooms.LABORATORYINSIDE),
-            #(7,11):,
+            (7,11):lambda:self.changeRoom(Rooms.SHOPKEEPERDIALOG),
             (13,15):lambda:self.changeRoom(Rooms.VILLAGE),
             (14,15):lambda:self.changeRoom(Rooms.VILLAGE),
             (15,15):lambda:self.changeRoom(Rooms.VILLAGE)
