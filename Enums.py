@@ -4,7 +4,7 @@ class KnowledgeType(Enum):
     BEAST = 1
     CULTURE = 2
     PLANE = 3
-    PLANEWING = 4
+    PLANEWHEEL = 4
     PLANEFUEL = 5
     LIGHTHOUSE = 6
     QUEST_ARARIEL = 7
@@ -21,18 +21,20 @@ class Knowledge(Enum):
     
     VisitedVillage = (KnowledgeType.CULTURE,1)    
     LearnedVillageName = (KnowledgeType.CULTURE,2)
-    LearnedVillageHistory = (KnowledgeType.CULTURE,3)
+    LearnedVillageHistory = (KnowledgeType.CULTURE,3) #Prereqs KnowsofBeast
     VillagersAcceptYou = (KnowledgeType.CULTURE,4) #Preregs max QUEST_ARARIEL & LIGHTHOUSE
     
     ExaminedPlane = (KnowledgeType.PLANE,1)
-    FixedPlane = (KnowledgeType.PLANE,2) #Prereqs max PLANEWING & PLANEFUEL
+    FixedPlane = (KnowledgeType.PLANE,2) #Prereqs max PLANEWING & PLANEFUEL & PLANEHOSE
 
-    CollectedWingMaterial = (KnowledgeType.PLANEWING,1)
-    AttachedWing = (KnowledgeType.PLANEWING,2)
+    CollectedWheelMaterial = (KnowledgeType.PLANEWHEEL,1)
+    AttachedWheel = (KnowledgeType.PLANEWHEEL,2)
+    
+    CollectedFuelMaterial = (KnowledgeType.PLANEFUEL,1)
+    AddedFuelToPlane = (KnowledgeType.PLANEFUEL,2)
 
-    LearnedPlaneFuelMaterial = (KnowledgeType.PLANEFUEL,1)
-    CollectedFuelMaterial = (KnowledgeType.PLANEFUEL,2)
-    AddedFuelToPlane = (KnowledgeType.PLANEFUEL,3)
+    FoundFuelHose = (KnowledgeType.PLANEHOSE,1)
+    AttachedFuelHose = (KnowledgeType.PLANEHOSE,2)
 
     VisitedLighthouse = (KnowledgeType.LIGHTHOUSE,1)
     LearnedLighthouseHistory = (KnowledgeType.LIGHTHOUSE,2)

@@ -346,6 +346,23 @@ class RoomCrossroads(Room):
 
 class RoomBeach(Room):
 
+    class Shipwreck(MenuItem):
+        description = "You see pieces of debris floating on the shallows and washed ashore."
+        
+        def _getConnectionString(self, fromRoom):            
+            return "Scavenge the flotsam"
+
+        def selectFromMenu(self, fromRoom : Rooms):
+            Monitor.print("You begin to rummage through the debris.")
+            if fromRoom._gameState.getTimeOfDay == GameTime.MIDNIGHT:
+                Monitor.print('However, it is too dark to find anything.')
+                return
+            Monitor.print('The sun glimmers from a metallic object half-buried in the sand.')
+            Monitor.print('You dig it out and find a jerry can full of kerosene!')
+            fromRoom._gameState.tookAction(Actions.FoundFuel)
+            self._gameState.updateKnowledge(Knowledge.CollectedFuelMaterial)
+            fromRoom._removeEvent(self)
+            
     descriptionIndex = 0
     description = ["You find yourself on a beach. The sun shines warmly and seagulls screech occasionally."]
     connectionDescription = ["You see a sandy beach not far from where you are"]
@@ -371,11 +388,18 @@ class RoomBeach(Room):
         self._connectedRooms.append(Rooms.CAVEENTRANCE)
 
     def getGlobalEvents(self):
-        return [(self.shipwreck,360)]
+        return [(self.shipwreck,3)]
 
-    def shipwreck(self):
-        #Shipwreck gives you fuel. Only happens midnight if lighthouse is not fixed
-        raise Exception("Event not implemented")
+    def shipwreck(self, ticks):
+        if self._gameState.fulfillsRequirement(Knowledge.FixedLighthouse): return
+
+        if self.roomActive:
+            Monitor.print("You hear a crash and shortly thereafter flosam begins to float to the beach.")
+        else:
+            Monitor.print("The winds from the beach carry the sounds of a faint explosion. Maybe you imagined it.")
+
+        self.addEvent(self.Shipwreck())
+        
 
 class RoomCaveEntrance(Room):
 
