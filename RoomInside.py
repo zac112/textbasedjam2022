@@ -156,7 +156,6 @@ class RoomCaveInside(RoomInside):
         
     def _onEnter(self):
         Monitor.clear()
-
         self.visibleCells = self.floodFill(self.pos)
         self.forbidden = []
         self.torches = []
@@ -215,10 +214,10 @@ class RoomCaveInside(RoomInside):
         self.drawPlayer()
 
     def move(self, movement):
-        if not self.roomActive :return
         x,y = self.pos
         newPos = movement(x,y)
         if newPos in self.forbidden: return
+        if self.isLethalTile(newPos): self._gameState.endGame()
 
         self.visibleCells = self.floodFill(newPos)        
         self.pos = newPos
@@ -258,11 +257,15 @@ class RoomCaveInside(RoomInside):
                 ,Rooms.CAVEEXIT: self.connectionDescription[self.descriptionIndex]
                 }[fromRoom]
 
+    def isLethalTile(self, pos):
+        return False
 
 class RoomCave1Inside(RoomCaveInside):
     room = Rooms.CAVE1
-    availableActions = []
-    pos = (14,2)
+    availableActions = []    
+    #pos = (14,2)
+    pos = (27,17)
+    collapsing = False
     textmap = """
                                         ¤
    .....    »..............y........    ¤
@@ -271,7 +274,7 @@ class RoomCave1Inside(RoomCaveInside):
    .....   .    .##        .  . .    .  ¤
            .    .  ............ . .. .  ¤
            .    .  .   .        #  ...  ¤
-  ..............y  .   .    .           ¤
+  ...............y .   .    .           ¤
   .        #    .  .   ...............  ¤
   ............  .      #        ......  ¤
              .  ..#........#    ......  ¤
@@ -281,13 +284,51 @@ class RoomCave1Inside(RoomCaveInside):
          .          .  .......   #.#    ¤
        ..............  .......   #.##   ¤
        .               .......   #..#   ¤
-   .........           .......   ####   ¤
+   .........           .y...y.   ####   ¤
    .........           ..┌¥┐..          ¤
    .........           ..└-┘..          ¤
-   .........           .......          ¤ """.split('¤')
-    
+   .........           .y...y.          ¤ """.split('¤')
+
+    def _onEnter(self):
+        super()._onEnter()
+        if True or self._gameState.fulfillsRequirement(Knowledge.CollectedTearOfArariel):
+            
+            self.startCollapse()
+            self.collapsing = True
+
+    def startCollapse(self):
+        if self.collapsing: return
+        self._gameState.registerEvent(self.collapse, self._gameState.getTick()+2)
+        self.nextCollapses = [(27,21)]
+
+    def collapse(self, ticks):
+        newPositions = []
+        for pos in self.nextCollapses:
+            x,y = pos
+            try:self.textmap[y-1][x]
+            except:continue
+            
+            if self.textmap[y-1][x] == " ":continue
+            self.textmap[y-1][x] = "¤"            
+            if pos in self.visibleCells: Monitor.draw("¤",pos=pos)
+            newPositions.extend([(x+1,y),(x-1,y),(x,y+1),(x,y-1)])
+
+        self.nextCollapses = newPositions        
+        if self.nextCollapses:
+            self._gameState.registerEvent(self.collapse, ticks+random.randint(2,4))
+            
     def _getDoors(self):
-        return { (13,2):lambda:self.changeRoom(Rooms.CAVEINSIDE) }
+        if self.collapsing:
+            option = lambda:Monitor.print("You admire the majestic pedestal of the tear of Arariel while the cavern around you is collapsing.",delay=False)
+        else:
+            option = lambda:self.changeRoom(Rooms.ARARIELJEWEL)
+            
+        return {(13,2):lambda:self.changeRoom(Rooms.CAVEINSIDE),
+                (27,19):option
+                }
     
     def _getForbiddenChars(self):
         return [' ','└','-','┘','┌','┐','#']
+
+    def isLethalTile(self, pos):
+        return self.textmap[pos[1]-1][pos[0]]=="¤"

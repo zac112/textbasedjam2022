@@ -70,6 +70,7 @@ class Rooms(Enum):
     CASTLEINSIDE = "Inside the castle in village"
     LABORATORYINSIDE = "Inside the village; right house"
     CAVEINSIDE = "Inside the cave"
+    ARARIELJEWEL = "Arariel jewel dialog"
 
 class Actions(Enum):
     BluePotion = auto()

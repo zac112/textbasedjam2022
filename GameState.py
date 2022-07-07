@@ -14,6 +14,7 @@ class GameState:
         self._clock = clock
         self._inputHandler = inputHandler
         self._rooms = rooms
+        #Callback ends the game
         self.endGame = gameEndCallback
         #Knowledgetype -> level
         self._knowledge = {}

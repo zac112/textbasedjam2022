@@ -43,13 +43,18 @@ def initGame():
         , Rooms.CASTLEINSIDE: RoomCastleInside("Inside the village")
         , Rooms.LABORATORYINSIDE: RoomLaboratoryInside("Inside the village")
         , Rooms.CAVE1: RoomCave1Inside("Inside the village")
+        , Rooms.ARARIELJEWEL: RoomArarielDialogue("Arariel jewel")
     }
     
     gameState = GameState(inp, timer, rooms, quitGame, lock)
 
     for key, room in rooms.items():
         room.postInit(gameState)
-        timer.registerTimeOfDayEvent(room.reEnterRoom)
+        if room in [Rooms.VILLAGE,Rooms.CROSSROADS,
+                    Rooms.LIGHTHOUSE,Rooms.BEACH,
+                    Rooms.CAVEENTRANCE,Rooms.CAVEEXIT,
+                    Rooms.CLIFFS,Rooms.FOREST]:
+            timer.registerTimeOfDayEvent(room.reEnterRoom)
 
     Monitor.clear()
     print("\x1b[?25l") #hide cursor
