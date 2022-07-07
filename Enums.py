@@ -71,9 +71,11 @@ class Rooms(Enum):
     LABORATORYINSIDE = "Inside the village; right house"
     CAVEINSIDE = "Inside the cave"
     ARARIELJEWEL = "Arariel jewel dialog"
+    EAGLEDIALOG = "Lighthouse eagle dialog"
 
 class Actions(Enum):
     BluePotion = auto()
     RedPotion = auto()
     YellowPotion = auto()
     ChasedBirds = auto()
+    MetEagle = auto()

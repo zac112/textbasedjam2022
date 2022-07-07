@@ -365,6 +365,12 @@ class RoomBeach(Room):
         self._connectedRooms.append(Rooms.CROSSROADS)
         self._connectedRooms.append(Rooms.CAVEENTRANCE)
 
+    def getGlobalEvents(self):
+        return [(self.shipwreck,360)]
+
+    def shipwreck(self):
+        
+
 class RoomCaveEntrance(Room):
 
     descriptionIndex = 0
@@ -469,6 +475,17 @@ class RoomForest(Room):
 
 class RoomLighthouse(Room):
 
+    class Eagle(MenuItem):
+        description = "A majestic eagle has landed near the lighthouse. It looks at you with a welcoming look."
+        
+        def _getConnectionString(self, fromRoom):            
+            return "Approach the eagle"
+
+        def selectFromMenu(self, fromRoom : Rooms):
+            Monitor.print("As you cautiously walk towards the eagle, you hear a soft, calming voice in your head.")
+            Monitor.print('"Fear not, for I will not harm you."')
+            fromRoom._gameState.tookAction(Actions.MetEagle)
+            
     descriptionIndex = 0
     description = ["You stand at the bottom of a tall lighthouse."]
     connectionDescription = ["What looks like a tall tower looms solemnly against the horizon."]
@@ -494,7 +511,11 @@ class RoomLighthouse(Room):
         return [(self.eagleArrives,180)]
 
     def eagleArrives(self,tick):
+        self.addEvent(Eagle(),tick+60)
         if self.roomActive:
             Monitor.print("An eagle lands near the lighthouse.",speed=Monitor.SLOW)
         else:
             Monitor.print("You have a vision of an eagle flying towards a lighthouse.",speed=Monitor.SLOW)
+
+    
+        
