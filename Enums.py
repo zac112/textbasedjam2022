@@ -15,8 +15,9 @@ class KnowledgeType(Enum):
 class Knowledge(Enum):
     KnowsOfBeast = (KnowledgeType.BEAST,1)
     SeenBeast = (KnowledgeType.BEAST,2)
-    FoughtBeast = (KnowledgeType.BEAST,3) #Requires sword
-    DefeatedBeast = (KnowledgeType.BEAST,4)
+    FixedSword = (KnowledgeType.BEAST,3)
+    FoughtBeast = (KnowledgeType.BEAST,4)
+    DefeatedBeast = (KnowledgeType.BEAST,5)
 
     LearnedLanguage = (KnowledgeType.LANGUAGE,1)
     
