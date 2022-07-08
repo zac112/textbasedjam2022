@@ -39,11 +39,10 @@ class Timer(threading.Thread):
     def getTick(self):
         return self.ticks
 
-    def advanceTime(self):
-        for x in [t.value for t in GameTime]:
-            if x < self.getTick()%360:continue
-            self.ticks = x-2
-            break
+    def advanceTime(self):        
+        self.ticks += 30
+        print(self.ticks)
+        
         
     #Returns the current time as a tuple(day:int,GameTime)
     def getTime(self) -> tuple:

@@ -96,6 +96,7 @@ class Actions(Enum):
     StoleTearFromShopkeeper = auto()
     GaveTearToKing = auto()
     ClimbedDownCliff = auto()
+    FoundFuel = auto()
 
 class Items(Enum):
     Tear = auto()

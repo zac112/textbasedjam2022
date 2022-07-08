@@ -24,6 +24,7 @@ def quitGame(status : GameEnd):
         print("Congratulations! You beat the game!")
     timer.stopCounting()
     inp.stopListening()
+    input("<Press enter>")
     sys.exit(0)
     
 def initGame():
@@ -45,9 +46,12 @@ def initGame():
 
     Monitor.clear()
     print("\x1b[?25l") #hide cursor
-    gameState._rooms[Rooms.PLANECRASH].enterRoom()
+    
     #gameState.addItem(Items.Lightbead)
-    #gameState._rooms[Rooms.FORESTINSIDE].enterRoom()
+    #gameState.addItem(Items.Sword)
+    gameState.updateKnowledge(Knowledge.CollectedFuelMaterial)
+    gameState._rooms[Rooms.PLANECRASH].enterRoom()
+    #gameState._rooms[Rooms.FOREST].enterRoom()
 
 
     

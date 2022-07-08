@@ -388,7 +388,9 @@ class RoomCave1Inside(RoomCaveInside):
             if self.textmap[y-1][x] in [" ","¤"]:continue
             self.textmap[y-1][x] = "¤"            
             if pos in self.visibleCells: Monitor.draw("¤",pos=pos)
-            newPositions.extend([(x+1,y),(x-1,y),(x,y+1),(x,y-1)])
+
+            if self.roomActive:
+                newPositions.extend([(x+1,y),(x-1,y),(x,y+1),(x,y-1)])
 
         self.nextCollapses = newPositions        
         if self.roomActive and self.nextCollapses:

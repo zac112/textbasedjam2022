@@ -362,6 +362,7 @@ class RoomShopkeeperDialogue(RoomDialog):
         Monitor.print("You don't have any money, so you just thank him for his time.")
         self._gameState.updateKnowledge(Knowledge.FoundFuelHose)
         self._gameState.tookAction(Actions.AskedHoseFromShopkeeper)
+        self.reEnterRoom()
         
     
     def examineSword(self):
@@ -441,17 +442,17 @@ class RoomBeastDialogue(RoomDialog):
         Monitor.print("You victoriously stand over the corpse of the horrendous beast.")
         Monitor.print("But wait, the corpse begins to shimmer; it transformed into a human")
         Monitor.print('In his last breath he wispers: "I\'m sorry; the curse is now yours to bear."')
-        Monitor.print('...Wait what',speed=Monitor.SLOW)
-        Monitor.print("You scream in agony as your body is morphed into the beast you just slew.")
+        Monitor.print('...Wait what',speed=2)
+        Monitor.print("You scream in agony as your body is morphed into the Beast you just slew.")
         self._gameState.endGame(GameEnd.LOSE)
 
     def live(self):
-        Monitor.print("You strike the sword of Arariel to the ground next to the beast.")
+        Monitor.print("You strike the sword of Arariel to the ground next to the Beast.")
         Monitor.print("The sword begins to shimmer. The still-living body of the Beast shimmers in sync.")
-        Monitor.print("Flash! ZAP!",speed=Monitor.SLOW)
+        Monitor.print("Flash! ZAP!",speed=2)
         Monitor.print("Both the sword and the Beast are gone; only the Tear of Arariel remains.")
-        Monitor.print("You pick up the tear.")
+        Monitor.print("You pick up the tear and head out of the forest.                 ")
         self._gameState.updateKnowledge(Knowledge.DefeatedBeast)
         self._gameState.removeItem(Items.SwordOfArariel)
         self._gameState.addItem(Items.Tear)
-        self.changeRoom(Room.FOREST)
+        self.changeRoom(Rooms.FOREST)

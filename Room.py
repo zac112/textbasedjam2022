@@ -268,7 +268,7 @@ Fix the fuel hose first.""")
         description = ""
         
         def _getConnectionString(self, fromRoom):            
-            return "Add fuel to your plane"
+            return "Add the fuel hose to your plane"
 
         def getRequirements(self) -> list:
             return [Knowledge.FoundFuelHose]
@@ -306,7 +306,7 @@ Fix the fuel hose first.""")
     description = ["You are at the site where you crashed your plane.","Smoke is still rising from the engine."]
     connectionDescription = ["You see smoke rising in the distance where you crashed your plane", "You see your plane in the distance"]
     room = Rooms.PLANECRASH    
-    availableActions = [ExaminePlane()]
+    availableActions = [ExaminePlane(),AttachWheels(),AddFuel(),FixHose(),EscapeIsland()]
 
     def _onEnter(self):
         self.description = ["You are at the site where you crashed your plane."]
@@ -424,7 +424,7 @@ class RoomBeach(Room):
 
         def selectFromMenu(self, fromRoom : Rooms):
             Monitor.print("You begin to rummage through the debris.")
-            if fromRoom._gameState.getTimeOfDay == GameTime.MIDNIGHT:
+            if fromRoom._gameState.getTimeOfDay() == GameTime.MIDNIGHT:
                 Monitor.print('However, it is too dark to find anything.')
                 return
             Monitor.print('The sun glimmers from a metallic object half-buried in the sand.')
@@ -433,6 +433,7 @@ class RoomBeach(Room):
             fromRoom._gameState.updateKnowledge(Knowledge.CollectedFuelMaterial)
             fromRoom._gameState.addItem(Items.Fuel)
             fromRoom._removeEvent(self)
+            fromRoom.reEnterRoom()
             
     descriptionIndex = 0
     description = ["You find yourself on a beach. The sun shines warmly and seagulls screech occasionally."]
@@ -456,6 +457,7 @@ class RoomBeach(Room):
 
         if self.roomActive:
             Monitor.print("You hear a crash and shortly thereafter flosam begins to float to the beach.")
+            self.reEnterRoom()
         else:
             Monitor.print("The winds from the beach carry the sounds of a faint explosion. Maybe you imagined it.")
 
@@ -511,7 +513,7 @@ class RoomCliffs(Room):
 
         def selectFromMenu(self, fromRoom : Rooms):
             Monitor.print("You begin to climb down the cliffside.")
-            if fromRoom._gameState.getTimeOfDay == GameTime.MIDNIGHT:
+            if fromRoom._gameState.getTimeOfDay() == GameTime.MIDNIGHT:
                 Monitor.print('However, you lose your foothold in the darkness and fall to your death.')
                 fromRoom._gameState.endGame(GameEnd.LOSE)
                 return
@@ -522,6 +524,7 @@ class RoomCliffs(Room):
             fromRoom._gameState.updateKnowledge(Knowledge.CollectedWheelMaterial)
             fromRoom._gameState.addItem(Items.Wheels)
             fromRoom._removeEvent(self)
+            fromRoom.reEnterRoom()
             
     descriptionIndex = 0
     description = ["You stop at a tall cliffside. Waves crash against it some hundreds of feet below you."]
@@ -536,8 +539,11 @@ class RoomCliffs(Room):
         self._connectedRooms.append(Rooms.CAVEEXIT)
 
     def shipwreck(self, ticks):
-        if self._gameState.fulfillsRequirement(Knowledge.FixedLighthouse): return
+        if self._gameState.fulfillsRequirement(Knowledge.FixedLighthouse): return        
         self.availableActions.append(self.Shipwreck())
+        if self.roomActive:
+            Monitor.print("You hear a crash at the cliffs")
+            self.reEnterRoom()
 
 class RoomForest(Room):
 
@@ -571,20 +577,19 @@ class RoomForest(Room):
                 if fromRoom._gameState.hasItem(Items.Sword):
                     Monitor.print("You ready your rusty sword for battle with the Beast.")
                     Monitor.print("The Beast breathes fire at you; melts your sword and kills you.")
-                    romRoom._gameState.endGame(GameEnd.LOSE)
+                    fromRoom._gameState.endGame(GameEnd.LOSE)
                     return
                 else:
                     Monitor.print("You walk up to the beast and punch it as hard as you can.")
                     Monitor.print("The Beast eats you.")
-                    romRoom._gameState.endGame(GameEnd.LOSE)
+                    fromRoom._gameState.endGame(GameEnd.LOSE)
                     return
             else:
                 Monitor.print("The sword of Arariel begins to glow.")
                 Monitor.print("The Beast breathes fire at you, but the sword deflects the Beast's magic.")
                 Monitor.print("What follows is an intense battle, which I didn't have time to write for this game jam.")                
-                Monitor.print("But trust me, it was an ", speed=Monitor.NORMAL, printline=False)
-                Monitor.print(" epic ", speed=Monitor.SLOW, printline=False)
-                Monitor.print("battle.", speed=Monitor.Normal)
+                Monitor.print("But trust me, it was an ", speed=30, printline=False)
+                Monitor.print(" epic battle.       ", speed=Monitor.SLOW)
                 Monitor.print("Anyway,                                       ")
                 Monitor.clear()
                 fromRoom.changeRoom(Rooms.BEASTDIALOG)
@@ -601,7 +606,9 @@ class RoomForest(Room):
 
     def addBeastOption(self, isAttacking):
         if not isAttacking:
-            self.availableActions.append(self.SeekBeast)
+            self.availableActions.append(self.SeekBeast())
+
+        if self.roomActive: self.reEnterRoom()
         
     def _getConnectionString(self, fromRoom):
         return {Rooms.CAVEEXIT: self.connectionDescription[self.descriptionIndex]}[fromRoom]
@@ -650,9 +657,9 @@ class RoomLighthouse(Room):
 
     def _onEnter(self):
         self.description = ["You stand at the bottom of a tall lighthouse."]
-        if self._gameState.hasItem(Items.Wood):
+        if self._gameState.hasItem(Items.Wood) and not any([type(x)==type(self.FixLighthouse()) for x in self.availableActions]):
             self.availableActions.append(self.FixLighthouse())
-        if self._gameState.fulfillsRequirement(FixedLighthouse):
+        if self._gameState.fulfillsRequirement(Knowledge.FixedLighthouse):
             self.description.append("The flames on top of the lighthouse burn brightly.")
         
         
