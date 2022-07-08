@@ -49,7 +49,7 @@ class GameState:
         Monitor.print("An EARTHQUAKE!!",speed=Monitor.SLOW)
         Monitor.print("It's more than just an earthquake; the whole island is sinking!")
         Monitor.print("You drown.")
-        self.endGame()
+        self.endGame(GameEnd.LOSE)
         
     def getRoom(self, room : Rooms) -> Rooms:
         if room not in self._rooms: raise Exception(f"Room {room} not in rooms!")

@@ -199,6 +199,7 @@ class RoomPlaneCrash(Room):
             Monitor.print("You chase the birds away")
             fromRoom._gameState.tookAction(Actions.ChasedBirds)
             fromRoom._removeEvent(self)
+            fromRoom.reEnterRoom()
 
     class ExaminePlane(MenuItem):
         description = ""
@@ -676,5 +677,61 @@ class RoomLighthouse(Room):
         else:
             Monitor.print("You have a vision of an eagle flying towards a lighthouse.",speed=Monitor.SLOW)
 
-    
+class MainMenu(Room):
+    class StartGame(MenuItem):
+        description = ""
         
+        def _getConnectionString(self, fromRoom):            
+            return "Take off"
+
+        def selectFromMenu(self, fromRoom : Rooms):
+                Monitor.clear()
+                Monitor.print("You're flying at night across the Atlantic ocean on your trusted biplane.")
+                Monitor.print("Beep.")
+                Monitor.print("Hmmm.....",speed=Monitor.SLOW)
+                Monitor.print("Beep. Beep.")
+                Monitor.print("Beep. Beep. Beep. Beep. Beep. Beep.")
+                Monitor.print("One by one all your instruments light up and it occurs to you.")
+                Monitor.print("You're going down!",printline=False)
+                Monitor.print("MAYDAAAAAAAYYYYYYYYY!!!!",speed=Monitor.SLOW)
+                fromRoom.changeRoom(Rooms.PLANECRASH)
+
+    class Quit(MenuItem):
+        description = ""
+        
+        def _getConnectionString(self, fromRoom):            
+            return "Stay home."
+
+        def selectFromMenu(self, fromRoom : Rooms): 
+            fromRoom._gameState.endGame(GameEnd.QUIT)
+            
+    descriptionIndex = 0
+    description = ["""
+█████ █ █ ███  ████ ███   █   ████ █████
+  █   █ █ █    █  █ █    █ █  █      █
+  █   ███ ███  ████ ███  ███  ████   █
+  █   █ █ █    █  █ █   █   █    █   █
+  █   █ █ ███  ████ ███ █   █ ████   █
+  
+                 ███ 
+		█    
+		 █    
+		█ █
+		 █ █
+				
+█████ █ █ ███  █████ ████ █  ███  █ █   █
+  █   █ █ █      █   █  █ █   █   █ ██  █
+  █   ███ ███    █   █  █  █ █ █ █  █ █ █
+  █   █ █ █      █   █  █  █ █ █ █  █ █ █
+  █   █ █ ███    █   ████   █   █   █  █
+
+            Game made for
+       text based game jam 2022
+                 By:
+             Erno Lokkila"""]
+    connectionDescription = [""]
+    room = Rooms.MAINMENU
+    availableActions = [StartGame(), Quit()]
+    
+    def _shouldDisplayApproximateTime(self):
+        return False

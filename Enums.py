@@ -59,6 +59,7 @@ class GameTime(Enum):
     DUSK = 300
 
 class Rooms(Enum):
+    MAINMENU = 'MainMenu("Main menu")'
     PLANECRASH = 'RoomPlaneCrash("Plane Crash")'
     VILLAGE = 'RoomVillage("Village")'
     CROSSROADS = 'RoomCrossroads("Crossroads")'
@@ -112,3 +113,4 @@ class Items(Enum):
 class GameEnd(Enum):
     LOSE = 0
     WIN = 1
+    QUIT = 2

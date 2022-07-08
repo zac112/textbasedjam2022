@@ -24,14 +24,14 @@ def quitGame(status : GameEnd):
         print("Congratulations! You beat the game!")
     timer.stopCounting()
     inp.stopListening()
-    input("<Press enter>")
+    input("<Press enter to quit>")
     sys.exit(0)
     
 def initGame():
     timer.startCounting()    
     inp.startListening()
-    inp.registerObserver(quitGame,'q')
-
+    inp.registerObserver(lambda:quitGame(GameEnd.QUIT),'q')
+    inp.registerObserver(lambda:quitGame(GameEnd.QUIT),'Q')
 
     gameState = GameState(inp, timer, quitGame, lock)
     for entry in Rooms:
@@ -46,12 +46,8 @@ def initGame():
 
     Monitor.clear()
     print("\x1b[?25l") #hide cursor
-    
-    #gameState.addItem(Items.Lightbead)
-    #gameState.addItem(Items.Sword)
-    gameState.updateKnowledge(Knowledge.CollectedFuelMaterial)
-    gameState._rooms[Rooms.PLANECRASH].enterRoom()
-    #gameState._rooms[Rooms.FOREST].enterRoom()
+        
+    gameState._rooms[Rooms.MAINMENU].enterRoom()
 
 
     
