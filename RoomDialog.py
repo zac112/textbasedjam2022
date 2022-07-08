@@ -36,22 +36,49 @@ class RoomCastleInside(RoomDialog):
         return lambda isAttacked: self.theBeastAttacks() if isAttacked else self.theBeastLeaves()
     
     def _onEnter(self):        
-        self.description = ["You enter a huge castle in this small village. You see a royal figure sitting on a throne."]
-        self.dialog = []
-        kingDialogLang = {True:": Who are you?",
-                          False:", but you do not understand him."}
-        kingDialog = (["The king talks with a booming voice"+kingDialogLang[self._gameState.fulfillsRequirement(Knowledge.LearnedLanguage)]],
-                      {"Answer":lambda:self.answerKing(None)})
-        menuOptions={
-            'Talk to King':lambda:self.talkToKing(kingDialog),
-            'Exit': self.exitRoom
-        }            
-        self.dialog.append((self.description,menuOptions))
+                    
+        self.dialog.append(self.getDialog())
         Monitor.clear()
 
+    def getDialog(self):
+        self.description = ["You enter a huge castle in this small village. You see a royal figure sitting on a throne."]        
+        kingDialog = (['The king talks with a booming voice: "Who are you?'],
+                      {"Answer":self.answerKing})
+        
+        menuOptions={
+            'Talk to King':lambda:self._advanceDialog(kingDialog),
+            'Exit': self.exitRoom
+        }
+        return (description,menuOptions)
+    
     def answerKing(self, nextDialog):
-        self.description[0] = "You try to answer the king, but can not say a word."
-        self._advanceDialog(nextDialog)
+        self.getDialog=self.questGiveDialog
+        Monitor.print("You explain you crashed your plane and are looking for help.")
+        self.reEnterRoom()
+
+    def questGiveDialog(self):
+        self.description = ["So you are a stranger. Know this island is cursed and you only have two days before it sinks.",
+                            "We have a magical device that creates a shield around this town to protect us while submerged,",
+                            "however the power source has been stolen by minions of the beast.",
+                            "",
+                            "If you are able to return it to us, we will allow you to stay under our shield."]        
+        acceptDialog = (['Good. We can not spare anyone to aid you. What I can offer you is information:',
+                       "We seek a jewel; The tear of Arariel. The beast hid it deep in the caverns of Mount Grear.",
+                       "The darkness there is oppressive. Take this light bead, while not much, it should help you navigate the caverns."],
+                      {"Thank the king and leave":self.getStone})
+        declineDialog = (['Most unfortunate, but you are free to choose your path.",
+                          "This offer stands, until the island submerges."],
+                      {"Leave":self.exitRoom})
+        
+        menuOptions={
+            'Accept quest': lambda:self._advanceDialog(acceptDialog),
+            'Decline quest': lambda:self._advanceDialog(declineDialog)
+        }
+        return (description,menuOptions)
+
+    def getStone(self):
+        self._gameState.addItem(Items.Lightbead)
+        self.exitRoom()
         
     def talkToKing(self, nextDialog):
         self._advanceDialog(nextDialog)
@@ -61,6 +88,9 @@ class RoomCastleInside(RoomDialog):
 
     def theBeastAttacks(self):
         self.underAttack = True
+        if self.roomActive:
+            Monitor.print("Everyone is alerted by explosions on the outside. They rush out and drag you along.")
+            self.exitRoom()
 
     def theBeastLeaves(self):
         self.underAttack = False

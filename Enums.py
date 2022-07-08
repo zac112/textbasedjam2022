@@ -89,12 +89,14 @@ class Actions(Enum):
     MetEagle = auto()
     EagleQuest = auto() 
     SwordBought = auto()
+    StoleHoseFromShopkeeper = auto()
     StoleSwordFromShopkeeper = auto()
     TradedAxeToShopkeeper = auto()
     StoleAxeFromShopkeeper = auto()
     TradedTearToShopkeeper = auto()
     StoleTearFromShopkeeper = auto()
     GaveTearToKing = auto()
+    ClimbedDownCliff = auto()
 
 class Items(Enum):
     Tear = auto()
@@ -105,4 +107,5 @@ class Items(Enum):
     Wheels = auto()
     Hose = auto()
     Wood = auto()
+    Lightbead = auto()
     
