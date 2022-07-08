@@ -122,6 +122,10 @@ class RoomVillageInside(RoomInside):
             Monitor.print("The creature stops attacking the town and retreats towards the mountains")
 
     def enterCastle(self):
+        if not self._gameState.fulfillsRequirement(Knowledge.LearnedLanguage):
+            Monitor.print("The guards at the gate stop you and ask you questions in a foreign language.")
+            return
+        
         if self.underAttack:
             Monitor.print("There is nobody here; they're all fighting outside!")
         else:
@@ -177,7 +181,7 @@ class RoomCaveInside(RoomInside):
             ....  y......y.......        ¤
              ...................y        ¤
              y....................       ¤
-             ...     ....     ....       ¤
+             ...              ....       ¤
            .....     ....     ....       ¤
 ▓▓▒░...........      ....     y...       ¤
 ▓▓▒░..........y       ..      ....       ¤
@@ -215,13 +219,18 @@ class RoomCaveInside(RoomInside):
             (1,14):lambda:self.changeRoom(Rooms.CAVEENTRANCE),
             (1,15):lambda:self.changeRoom(Rooms.CAVEENTRANCE),
             (1,16):lambda:self.changeRoom(Rooms.CAVEENTRANCE),
-            (17,2):lambda:self.changeRoom(Rooms.CAVE1),
-            (19,19):lambda:self.changeRoom(Rooms.CAVE2),
+            (17,2):lambda:self.enterCave1(),
             (40,16):lambda:self.changeRoom(Rooms.CAVEEXIT),
             (40,17):lambda:self.changeRoom(Rooms.CAVEEXIT),
             (40,18):lambda:self.changeRoom(Rooms.CAVEEXIT)
             }
 
+    def enterCave1(self):
+        if self._gameState.hasItem(Items.Tear):
+            Monitor.print("You better not go in there. The gas will kill you.")
+        else:
+            self.changeRoom(Rooms.CAVE1)
+            
     def _onExit(self):
         for t in self.torches:
             t.terminate()
@@ -261,7 +270,7 @@ class RoomCaveInside(RoomInside):
         x,y = self.pos
         newPos = movement(x,y)
         if newPos in self.forbidden: return
-        if self.isLethalTile(newPos): self._gameState.endGame()
+        if self.isLethalTile(newPos): self._gameState.endGame(GameEnd.LOSE)
 
         self.visibleCells = self.floodFill(newPos, distance=self.visibility)        
         self.pos = newPos
@@ -382,7 +391,7 @@ class RoomCave1Inside(RoomCaveInside):
             newPositions.extend([(x+1,y),(x-1,y),(x,y+1),(x,y-1)])
 
         self.nextCollapses = newPositions        
-        if self.nextCollapses:
+        if self.roomActive and self.nextCollapses:
             self._gameState.registerEvent(self.collapse, ticks+random.randint(1,2))
             
     def _getDoors(self):

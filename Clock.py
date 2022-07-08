@@ -39,18 +39,19 @@ class Timer(threading.Thread):
     def getTick(self):
         return self.ticks
 
+    def advanceTime(self):
+        for x in [t.value for t in GameTime]:
+            if x < self.getTick()%360:continue
+            self.ticks = x-2
+            break
+        
     #Returns the current time as a tuple(day:int,GameTime)
     def getTime(self) -> tuple:
         tick = self.getTick()
         day = int(tick/360.0)+1
         tick = tick%360
-        texts = [(60,GameTime.MIDNIGHT),
-                 (90,GameTime.DAWN),
-                 (150,GameTime.MORNING),
-                 (210,GameTime.NOON),
-                 (270,GameTime.EVENING),
-                 (300,GameTime.DUSK),
-                 (360,GameTime.MIDNIGHT)]
+        texts = [(t.value,t) for t in GameTime]+[(360,GameTime.MIDNIGHT)]
+        
         return (day,[t[1] for t in texts if tick<t[0]][0])
     
     def registerTimeOfDayEvent(self,observer):

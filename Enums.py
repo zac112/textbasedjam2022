@@ -29,14 +29,17 @@ class Knowledge(Enum):
     ExaminedPlane = (KnowledgeType.PLANE,1)
     FixedPlane = (KnowledgeType.PLANE,2) #Prereqs max PLANEWING & PLANEFUEL & PLANEHOSE
 
-    CollectedWheelMaterial = (KnowledgeType.PLANEWHEEL,1)
-    AttachedWheel = (KnowledgeType.PLANEWHEEL,2)
+    FoundWheelMaterial = (KnowledgeType.PLANEWHEEL,1)
+    CollectedWheelMaterial = (KnowledgeType.PLANEWHEEL,2)
+    AttachedWheel = (KnowledgeType.PLANEWHEEL,3)
     
-    CollectedFuelMaterial = (KnowledgeType.PLANEFUEL,1)
-    AddedFuelToPlane = (KnowledgeType.PLANEFUEL,2)
+    FoundFuelMaterial = (KnowledgeType.PLANEFUEL,1)
+    CollectedFuelMaterial = (KnowledgeType.PLANEFUEL,2)
+    AddedFuelToPlane = (KnowledgeType.PLANEFUEL,3)
 
     FoundFuelHose = (KnowledgeType.PLANEHOSE,1)
-    AttachedFuelHose = (KnowledgeType.PLANEHOSE,2)
+    CollectedFuelHose = (KnowledgeType.PLANEHOSE,2)
+    AttachedFuelHose = (KnowledgeType.PLANEHOSE,3)
 
     VisitedLighthouse = (KnowledgeType.LIGHTHOUSE,1)
     LearnedLighthouseHistory = (KnowledgeType.LIGHTHOUSE,2)
@@ -48,12 +51,12 @@ class Knowledge(Enum):
     ReturnedTearOfArariel = (KnowledgeType.QUEST_ARARIEL,4)
 
 class GameTime(Enum):    
-    MIDNIGHT = 0
-    DAWN = 1
-    MORNING = 2
-    NOON = 3
-    EVENING = 4
-    DUSK = 5
+    MIDNIGHT = 60
+    DAWN = 90
+    MORNING = 150
+    NOON = 210
+    EVENING = 270
+    DUSK = 300
 
 class Rooms(Enum):
     PLANECRASH = 'RoomPlaneCrash("Plane Crash")'
@@ -74,6 +77,7 @@ class Rooms(Enum):
     EAGLEDIALOG = 'RoomEagleDialogue("Lighthouse eagle dialog")'
     SHOPKEEPERDIALOG = 'RoomShopkeeperDialogue("Town shopkeeper; left house")'
     FORESTINSIDE = 'RoomForestInside("Forest")'
+    BEASTDIALOG = 'RoomBeastDialogue("Beast fight")'
 
 class Actions(Enum):
     BluePotion = auto()
@@ -83,6 +87,7 @@ class Actions(Enum):
     MetEagle = auto()
     EagleQuest = auto() 
     SwordBought = auto()
+    AskedHoseFromShopkeeper = auto()
     StoleHoseFromShopkeeper = auto()
     StoleSwordFromShopkeeper = auto()
     TradedAxeToShopkeeper = auto()
@@ -103,3 +108,6 @@ class Items(Enum):
     Wood = auto()
     Lightbead = auto()
     
+class GameEnd(Enum):
+    LOSE = 0
+    WIN = 1

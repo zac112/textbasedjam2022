@@ -22,18 +22,33 @@ class GameState:
         self._inventory = set()
         self.townattackListeners = []
 
+        self._inputHandler.registerObserver(self._clock.advanceTime, 'a')
+
     def registerGlobalEvents(self):
         beastAttackTime = 540
-        shipwreckTime = 360
+        shipwreckTime = 720
+        eagleArrives1 = 180
+        eagleArrives2 = eagleArrives1+400
+        islandWarning = 800
+        islandSinks = 900
+        
         globalEvents = [(self._rooms[Rooms.BEACH].shipwreck,shipwreckTime),
                         (self._rooms[Rooms.CLIFFS].shipwreck,shipwreckTime),
                         (self._rooms[Rooms.LIGHTHOUSE].eagleArrives,180),
                         (self._rooms[Rooms.LIGHTHOUSE].eagleArrives,180+400),
                         (lambda _:self.notifyTownAttacked(True),beastAttackTime),
-                        (lambda _:self.notifyTownAttacked(False),beastAttackTime+60)
+                        (lambda _:self.notifyTownAttacked(False),beastAttackTime+60),
+                        (lambda _:Monitor.print("The whole island begins to shake. Is will probably sink soon."),islandWarning),
+                        (self.islandSinks,islandSinks)
                         ]
         for event in globalEvents:
             self.registerEvent(*event)
+
+    def islandSinks(self, ticks):
+        Monitor.print("An EARTHQUAKE!!",speed=Monitor.SLOW)
+        Monitor.print("It's more than just an earthquake; the whole island is sinking!")
+        Monitor.print("You drown.")
+        self.gameEnd()
         
     def getRoom(self, room : Rooms) -> Rooms:
         if room not in self._rooms: raise Exception(f"Room {room} not in rooms!")

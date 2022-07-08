@@ -17,5 +17,7 @@ class MenuItem:
     def getAllowedTimes(self) -> list:
         return [GameTime.MIDNIGHT,
                 GameTime.DAWN,
+                GameTime.MORNING,
                 GameTime.NOON,
+                GameTime.EVENING,
                 GameTime.DUSK]

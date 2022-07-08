@@ -17,10 +17,13 @@ lock = Lock()
 timer = Timer(0,"Clock", lock)
 inp = InputHandler(1,"Input", lock)
 
-def quitGame():
+def quitGame(status : GameEnd):
+    if status == GameEnd.LOSE:
+        print("Game over.")
+    if status == GameEnd.WIN:
+        print("Congratulations! You beat the game!")
     timer.stopCounting()
     inp.stopListening()
-    input("Game over.")
     sys.exit(0)
     
 def initGame():
@@ -42,9 +45,9 @@ def initGame():
 
     Monitor.clear()
     print("\x1b[?25l") #hide cursor
-    #rooms[Rooms.PLANECRASH].enterRoom()
-    gameState.addItem(Items.Lightbead)
-    gameState._rooms[Rooms.FORESTINSIDE].enterRoom()
+    gameState._rooms[Rooms.PLANECRASH].enterRoom()
+    #gameState.addItem(Items.Lightbead)
+    #gameState._rooms[Rooms.FORESTINSIDE].enterRoom()
 
 
     
