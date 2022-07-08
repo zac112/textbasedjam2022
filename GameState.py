@@ -28,6 +28,7 @@ class GameState:
         globalEvents = [(self._rooms[Rooms.BEACH].shipwreck,shipwreckTime),
                         (self._rooms[Rooms.CLIFFS].shipwreck,shipwreckTime),
                         (self._rooms[Rooms.LIGHTHOUSE].eagleArrives,180),
+                        (self._rooms[Rooms.LIGHTHOUSE].eagleArrives,180+400),
                         (lambda _:self.notifyTownAttacked(True),beastAttackTime),
                         (lambda _:self.notifyTownAttacked(False),beastAttackTime+60)
                         ]

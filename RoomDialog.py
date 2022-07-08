@@ -90,16 +90,37 @@ class RoomCastleInside(RoomDialog):
         
         return (self.description,menuOptions)
 
+    def busyDialog(self):
+        self.description = ["The people in the castle are busy and no one has time for you."]
+        
+        menuOptions={}
+        if self._gameState.fulfillsRequirement(Knowledge.FixedLighthouse):
+            menuOptions["Go talk to the king"] = self.finishGame
+        menuOptions["Leave"] = self.exitRoom
+        
+        return (self.description,menuOptions)
+    
     def giveJewel(self):
         self._gameState.updateKnowledge(Knowledge.ReturnedTearOfArariel)
         Monitor.print("You give the jewel to the king.")
         Monitor.print("He examines it, smiles and hands it off to a nearby person, who quickly leaves the room.")
-        if self._gameState.fulfillsRequirement(Knowledge.FixedLighthouse):
-            Monitor.print("We thank you. We will begin preparations for submersion immediately.")
-            Monitor.print("You are a friend to Thursten and are welcome to stay with us until you decide to leave.")
-            self._gameState.updateKnowledge(Knowledge.VillagersAcceptYou)
-            self._gameState.endGame()
         
+        self._gameState.updateKnowledge(Knowledge.VillagersAcceptYou)
+        if self._gameState.fulfillsRequirement(Knowledge.FixedLighthouse):
+            self.finishGame()            
+        else:
+            Monitor.print("The man who was given the jewel returns and whispers to the king.")
+            Monitor.print('The king addresses you again:"It seems we still need your help."')
+            Monitor.print("The lighthouse that powers our magic has run out of fuel.")
+            Monitor.print("The lighthouse keeper kept the lighthouse working, unfortunately he was eaten by the Beast several years ago.")
+            Monitor.print("Seek out the means to relight the fire in the lighthouse. Hurry, there is not much time!")
+            self.getDialog = self.busyDialog
+
+    def finishGame(self):
+        Monitor.print("We thank you. We will begin preparations for submersion immediately.")
+        Monitor.print("You are a friend to Thursten and are welcome to stay with us until you decide to leave.")            
+        self._gameState.endGame()
+            
     def acceptQuest(self, dialog):
         self.getDialog = self.returnDialog
         self._advanceDialog(acceptDialog)
