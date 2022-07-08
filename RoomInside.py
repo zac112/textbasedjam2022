@@ -92,25 +92,40 @@ class RoomVillageInside(RoomInside):
                 if c in [',','╚','═','/','_','╝','║','│','\\']:
                     self.forbidden.append((x,y))
         self.doors = {
-            (13,6):lambda:self.changeRoom(Rooms.CASTLEINSIDE),
-            (14,6):lambda:self.changeRoom(Rooms.CASTLEINSIDE),
-            (15,6):lambda:self.changeRoom(Rooms.CASTLEINSIDE),
-            (20,11):lambda:self.changeRoom(Rooms.LABORATORYINSIDE),
+            (13,6):self.enterCastle,
+            (14,6):self.enterCastle,
+            (15,6):self.enterCastle,
+            (20,11):self.enterLab,
             (7,11):lambda:self.changeRoom(Rooms.SHOPKEEPERDIALOG),
             (13,15):lambda:self.changeRoom(Rooms.VILLAGE),
             (14,15):lambda:self.changeRoom(Rooms.VILLAGE),
             (15,15):lambda:self.changeRoom(Rooms.VILLAGE)
             }
         
-    def theBeastAttacks(self):
+    def theBeastAttacks(self):        
         self.underAttack = True
-        Monitor.print("You hear a screech and look up. You see a monstrous flying creature.")
-        Monitor.print("A house near you explodes! The town is under attack!")
-        Monitor.print("Townsfolk emerge from their houses to fight the Beast.")
+        if self.roomActive:
+            Monitor.print("You hear a screech and look up. You see a monstrous flying creature.")
+            Monitor.print("A house near you explodes! The town is under attack!")
+            Monitor.print("Townsfolk emerge from their houses to fight the Beast.")
 
     def theBeastLeaves(self):
         self.underAttack = False
-        Monitor.print("The creature stops attacking the town and retreats towards the mountains")
+        if self.roomActive:
+            Monitor.print("The creature stops attacking the town and retreats towards the mountains")
+
+    def enterCastle(self):
+        if self.underAttack:
+            Monitor.print("There is nobody here; they're all fighting outside!")
+        else:
+            self.changeRoom(Rooms.CASTLEINSIDE)
+
+    def enterLab(self):
+        if self._gameState.fulfillsRequirement(Knowledge.LearnedLanguage):
+            Monitor.print("You think about entering the room with the machine (and angry scientists).")
+            Monitor.print("...You decide against it.")
+        else:
+            self.changeRoom(Rooms.LABORATORYINSIDE)
 
 class RoomCaveInside(RoomInside):
     class Torch(Thread):

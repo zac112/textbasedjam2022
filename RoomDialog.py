@@ -25,21 +25,17 @@ class RoomDialog(Room):
         return False
         
 class RoomCastleInside(RoomDialog):
-
+    description = ""
     descriptionIndex = 0
     connectionDescription = []
     room = Rooms.LABORATORYINSIDE
     availableActions = []
-
+    underAttack = False
+    
     def _getTownAttackListener(self):
         return lambda isAttacked: self.theBeastAttacks() if isAttacked else self.theBeastLeaves()
     
-    def _onEnter(self):
-        if self.underAttack:
-            Monitor.print("There is nobody here; they're all fighting outside!")
-            self.exitRoom()
-            return
-        
+    def _onEnter(self):        
         self.description = ["You enter a huge castle in this small village. You see a royal figure sitting on a throne."]
         self.dialog = []
         kingDialogLang = {True:": Who are you?",
@@ -75,12 +71,7 @@ class RoomLaboratoryInside(RoomDialog):
     room = Rooms.LABORATORYINSIDE
     availableActions = []
     
-    def _onEnter(self):
-        if self._gameState.fulfillsRequirement(Knowledge.LearnedLanguage):
-            Monitor.print("You think about entering the room with the machine. You decide against it.")
-            self.exitRoom()
-            return
-            
+    def _onEnter(self):            
         self.description = ["You enter what seems to be a laboratory.\You see a giant machine with three buttons on it.\nYou also notice some frescos on the walls."]
         self.dialog = []
         machineDialog = (["Which button do you press?"],
@@ -224,8 +215,13 @@ class RoomShopkeeperDialogue(RoomDialog):
     room = Rooms.SHOPKEEPERDIALOG
     availableActions = []
     underAttack = False
-
-    def _getTownAttackListener(self):
+    browseOptions = ['Browse through the wares',
+                  "Keep browsing the wares. There must be something of use.",
+                  "Keep browsing. You begin to lose faith of finding anything useful here.",
+                  "Dig through a pile of useless-looking junk."]
+    browseIndex = 0
+    
+    def _getTownAttackListener(self):        
         return lambda isAttacked: self.theBeastAttacks() if isAttacked else self.theBeastLeaves()
     
     def _onEnter(self):
@@ -247,20 +243,36 @@ class RoomShopkeeperDialogue(RoomDialog):
                     Knowledge.FoundFuelHose]):
                 menuOptions['Steal the fuel hose'] = lambda:self.stealItem(Items.Hose)
         else:
-            self.description = ['"Welcome stranger. I accept trades and gold." the shopkeeper greets you as you enter.',
+            if self._gameState.fulfillsRequirement(Knowledge.LearnedLanguage):
+                firstLine ='"Welcome stranger. I accept trades and gold." the shopkeeper greets you as you enter.'
+            else:
+                firstLine ='The shopkeeper greets you as you enter in a language you do not undestand.'
+            self.description = [firstLine,
                             "You see all kinds of utilities for everyday life; none of which are of interest to you.",
                             "The shopkeeper keeps a close eye on you as you browse the wares."]            
             if not self._gameState.hasAnyItem([Items.Sword, Items.SwordOfArariel]):
                 self.description.append("You see a rusty sword hanging on the wall.")
                 menuOptions['Examine the sword hanging on the wall'] = self.examineSword
-            if self._gameState.fulfillsRequirement(Knowledge.ExaminedPlane) and not self._gameState.hasItem(Items.Hose):
+            if self._gameState.fulfillsRequirements([Knowledge.ExaminedPlane, Knowledge.LearnedLanguage]) and \
+            not self._gameState.hasItem(Items.Hose):
                 menuOptions['Inquire about a fuel hose'] = self.askHose            
-                    
+        if not self._gameState.hasItem(Items.Hose):
+            try: menuOptions[self.browseOptions[self.browseIndex]] = self.browse
+            except: pass
         menuOptions['Leave the shop'] = self.exitRoom
         
         self.dialog = [(self.description,menuOptions)]
         Monitor.clear()
 
+    def browse(self):
+        self.browseIndex += 1
+        Monitor.print("You go through some stuff, but it's all junk.")
+        if self.browseIndex >= len(self.browseOptions):
+            self._gameState.updateKnowledge(Knowledge.FoundFuelHose)
+            Monitor.print("You rummage around a pile of goods and see a piece of a plastic tube.")
+            Monitor.print("Too bad you don't have anything to buy it with...      ")
+        self.reEnterRoom()
+            
     def askHose(self):
         Monitor.print("The shopkeeper thinks a while about your request.")
         Monitor.print("After some time he moves to rummage around a pile of goods and digs up a length of a plastic tube.")
@@ -296,7 +308,7 @@ class RoomShopkeeperDialogue(RoomDialog):
          Items.Tear:lambda:act(Actions.StoleTearFromShopkeeper)}[item]()
         self.reEnterRoom()
 
-    def theBeastAttacks(self):        
+    def theBeastAttacks(self):
         self.underAttack = True        
         self._gameState.updateKnowledge(Knowledge.SeenBeast)
         if self.roomActive:
