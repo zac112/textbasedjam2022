@@ -336,7 +336,7 @@ class RoomBeach(Room):
             Monitor.print('The sun glimmers from a metallic object half-buried in the sand.')
             Monitor.print('You dig it out and find a jerry can full of kerosene!')
             fromRoom._gameState.tookAction(Actions.FoundFuel)
-            self._gameState.updateKnowledge(Knowledge.CollectedFuelMaterial)
+            fromRoom._gameState.updateKnowledge(Knowledge.CollectedFuelMaterial)
             fromRoom._removeEvent(self)
             
     descriptionIndex = 0
@@ -406,6 +406,25 @@ class RoomCaveExit(Room):
 
 class RoomCliffs(Room):
 
+    class Shipwreck(MenuItem):
+        description = "You hear creaking down the cliffside. As you peer down, you notice a biplane hanging precariously from a ledge.\nIt's not flyable anymore, but might still have usable langing gear!"
+        
+        def _getConnectionString(self, fromRoom):
+            return "Climb down the cliffside"
+
+        def selectFromMenu(self, fromRoom : Rooms):
+            Monitor.print("You begin to climb down the cliffside.")
+            if fromRoom._gameState.getTimeOfDay == GameTime.MIDNIGHT:
+                Monitor.print('However, you lose your foothold in the darkness and fall to your death.')
+                fromRoom._gameState.endGame()
+                return
+            Monitor.print('You manage to reach the plane.')
+            Monitor.print('With a few good kicks, the wheels come off and you snatch them.')
+            Monitor.print('You find nothing else of use and climb back up.')
+            fromRoom._gameState.tookAction(Actions.ClimbedDownCliff)
+            fromRoom._gameState.updateKnowledge(Knowledge.CollectedWheelMaterial)
+            fromRoom._removeEvent(self)
+            
     descriptionIndex = 0
     description = ["You stop at a tall cliffside. Waves crash against it some hundreds of feet below you."]
     connectionDescription = ["You hear waves from the east"]
@@ -417,6 +436,10 @@ class RoomCliffs(Room):
 
     def _connectRooms(self):
         self._connectedRooms.append(Rooms.CAVEEXIT)
+
+    def shipwreck(self, ticks):
+        if self._gameState.fulfillsRequirement(Knowledge.FixedLighthouse): return
+        self.addEvent(self.Shipwreck())
 
 class RoomForest(Room):
 
