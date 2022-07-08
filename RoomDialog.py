@@ -241,7 +241,7 @@ class RoomShopkeeperDialogue(RoomDialog):
                     self._gameState.fulfillsRequirements([
                     Knowledge.ExaminedPlane,
                     Knowledge.FoundFuelHose]):
-                menuOptions['Steal the fuel hose'] = lambda:self.stealItem(Items.Hose)
+                menuOptions['Steal the fuel hose'] = lambda:self.stealItem(Items.Hose, hadBefore=False)
         else:
             if self._gameState.fulfillsRequirement(Knowledge.LearnedLanguage):
                 firstLine ='"Welcome stranger. I accept trades and gold." the shopkeeper greets you as you enter.'
@@ -292,10 +292,20 @@ class RoomShopkeeperDialogue(RoomDialog):
             if self._gameState.hasItem(Item.Tear):
                 dialog["Offer your jewel in trade."] = lambda:self.tradeForSword(Item.Tear)
             if self._gameState.hasItem(Item.Axe):
-                dialog["Offer your jewel in trade."] = lambda:self.tradeForSword(Item.Axe)
+                dialog["Offer your axe in trade."] = lambda:self.tradeForSword(Item.Axe)
             dialog["Leave the sword"] = self.refreshScreen
             self._advanceDialog((desc,dialog))
 
+    def tradeForSword(self, item):
+        Monitor.print("The shopkeeper examines your offer and accepts the trade.")
+        self._gameState.removeItem(item)
+        self._gameState.addItem(Items.Sword)
+
+        act = self._gameState.tookAction
+        {Items.Axe:lambda:act(Actions.TradedAxeToShopkeeper),
+         Items.Tear:lambda:act(Actions.TradedTearToShopkeeper)}[item]()
+        
+        
     def stealItem(self,item,hadBefore = True):
         Monitor.print("Now with all the commotion outside, you decide to act.")
         if hadBefore:
@@ -305,7 +315,8 @@ class RoomShopkeeperDialogue(RoomDialog):
         act = self._gameState.tookAction
         {Items.Sword:lambda:act(Actions.StoleSwordFromShopkeeper),
          Items.Axe:lambda:act(Actions.StoleAxeFromShopkeeper),
-         Items.Tear:lambda:act(Actions.StoleTearFromShopkeeper)}[item]()
+         Items.Tear:lambda:act(Actions.StoleTearFromShopkeeper),
+         Items.Hose:lambda:act(Actions.StoleHoseFromShopkeeper)}[item]()
         self.reEnterRoom()
 
     def theBeastAttacks(self):

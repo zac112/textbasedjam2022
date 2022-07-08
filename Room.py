@@ -216,7 +216,61 @@ You might be able to fix the plane given the right materials.""")
             if self.description not in fromRoom.description :
                 fromRoom.description.append(self.description)
             fromRoom.refreshScreen()
+            fromRoom._removeEvent(self)
 
+    class AttachWheels(MenuItem):
+        description = ""
+        
+        def _getConnectionString(self, fromRoom):            
+            return "Attach the salvaged wheels to your plane."
+
+        def getRequirements(self) -> list:
+            return [Knowledge.CollectedWheelMaterial]
+    
+        def selectFromMenu(self, fromRoom : Rooms):
+            fromRoom._gameState.updateKnowledge(Knowledge.AttachedWheel)
+            Monitor.print("""You replace your broken wheels with the ones from the biplane.
+Not a perfect fit, but you should be able to take off now.""")
+            fromRoom._gameState.removeItem(Items.Wheels)
+            fromRoom.refreshScreen()
+            fromRoom._removeEvent(self)
+
+    class AddFuel(MenuItem):
+        description = ""
+        
+        def _getConnectionString(self, fromRoom):            
+            return "Add fuel to your plane"
+
+        def getRequirements(self) -> list:
+            return [Knowledge.CollectedFuelMaterial]
+        
+        def selectFromMenu(self, fromRoom : Rooms):
+            if not fromRoom._gameState.fulfillsRequirement(Knowledge.AttachedFuelHose):
+                Monitor.print("""If you add the fuel now, it would just leak to the ground.
+Fix the fuel hose first.""")
+                return
+            fromRoom._gameState.updateKnowledge(Knowledge.AddedFuelToPlane)
+            fromRoom._gameState.removeItem(Items.Fuel)
+            Monitor.print("""You fill your plane's tank to the brim with kerosene. Luckily the fuel tank wasn't damaged.""")
+            fromRoom.refreshScreen()
+            fromRoom._removeEvent(self)
+
+    class FixHose(MenuItem):
+        description = ""
+        
+        def _getConnectionString(self, fromRoom):            
+            return "Add fuel to your plane"
+
+        def getRequirements(self) -> list:
+            return [Knowledge.FoundFuelHose]
+        
+        def selectFromMenu(self, fromRoom : Rooms):
+            fromRoom._gameState.updateKnowledge(Knowledge.AttachedFuelHose)
+            Monitor.print("""You jerryrig the plastic tubing to your plane. You're pretty sure that it won't leak...""")
+            fromRoom._gameState.removeItem(Items.Hose)
+            fromRoom.refreshScreen()
+            fromRoom._removeEvent(self)
+            
 #endregion events
             
     descriptionIndex = 0
@@ -337,6 +391,7 @@ class RoomBeach(Room):
             Monitor.print('You dig it out and find a jerry can full of kerosene!')
             fromRoom._gameState.tookAction(Actions.FoundFuel)
             fromRoom._gameState.updateKnowledge(Knowledge.CollectedFuelMaterial)
+            fromRoom._gameState.addItem(Items.Fuel)
             fromRoom._removeEvent(self)
             
     descriptionIndex = 0
@@ -423,6 +478,7 @@ class RoomCliffs(Room):
             Monitor.print('You find nothing else of use and climb back up.')
             fromRoom._gameState.tookAction(Actions.ClimbedDownCliff)
             fromRoom._gameState.updateKnowledge(Knowledge.CollectedWheelMaterial)
+            fromRoom._gameState.addItem(Items.Wheels)
             fromRoom._removeEvent(self)
             
     descriptionIndex = 0
