@@ -17,6 +17,7 @@ class RoomDialog(Room):
 
     def _advanceDialog(self, nextDialog):
         Monitor.clear()
+        self.menuindex = 0
         if nextDialog: self.dialog.append(nextDialog)
         else: self.dialog.pop()
         self.refreshScreen()
@@ -36,8 +37,7 @@ class RoomCastleInside(RoomDialog):
     def _getTownAttackListener(self):
         return lambda isAttacked: self.theBeastAttacks() if isAttacked else self.theBeastLeaves()
     
-    def _onEnter(self):        
-                    
+    def _onEnter(self):
         self.dialog.append(self.getDialog())
         Monitor.clear()
 
@@ -59,7 +59,7 @@ class RoomCastleInside(RoomDialog):
 
     def questGiveDialog(self):
         self._gameState.updateKnowledge(Knowledge.LearnedVillageHistory)
-        self.description = ["So you are a stranger. Welcome to the town of Thursten.",
+        self.description = ["So you are a stranger. Welcome to the town of Thurstan.",
                             "However, know this island is cursed and you only have mere days before it sinks.",
                             "We have a magical device that creates a shield around this town to protect us while submerged,",
                             "however the power source has been stolen by minions of the beast.",
@@ -118,12 +118,12 @@ class RoomCastleInside(RoomDialog):
 
     def finishGame(self):
         Monitor.print("We thank you. We will begin preparations for submersion immediately.")
-        Monitor.print("You are a friend to Thursten and are welcome to stay with us until you decide to leave.")            
-        self._gameState.endGame()
+        Monitor.print("You are a friend to Thurstan and are welcome to stay with us until you decide to leave.")            
+        self._gameState.endGame(GameEnd.WIN)
             
     def acceptQuest(self, dialog):
         self.getDialog = self.returnDialog
-        self._advanceDialog(acceptDialog)
+        self._advanceDialog(dialog)
         
     def getStone(self):
         self._gameState.addItem(Items.Lightbead)
@@ -150,7 +150,8 @@ class RoomLaboratoryInside(RoomDialog):
     room = Rooms.LABORATORYINSIDE
     availableActions = []
     
-    def _onEnter(self):            
+    def _onEnter(self):
+        self.menuIndex = 0
         self.description = ["You enter what seems to be a laboratory.\You see a giant machine with three buttons on it.\nYou also notice some frescos on the walls."]
         self.dialog = []
         machineDialog = (["Which button do you press?"],
@@ -176,7 +177,7 @@ The third one depicts a battlefield with a two-headed figure in red armor victor
     def buttonPress(self, nextDialog, method):
         def a():
             method()
-            Monitor.print("Several scientists (presumably) barge in the room and begin questioning you.")
+            Monitor.print("Several (presumably) scientists barge in the room and begin questioning you.")
             Monitor.print("To your great surprise, you undestand these people and are able to talk your way out of being thrown in jail.")
             self._gameState.updateKnowledge(Knowledge.LearnedLanguage)
             self.exitRoom()
@@ -197,7 +198,7 @@ The third one depicts a battlefield with a two-headed figure in red armor victor
     def blueButton(self):
         Monitor.print("You press the blue button and the machine whirrs to life.")
         Monitor.print("WHOOSH WHOOSH WHS WHS WHS WSWSWSWSWS (BLUB BLUB BLUB BLUB)",speed=Monitor.SLOW )
-        Monitor.print("You grab the bottle of water-like liquid produced by the machine and chug it in one go.",delay)
+        Monitor.print("You grab the bottle of water-like liquid produced by the machine and chug it in one go.")
         self._gameState.tookAction(Actions.BluePotion)
         
     def exitRoom(self):
@@ -223,11 +224,12 @@ class RoomArarielDialogue(RoomDialog):
         Monitor.clear()
 
     def pickupJewel(self):
-        Monitor.print("You pick up the beautiful jewel and are surprised by its weight. As you stuff it in your pocket, you hear a faint rumble.")
+        Monitor.print("You pick up the beautiful jewel and are surprised by its weight. \nAs you stuff it in your pocket, you hear a faint rumble.")
         Monitor.print("The rumbling grows lowder")
         Monitor.print("You begin to feel light headed. Uh-oh; you now understand the situation: streams of vapor are rising from cracks in the floor.")
         Monitor.print("POISON GAS!!!", speed=Monitor.SLOW)
         self._gameState.updateKnowledge(Knowledge.CollectedTearOfArariel)
+        self._gameState.addItem(Items.Tear)
         self.exitRoom()
         
     def exitRoom(self):
@@ -276,6 +278,7 @@ class RoomEagleDialogue(RoomDialog):
     def acceptQuest(self):
         Monitor.print("Here, take this axe and head to the forest of Vestunm beyond the mountain.")
         self._gameState.tookAction(Actions.EagleQuest)
+        self._gameState.addItem(Items.Axe)
         self._advanceDialog(None)
 
     def declineQuest(self):
@@ -304,7 +307,7 @@ class RoomShopkeeperDialogue(RoomDialog):
         return lambda isAttacked: self.theBeastAttacks() if isAttacked else self.theBeastLeaves()
     
     def _onEnter(self):
-        menuOptions={}        
+        menuOptions={}
         if self.underAttack:
             self.description = ['You are alone in the shop. You hear sounds of battle outside.']
             if self._gameState.hasAction(Actions.TradedTearToShopkeeper) and \
@@ -333,7 +336,7 @@ class RoomShopkeeperDialogue(RoomDialog):
                 self.description.append("You see a rusty sword hanging on the wall.")
                 menuOptions['Examine the sword hanging on the wall'] = self.examineSword
             if self._gameState.fulfillsRequirements([Knowledge.ExaminedPlane, Knowledge.LearnedLanguage]) and \
-            not self._gameState.hasItem(Items.Hose):
+            not self._gameState.hasItem(Items.Hose) and not self._gameState.hasAction(Actions.AskedHoseFromShopkeeper):
                 menuOptions['Inquire about a fuel hose'] = self.askHose            
         if not self._gameState.hasItem(Items.Hose):
             try: menuOptions[self.browseOptions[self.browseIndex]] = self.browse
@@ -358,6 +361,7 @@ class RoomShopkeeperDialogue(RoomDialog):
         Monitor.print('"Will this do?" He asks. "I could part with it for a few gold coins."')
         Monitor.print("You don't have any money, so you just thank him for his time.")
         self._gameState.updateKnowledge(Knowledge.FoundFuelHose)
+        self._gameState.tookAction(Actions.AskedHoseFromShopkeeper)
         
     
     def examineSword(self):
@@ -397,7 +401,7 @@ class RoomShopkeeperDialogue(RoomDialog):
          Items.Tear:lambda:act(Actions.StoleTearFromShopkeeper),
          Items.Hose:lambda:act(Actions.StoleHoseFromShopkeeper)}[item]()
         self.reEnterRoom()
-
+    
     def theBeastAttacks(self):
         self.underAttack = True        
         self._gameState.updateKnowledge(Knowledge.SeenBeast)
@@ -416,3 +420,38 @@ class RoomShopkeeperDialogue(RoomDialog):
 
     def exitRoom(self):
         self.changeRoom(Rooms.VILLAGEINSIDE)
+
+class RoomBeastDialogue(RoomDialog):
+    descriptionIndex = 0
+    connectionDescription = []
+    room = Rooms.BEASTDIALOG
+    availableActions = []
+        
+    def _onEnter(self):
+        self.description = ['You finally subdued the Beast. What remains is the final blow.']
+        menuOptions={}
+        menuOptions['Kill the Beast'] = self.kill
+        menuOptions['Let the Beast live'] = self.live
+        
+        self.dialog = [(self.description,menuOptions)]
+        Monitor.clear()
+
+    def kill(self):
+        Monitor.print("You lift the sword of Arariel over your head and drive the sword into the beat's heart")
+        Monitor.print("You victoriously stand over the corpse of the horrendous beast.")
+        Monitor.print("But wait, the corpse begins to shimmer; it transformed into a human")
+        Monitor.print('In his last breath he wispers: "I\'m sorry; the curse is now yours to bear."')
+        Monitor.print('...Wait what',speed=Monitor.SLOW)
+        Monitor.print("You scream in agony as your body is morphed into the beast you just slew.")
+        self._gameState.endGame(GameEnd.LOSE)
+
+    def live(self):
+        Monitor.print("You strike the sword of Arariel to the ground next to the beast.")
+        Monitor.print("The sword begins to shimmer. The still-living body of the Beast shimmers in sync.")
+        Monitor.print("Flash! ZAP!",speed=Monitor.SLOW)
+        Monitor.print("Both the sword and the Beast are gone; only the Tear of Arariel remains.")
+        Monitor.print("You pick up the tear.")
+        self._gameState.updateKnowledge(Knowledge.DefeatedBeast)
+        self._gameState.removeItem(Items.SwordOfArariel)
+        self._gameState.addItem(Items.Tear)
+        self.changeRoom(Room.FOREST)
