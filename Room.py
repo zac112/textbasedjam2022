@@ -227,11 +227,15 @@ You might be able to fix the plane given the right materials.""")
         def getRequirements(self) -> list:
             return [Knowledge.CollectedWheelMaterial]
     
-        def selectFromMenu(self, fromRoom : Rooms):
-            fromRoom._gameState.updateKnowledge(Knowledge.AttachedWheel)
+        def selectFromMenu(self, fromRoom : Rooms):            
             Monitor.print("""You replace your broken wheels with the ones from the biplane.
 Not a perfect fit, but you should be able to take off now.""")
-            fromRoom._gameState.removeItem(Items.Wheels)
+            
+            fromRoom._gameState.updateKnowledge(Knowledge.AttachedWheel)
+            if fromRoom._gameState.fulfillsRequirements([Knowledge.AddedFuelToPlane,Knowledge.AttachedFuelHose,Knowledge.AttachedWheel]):
+                fromRoom._gameState.updateKnowledge(Knowledge.FixedPlane)
+            
+            fromRoom._gameState.removeItem(Items.Wheels)      
             fromRoom.refreshScreen()
             fromRoom._removeEvent(self)
 
@@ -250,6 +254,9 @@ Not a perfect fit, but you should be able to take off now.""")
 Fix the fuel hose first.""")
                 return
             fromRoom._gameState.updateKnowledge(Knowledge.AddedFuelToPlane)
+            if fromRoom._gameState.fulfillsRequirements([Knowledge.AddedFuelToPlane,Knowledge.AttachedFuelHose,Knowledge.AttachedWheel]):
+                fromRoom._gameState.updateKnowledge(Knowledge.FixedPlane)
+                
             fromRoom._gameState.removeItem(Items.Fuel)
             Monitor.print("""You fill your plane's tank to the brim with kerosene. Luckily the fuel tank wasn't damaged.""")
             fromRoom.refreshScreen()
@@ -266,19 +273,45 @@ Fix the fuel hose first.""")
         
         def selectFromMenu(self, fromRoom : Rooms):
             fromRoom._gameState.updateKnowledge(Knowledge.AttachedFuelHose)
-            Monitor.print("""You jerryrig the plastic tubing to your plane. You're pretty sure that it won't leak...""")
+            if fromRoom._gameState.fulfillsRequirements([Knowledge.AddedFuelToPlane,Knowledge.AttachedFuelHose,Knowledge.AttachedWheel]):
+                fromRoom._gameState.updateKnowledge(Knowledge.FixedPlane)
+                
+            Monitor.print("""You jerryrig the plastic tubing to your plane. You're pretty sure that it won't leak...""")            
             fromRoom._gameState.removeItem(Items.Hose)
             fromRoom.refreshScreen()
             fromRoom._removeEvent(self)
+
+    class EscapeIsland(MenuItem):
+        description = "Your plane is now fixed."
+        
+        def _getConnectionString(self, fromRoom):            
+            return "Start the engines and escape this cursed island."
+
+        def getRequirements(self) -> list:
+            return [Knowledge.FixedPlane]
+    
+        def selectFromMenu(self, fromRoom : Rooms):            
+            Monitor.print("""You start the plane's engine and sigh from relief when nothing exploded.""")
+            Monitor.print("""You climb aboard the plane and take off.""")
+            Monitor.print("""Congratulations! You have escaped the island alive!""", speed=Monitor.SLOW)
+            
+            fromRoom._gameState.endGame()
             
 #endregion events
             
     descriptionIndex = 0
-    description = ["You are at the site where you crashed your plane. Smoke is still rising from the engine."]
+    description = ["You are at the site where you crashed your plane.","Smoke is still rising from the engine."]
     connectionDescription = ["You see smoke rising in the distance where you crashed your plane", "You see your plane in the distance"]
     room = Rooms.PLANECRASH    
     availableActions = [ExaminePlane()]
-    
+
+    def _onEnter(self):
+        self.description = ["You are at the site where you crashed your plane."]
+        if not self._gameState.fulfillsRequirement(Knowledge.FixedPlane):
+            self.description.append("Smoke is still rising from the engine.")
+        else:
+            self.descriptionIndex = 1
+        
     def _getEvents(self):
         return [(self._addBirdEvent,50)]
 
