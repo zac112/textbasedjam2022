@@ -450,7 +450,7 @@ class RoomBeach(Room):
         else:
             Monitor.print("The winds from the beach carry the sounds of a faint explosion. Maybe you imagined it.")
 
-        self.addEvent(self.Shipwreck())
+        self.availableActions.append(self.Shipwreck())
         
 
 class RoomCaveEntrance(Room):
@@ -532,11 +532,23 @@ class RoomCliffs(Room):
 
 class RoomForest(Room):
 
+    class EnterForest(MenuItem):
+        description = "You could enter the forest, but you might get lost."
+        
+        def _getConnectionString(self, fromRoom):
+            return "Enter the forest"
+
+        def selectFromMenu(self, fromRoom : Rooms):
+            if fromRoom._gameState.hasAction(Actions.EagleQuest):
+                fromRoom._gameState.changeRoom(Rooms.FORESTINSIDE)
+            else:
+                Monitor.print("\nYou search the forest, but don't really know what to look for.", delay=False)
+        
     descriptionIndex = 0
     description = ["You stand at the edge of a relatively dense forest. You see birches and other trees which you are not familiar with."]
     connectionDescription = ["A forest begins near you to the north."]
     room = Rooms.FOREST
-    availableActions = []
+    availableActions = [EnterForest()]
 
     def _getConnectionString(self, fromRoom):
         return {Rooms.CAVEEXIT: self.connectionDescription[self.descriptionIndex]}[fromRoom]
@@ -557,6 +569,20 @@ class RoomLighthouse(Room):
             Monitor.print('"Fear not, for I will not harm you."')
             fromRoom._gameState.tookAction(Actions.MetEagle)
             fromRoom.changeRoom(Rooms.EAGLEDIALOG)
+
+    class FixLighthouse(MenuItem):
+        description = ""
+        
+        def _getConnectionString(self, fromRoom):            
+            return "Go light the light in the lighthouse"
+
+        def selectFromMenu(self, fromRoom : Rooms):
+            Monitor.print("You find the lighthouse door unlocked and walk in.")
+            Monitor.print("As you trek up numerous flights of stairs, you hope there's a way to light the magic wood you're carrying.")
+            Monitor.print("... your legs begin to hurt...",speed=Monitor.SLOW)
+            Monitor.print("You reach the top of the lighthouse and set the wood alight in the lamp.")
+            fromRoom._gameState.updateKnowledge(Knowledge.FixedLighthouse)
+            fromRoom._gameState.removeItem(Items.Wood)
             
     descriptionIndex = 0
     description = ["You stand at the bottom of a tall lighthouse."]
@@ -564,6 +590,10 @@ class RoomLighthouse(Room):
     room = Rooms.LIGHTHOUSE
     availableActions = []
 
+    def _onEnter(self):
+        if self._gameState.hasItem(Items.Wood):
+            self.availableActions.append(self.FixLighthouse())
+        
     def _getConnectionString(self, fromRoom):
         return {Rooms.CROSSROADS: self.connectionDescription[self.descriptionIndex]}[fromRoom]
         

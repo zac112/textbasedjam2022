@@ -72,7 +72,8 @@ class Rooms(Enum):
     CAVE1 = 'RoomCave1Inside("Upper Cave")'
     ARARIELJEWEL = 'RoomArarielDialogue("Arariel jewel dialog")'
     EAGLEDIALOG = 'RoomEagleDialogue("Lighthouse eagle dialog")'
-    SHOPKEEPERDIALOG = 'RoomShopkeeperDialogue("Town shopkeeper; left house")'    
+    SHOPKEEPERDIALOG = 'RoomShopkeeperDialogue("Town shopkeeper; left house")'
+    FORESTINSIDE = 'RoomForestInside("Forest")'
 
 class Actions(Enum):
     BluePotion = auto()

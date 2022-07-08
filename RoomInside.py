@@ -90,9 +90,12 @@ class RoomVillageInside(RoomInside):
         self.forbidden = []
         for y,line in enumerate(self.textmap,1):
             for x,c in enumerate(line):
-                if c in [',','╚','═','/','_','╝','║','│','\\']:
+                if c in self._getForbiddenChars():
                     self.forbidden.append((x,y))
-        self.doors = {
+        self.doors = self._getDoors()
+
+    def _getDoors(self):
+        return {
             (13,6):self.enterCastle,
             (14,6):self.enterCastle,
             (15,6):self.enterCastle,
@@ -102,7 +105,10 @@ class RoomVillageInside(RoomInside):
             (14,15):lambda:self.changeRoom(Rooms.VILLAGE),
             (15,15):lambda:self.changeRoom(Rooms.VILLAGE)
             }
-        
+    
+    def _getForbiddenChars(self):
+        return [',','╚','═','/','_','╝','║','│','\\']
+    
     def theBeastAttacks(self):        
         self.underAttack = True
         if self.roomActive:
@@ -398,3 +404,60 @@ class RoomCave1Inside(RoomCaveInside):
             for t in self.torches:
                 t.terminate()
         return result
+
+class RoomForestInside(RoomVillageInside):
+    room = Rooms.FORESTINSIDE
+    availableActions = []    
+    pos = (15,27)
+    textmap ="""#############≡#########≡≡######≡######¤ 
+#####≡≡≡≡###≡≡########≡##≡≡###########¤ 
+###≡≡#####≡≡,≡≡≡≡≡≡###################¤ 
+#########≡≡≡≡≡≡≡≡≡≡≡≡≡######≡≡###≡≡≡≡≡¤ 
+###\'\'\'####≡≡≡≡≡≡≡≡≡≡≡≡ ########≡#≡≡≡#¤ 
+##,##,\',\',,≡≡≡≡≡≡≡≡≡\',\'.\'≡≡≡#≡≡≡#####¤ 
+≡≡≡\',\'\'...\',≡≡≡≡≡≡≡≡≡\'\'≡≡≡≡,####.##,\'¤ 
+≡≡≡≡≡≡≡\'.\'\',≡≡≡≡≡≡≡≡≡≡≡≡≡≡.\',# \'\',,,¤
+..≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡\',\'. .,,..,\'¤
+,\'.  ,≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡\',, ., ,,.,.,, ¤
+.,.\' ,,.,\'≡≡≡≡≡≡≡≡≡≡≡\'\'\'.\'\' . \' .\'  ¤
+,,, , ,. \'≡≡≡≡≡≡≡≡≡≡≡\'\'\'.  ,\'. \'.,,,¤
+..,\'.\'...,≡≡≡≡≡≡≡≡≡≡≡,,\', , ,\' \'. \',¤
+\',\'.\'.,.,,≡≡≡≡≡≡≡≡≡≡≡\'.\',\'..\' \'.. ¡ ¤
+\'\'\'....\',,≡≡≡≡≡≡≡≡≡≡≡,...  ,,.\'\'.\', ¤
+,., \'. .\'≡≡≡≡≡▀≡≡≡≡≡≡≡\' .,\',\'.\'\',,  ¤
+ ,.,..¡ ,,,...░,. .   \' ,., .. .\'. \'¤
+.\' ...  \'\'.\'\'.░,\'\' .,¡ .,. ... ..,\'\'¤
+.,\'\'¡ ,\'..\' \'░,░. ...¡  ..,,,,\' . ¡ ¤
+. ,,. ,¡,, ,.░░░,.,.\', .\'\'.,  \' \' ¡¡ ¤
+. . ,..  ,.,,░░░.. ,,, \' ,.\',,  , ¡ ¤
+\'.\'  , ..\'.,. ░░\'\'..,.\'..,.,\'\'\'.\',,.¤
+\'.,.  \'.,,  ,░░░. ¡ ,.\', .\',.. \' ,  ¤
+,\',.,¡  \'\'\'.,░░░...  \', ., ,,,, .\'\',¤
+\'\'\'. ,\'\'  \',\'░░░, ,,, ..\'\' , . ..\'. ¤
+ ¡ .  ,..,,,,░░░.\' ¡ .,,\',\'\' ¡ , ¡ ,¤
+.\' ,, ,,\',.\'\'░░░\'.\',.. ,, .,,,.\'.\' .¤
+                                    ¤""".split('¤')
+
+        
+    def _getDoors(self):
+        width = len(self.textmap[0])
+        height = len(self.textmap)-1
+        doors = {(15,16):self.chopWood}
+        bottom = {(x,height):lambda:self.changeRoom(Rooms.FOREST) for x in range(width)}
+        left = {(1,y):lambda:self.changeRoom(Rooms.FOREST) for y in range(height)}
+        right = {(width-2,y):lambda:self.changeRoom(Rooms.FOREST) for y in range(height)}
+        doors.update(bottom)
+        doors.update(left)
+        doors.update(right)
+        
+        return doors
+
+    def _getForbiddenChars(self):
+        return ['#','≡']
+    
+    def chopWood(self):
+        if self._gameState.hasItem(Items.Axe):
+            Monitor.print("You chop some magical wood")
+            self._gameState.addItem(Items.Wood)
+        else:
+            Monitor.print("You could chop wood here, but you lack the tools")

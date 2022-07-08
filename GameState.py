@@ -23,7 +23,7 @@ class GameState:
         self.townattackListeners = []
 
     def registerGlobalEvents(self):
-        beastAttackTime = 20
+        beastAttackTime = 540
         shipwreckTime = 360
         globalEvents = [(self._rooms[Rooms.BEACH].shipwreck,shipwreckTime),
                         (self._rooms[Rooms.CLIFFS].shipwreck,shipwreckTime),
