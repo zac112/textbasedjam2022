@@ -235,17 +235,8 @@ You might be able to fix the plane given the right materials.""")
     def _getConnectionString(self, fromRoom):
         return {Rooms.VILLAGE: self.connectionDescription[self.descriptionIndex]}[fromRoom]
 
-    def _registerInput(self, gameState : GameState):
-        gameState.registerInput(self.keypress, "k")
-
-    def _unregisterInput(self, gameState : GameState):
-        gameState.unregisterInput(self.keypress, "k")
-
     def _connectRooms(self):
         self._connectedRooms.append(Rooms.VILLAGE)
-
-    def keypress(self):
-        self.changeRoom(Rooms.VILLAGE)
     
 class RoomVillage(Room):
 #region events
@@ -304,15 +295,6 @@ class RoomVillage(Room):
                 ,Rooms.CAVEENTRANCE: self.connectionDescription[self.descriptionIndex]
                 }[fromRoom]
 
-    def _registerInput(self, gameState : GameState):
-        gameState.registerInput(self.keypress, "k")
-
-    def _unregisterInput(self, gameState : GameState):
-        gameState.unregisterInput(self.keypress, "k")
-
-    def keypress(self):
-        print(Monitor.cursorPos())
-
     def _connectRooms(self):
         self._connectedRooms.append(Rooms.PLANECRASH)
         self._connectedRooms.append(Rooms.CROSSROADS)
@@ -332,15 +314,6 @@ class RoomCrossroads(Room):
                 ,Rooms.LIGHTHOUSE: self.connectionDescription[self.descriptionIndex]
                 ,Rooms.BEACH: self.connectionDescription[self.descriptionIndex]
                 }[fromRoom]
-    
-    def _registerInput(self, gameState : GameState):
-        gameState.registerInput(self.keypress, "k")
-
-    def _unregisterInput(self, gameState : GameState):
-        gameState.unregisterInput(self.keypress, "k")
-
-    def keypress(self):
-        print("Village pressed")
 
     def _connectRooms(self):
         self._connectedRooms.append(Rooms.VILLAGE)
@@ -377,15 +350,6 @@ class RoomBeach(Room):
                 ,Rooms.CAVEENTRANCE: self.connectionDescription[self.descriptionIndex]
                 }[fromRoom]
 
-    def _registerInput(self, gameState : GameState):
-        gameState.registerInput(self.keypress, "k")
-
-    def _unregisterInput(self, gameState : GameState):
-        gameState.unregisterInput(self.keypress, "k")
-
-    def keypress(self):
-        print("Village pressed")
-
     def _connectRooms(self):
         self._connectedRooms.append(Rooms.CROSSROADS)
         self._connectedRooms.append(Rooms.CAVEENTRANCE)
@@ -415,14 +379,6 @@ class RoomCaveEntrance(Room):
                 ,Rooms.CAVEINSIDE: self.connectionDescription[1]
                 }[fromRoom]
 
-    def _registerInput(self, gameState : GameState):
-        gameState.registerInput(self.keypress, "k")
-
-    def _unregisterInput(self, gameState : GameState):
-        gameState.unregisterInput(self.keypress, "k")
-
-    def keypress(self):
-        print("Village pressed")
 
     def _connectRooms(self):
         self._connectedRooms.append(Rooms.BEACH)
@@ -443,15 +399,6 @@ class RoomCaveExit(Room):
                 ,Rooms.CLIFFS: self.connectionDescription[self.descriptionIndex]
                 }[fromRoom]
 
-    def _registerInput(self, gameState : GameState):
-        gameState.registerInput(self.keypress, "k")
-
-    def _unregisterInput(self, gameState : GameState):
-        gameState.unregisterInput(self.keypress, "k")
-
-    def keypress(self):
-        print("Village pressed")
-
     def _connectRooms(self):
         self._connectedRooms.append(Rooms.CAVEINSIDE)
         self._connectedRooms.append(Rooms.FOREST)
@@ -468,15 +415,6 @@ class RoomCliffs(Room):
     def _getConnectionString(self, fromRoom):
         return {Rooms.CAVEEXIT: self.connectionDescription[self.descriptionIndex]}[fromRoom]
 
-    def _registerInput(self, gameState : GameState):
-        gameState.registerInput(self.keypress, "k")
-
-    def _unregisterInput(self, gameState : GameState):
-        gameState.unregisterInput(self.keypress, "k")
-
-    def keypress(self):
-        print("Village pressed")
-
     def _connectRooms(self):
         self._connectedRooms.append(Rooms.CAVEEXIT)
 
@@ -490,15 +428,6 @@ class RoomForest(Room):
 
     def _getConnectionString(self, fromRoom):
         return {Rooms.CAVEEXIT: self.connectionDescription[self.descriptionIndex]}[fromRoom]
-
-    def _registerInput(self):
-        gameState.registerInput(self.keypress, "k")
-
-    def _unregisterInput(self, gameState : GameState):
-        gameState.unregisterInput(self.keypress, "k")
-
-    def keypress(self):
-        print("Village pressed")
         
     def _connectRooms(self):
         self._connectedRooms.append(Rooms.CAVEEXIT)
@@ -525,15 +454,6 @@ class RoomLighthouse(Room):
 
     def _getConnectionString(self, fromRoom):
         return {Rooms.CROSSROADS: self.connectionDescription[self.descriptionIndex]}[fromRoom]
-
-    def _registerInput(self, gameState : GameState):
-        gameState.registerInput(self.keypress, "k")
-
-    def _unregisterInput(self, gameState : GameState):
-        gameState.unregisterInput(self.keypress, "k")
-
-    def keypress(self):
-        print("Village pressed")
         
     def _connectRooms(self):
         self._connectedRooms.append(Rooms.CROSSROADS)
