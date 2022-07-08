@@ -43,7 +43,8 @@ def initGame():
     Monitor.clear()
     print("\x1b[?25l") #hide cursor
     #rooms[Rooms.PLANECRASH].enterRoom()
-    gameState._rooms[Rooms.VILLAGEINSIDE].enterRoom()
+    gameState.addItem(Items.Lightbead)
+    gameState._rooms[Rooms.CAVEINSIDE].enterRoom()
 
 
     

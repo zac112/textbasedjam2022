@@ -25,8 +25,8 @@ class GameState:
     def registerGlobalEvents(self):
         beastAttackTime = 20
         shipwreckTime = 360
-        globalEvents = [(self._rooms[Rooms.BEACH].shipwreck,shipwrekTime),
-                        (self._rooms[Rooms.CLIFFS].shipwreck,shipwrekTime),
+        globalEvents = [(self._rooms[Rooms.BEACH].shipwreck,shipwreckTime),
+                        (self._rooms[Rooms.CLIFFS].shipwreck,shipwreckTime),
                         (self._rooms[Rooms.LIGHTHOUSE].eagleArrives,180),
                         (lambda _:self.notifyTownAttacked(True),beastAttackTime),
                         (lambda _:self.notifyTownAttacked(False),beastAttackTime+60)

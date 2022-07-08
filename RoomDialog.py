@@ -25,9 +25,10 @@ class RoomDialog(Room):
         return False
         
 class RoomCastleInside(RoomDialog):
-    description = ""
+    description = ["You enter a huge castle in this small village. You see a royal figure sitting on a throne."]
     descriptionIndex = 0
     connectionDescription = []
+    dialog = []
     room = Rooms.LABORATORYINSIDE
     availableActions = []
     underAttack = False
@@ -41,7 +42,7 @@ class RoomCastleInside(RoomDialog):
         Monitor.clear()
 
     def getDialog(self):
-        self.description = ["You enter a huge castle in this small village. You see a royal figure sitting on a throne."]        
+        description = ["You enter a huge castle in this small village. You see a royal figure sitting on a throne."]        
         kingDialog = (['The king talks with a booming voice: "Who are you?'],
                       {"Answer":self.answerKing})
         
@@ -51,7 +52,7 @@ class RoomCastleInside(RoomDialog):
         }
         return (description,menuOptions)
     
-    def answerKing(self, nextDialog):
+    def answerKing(self):
         self.getDialog=self.questGiveDialog
         Monitor.print("You explain you crashed your plane and are looking for help.")
         self.reEnterRoom()
@@ -66,7 +67,7 @@ class RoomCastleInside(RoomDialog):
                        "We seek a jewel; The tear of Arariel. The beast hid it deep in the caverns of Mount Grear.",
                        "The darkness there is oppressive. Take this light bead, while not much, it should help you navigate the caverns."],
                       {"Thank the king and leave":self.getStone})
-        declineDialog = (['Most unfortunate, but you are free to choose your path.",
+        declineDialog = (['Most unfortunate, but you are free to choose your path.',
                           "This offer stands, until the island submerges."],
                       {"Leave":self.exitRoom})
         
@@ -74,7 +75,7 @@ class RoomCastleInside(RoomDialog):
             'Accept quest': lambda:self._advanceDialog(acceptDialog),
             'Decline quest': lambda:self._advanceDialog(declineDialog)
         }
-        return (description,menuOptions)
+        return (self.description,menuOptions)
 
     def getStone(self):
         self._gameState.addItem(Items.Lightbead)

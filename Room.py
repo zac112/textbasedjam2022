@@ -120,8 +120,8 @@ class Room:
     def _getTownAttackListener(self):
         def listener(isAttacking):
             if not self.roomActive: return
-            if isAttacking: Monitor.print("The skies darken as a monstrous figure blocks the sun. It seems to be headed towards the town.")
-            else: Monitor.print("You see the monstrous beast flying away from the town, over the mountain.")
+            if isAttacking: Monitor.print("You have a vision of a terrible monster attacking the town.",speed=Monitor.SLOW)
+            #else: Monitor.print("You see the monstrous beast flying away from the town, over the mountain.")
         return listener
 #endregion
 

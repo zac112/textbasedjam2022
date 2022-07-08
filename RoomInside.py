@@ -64,6 +64,7 @@ class RoomVillageInside(RoomInside):
     room = Rooms.VILLAGEINSIDE
     availableActions = []
     pos = (14,14)
+    underAttack = False
     textmap = """╔═══════════════════════════╗¤
 ║      ,,,,,,,,,,,,         ║¤
 ║     /░░░░░░░░░░░░\        ║¤
@@ -154,6 +155,7 @@ class RoomCaveInside(RoomInside):
     connectionDescription = ["Enter the cave?"]
     room = Rooms.CAVEINSIDE
     availableActions = []
+    visibility = 1000
     pos = (2,15)
     textmap = """                                         ¤
              ...»                        ¤
@@ -183,8 +185,9 @@ class RoomCaveInside(RoomInside):
 ..░..¤""".split("¤")
         
     def _onEnter(self):
+        self.visibility = 1000
         Monitor.clear()
-        self.visibleCells = self.floodFill(self.pos)
+        self.visibleCells = self.floodFill(self.pos, distance=self.visibility)
         self.forbidden = []
         self.torches = []
         for y,line in enumerate(self.textmap,1):
@@ -247,11 +250,20 @@ class RoomCaveInside(RoomInside):
         if newPos in self.forbidden: return
         if self.isLethalTile(newPos): self._gameState.endGame()
 
-        self.visibleCells = self.floodFill(newPos)        
+        self.visibleCells = self.floodFill(newPos, distance=self.visibility)        
         self.pos = newPos
         self.refreshScreen()
+        if self._gameState.hasItem(Items.Lightbead):
+            self.lightSurroundings()
         self.doors.get(self.pos,lambda:None)()
 
+    def lightSurroundings(self):
+        x,y = self.pos
+        y -= 1
+        for x1,y1 in [(x+1,y),(x-1,y),(x,y+1),(x,y-1)]:
+            if self.textmap[y1][x1] == ".":
+                Monitor.draw("░",pos=(x1,y1+1))
+        
     #returns set of visible cells from pos
     def floodFill(self, pos, distance=3) -> set:
         def hasSightline(player,target,textmap):
@@ -297,29 +309,29 @@ class RoomCaveInside(RoomInside):
 class RoomCave1Inside(RoomCaveInside):
     room = Rooms.CAVE1
     availableActions = []    
-    #pos = (14,2)
-    pos = (27,17)
+    pos = (14,2)
+    #pos = (27,17)    
     collapsing = False
     textmap = """
                                         ¤
-   .....    »..............y........    ¤
+   .....    ».......................    ¤
    .....       y....#####  .       .    ¤
    .........    ..###      .  ........  ¤
    .....   .    .##        .  . .    .  ¤
            .    .  ............ . .. .  ¤
            .    .  .   .        #  ...  ¤
-  ...............y .   .    .           ¤
+  ...............  .   .    .           ¤
   .        #    .  .   ...............  ¤
   ............  .      #        ......  ¤
              .  ..#........#    ......  ¤
       #.......  .   .     .     ......  ¤
          .      .   .   .....   ......  ¤
-         .          .  .y...y.  ##.###  ¤
-         .          .  .......   #.#    ¤
+         .    .     .  .y...y.  ##.###  ¤
+         .    .     .  .......   #.#    ¤
        ..............  .y...y.   #.##   ¤
-       .               .......   #..#   ¤
-   .........           .y...y.   ####   ¤
-   .........           .......          ¤
+       .          . .  .......   #..#   ¤
+   .........      . .  .y...y.   ####   ¤
+   ..................  .......          ¤
    .........           .y...y.          ¤
    .........           .......          ¤
                        .y...y.          ¤
@@ -331,8 +343,9 @@ class RoomCave1Inside(RoomCaveInside):
                        .......          ¤
                                         ¤""".split('¤')
 
-    def _onEnter(self):
+    def _onEnter(self):        
         super()._onEnter()
+        self.visibility = 5
         if self._gameState.fulfillsRequirement(Knowledge.CollectedTearOfArariel):
             
             self.startCollapse()
@@ -357,7 +370,7 @@ class RoomCave1Inside(RoomCaveInside):
 
         self.nextCollapses = newPositions        
         if self.nextCollapses:
-            self._gameState.registerEvent(self.collapse, ticks+random.randint(2,4))
+            self._gameState.registerEvent(self.collapse, ticks+random.randint(1,2))
             
     def _getDoors(self):
         if self.collapsing:
