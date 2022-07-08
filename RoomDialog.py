@@ -58,7 +58,9 @@ class RoomCastleInside(RoomDialog):
         self.reEnterRoom()
 
     def questGiveDialog(self):
-        self.description = ["So you are a stranger. Know this island is cursed and you only have two days before it sinks.",
+        self._gameState.updateKnowledge(Knowledge.LearnedVillageHistory)
+        self.description = ["So you are a stranger. Welcome to the town of Thursten.",
+                            "However, know this island is cursed and you only have mere days before it sinks.",
                             "We have a magical device that creates a shield around this town to protect us while submerged,",
                             "however the power source has been stolen by minions of the beast.",
                             "",
@@ -72,11 +74,36 @@ class RoomCastleInside(RoomDialog):
                       {"Leave":self.exitRoom})
         
         menuOptions={
-            'Accept quest': lambda:self._advanceDialog(acceptDialog),
+            'Accept quest': lambda:self.acceptQuest(acceptDialog),
             'Decline quest': lambda:self._advanceDialog(declineDialog)
         }
         return (self.description,menuOptions)
 
+    def returnDialog(self):
+        self.description = ["So you have returned. Did you find the Tear of Arariel?",
+                            "Our lives depend on it."]
+        
+        menuOptions={}
+        if self._gameState.hasItem(Items.Tear):
+            menuOptions["Give jewel"] = lambda: self.giveJewel()
+        menuOptions["Apologize and leave"] = self.exitRoom
+        
+        return (self.description,menuOptions)
+
+    def giveJewel(self):
+        self._gameState.updateKnowledge(Knowledge.ReturnedTearOfArariel)
+        Monitor.print("You give the jewel to the king.")
+        Monitor.print("He examines it, smiles and hands it off to a nearby person, who quickly leaves the room.")
+        if self._gameState.fulfillsRequirement(Knowledge.FixedLighthouse):
+            Monitor.print("We thank you. We will begin preparations for submersion immediately.")
+            Monitor.print("You are a friend to Thursten and are welcome to stay with us until you decide to leave.")
+            self._gameState.updateKnowledge(Knowledge.VillagersAcceptYou)
+            self._gameState.endGame()
+        
+    def acceptQuest(self, dialog):
+        self.getDialog = self.returnDialog
+        self._advanceDialog(acceptDialog)
+        
     def getStone(self):
         self._gameState.addItem(Items.Lightbead)
         self.exitRoom()

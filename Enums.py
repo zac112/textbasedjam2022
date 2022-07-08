@@ -23,7 +23,7 @@ class Knowledge(Enum):
     
     VisitedVillage = (KnowledgeType.CULTURE,1)    
     LearnedVillageName = (KnowledgeType.CULTURE,2)
-    LearnedVillageHistory = (KnowledgeType.CULTURE,3) #Prereqs KnowsofBeast
+    LearnedVillageHistory = (KnowledgeType.CULTURE,3)
     VillagersAcceptYou = (KnowledgeType.CULTURE,4) #Preregs max QUEST_ARARIEL & LIGHTHOUSE
     
     ExaminedPlane = (KnowledgeType.PLANE,1)
@@ -46,12 +46,6 @@ class Knowledge(Enum):
     LocatedTearOfArariel = (KnowledgeType.QUEST_ARARIEL,2)
     CollectedTearOfArariel = (KnowledgeType.QUEST_ARARIEL,3)
     ReturnedTearOfArariel = (KnowledgeType.QUEST_ARARIEL,4)
-
-    KnowsOfIslandRumbling = (KnowledgeType.ISLAND_SINK,1)
-    IslandRumbledOnce = (KnowledgeType.ISLAND_SINK,2)
-    IslandRumbledTwice = (KnowledgeType.ISLAND_SINK,3)
-    IslandRumbledThrice = (KnowledgeType.ISLAND_SINK,4)
-    IslandSinking = (KnowledgeType.ISLAND_SINK,5)
 
 class GameTime(Enum):    
     MIDNIGHT = 0
@@ -78,8 +72,7 @@ class Rooms(Enum):
     CAVE1 = 'RoomCave1Inside("Upper Cave")'
     ARARIELJEWEL = 'RoomArarielDialogue("Arariel jewel dialog")'
     EAGLEDIALOG = 'RoomEagleDialogue("Lighthouse eagle dialog")'
-    SHOPKEEPERDIALOG = 'RoomShopkeeperDialogue("Town shopkeeper; left house")'
-    #shopkeeper; steal hose for plane
+    SHOPKEEPERDIALOG = 'RoomShopkeeperDialogue("Town shopkeeper; left house")'    
 
 class Actions(Enum):
     BluePotion = auto()

@@ -137,17 +137,20 @@ class RoomCaveInside(RoomInside):
                 self.lock = lock
                 self.running = True
                 self.room = room
+                self.torch = 'y'
 
             def run(self):                
                 while self.running:
                     sleep(random.random())
-                    if not self.running: break                    
+                    self.torch = random.sample(self.anims,1)[0]
+                    if not self.running: break
                     if (self.pos[0],self.pos[1]-1) in self.room.visibleCells:
-                        self.lock.acquire()
-                        Monitor.draw(self.anims[random.randint(0,2)],pos=self.pos)
+                        self.lock.acquire()                        
+                        Monitor.draw(self.torch, pos=self.pos)
                         self.lock.release()
 
             def terminate(self):
+                self.anims=[" "]
                 self.running = False
                 
     descriptionIndex = 0
@@ -208,9 +211,9 @@ class RoomCaveInside(RoomInside):
             (1,16):lambda:self.changeRoom(Rooms.CAVEENTRANCE),
             (17,2):lambda:self.changeRoom(Rooms.CAVE1),
             (19,19):lambda:self.changeRoom(Rooms.CAVE2),
-            (41,16):lambda:self.changeRoom(Rooms.CAVEEXIT),
-            (41,17):lambda:self.changeRoom(Rooms.CAVEEXIT),
-            (41,18):lambda:self.changeRoom(Rooms.CAVEEXIT)
+            (40,16):lambda:self.changeRoom(Rooms.CAVEEXIT),
+            (40,17):lambda:self.changeRoom(Rooms.CAVEEXIT),
+            (40,18):lambda:self.changeRoom(Rooms.CAVEEXIT)
             }
 
     def _onExit(self):
@@ -240,7 +243,11 @@ class RoomCaveInside(RoomInside):
         for y,line in enumerate(self.textmap):
             for x,c in enumerate(line):
                 if (x,y) not in self.visibleCells: continue
-                Monitor.draw(self.textmap[y][x].replace("."," "),pos=(x,y+1))
+                for torch in self.torches:
+                    if (x,y) == torch.pos:
+                        Monitor.draw(torch.torch,pos=(x,y))
+                else:
+                    Monitor.draw(self.textmap[y][x].replace("."," "),pos=(x,y+1))
 
         self.drawPlayer()
 
