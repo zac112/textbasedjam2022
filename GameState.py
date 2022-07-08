@@ -50,10 +50,18 @@ class GameState:
         
         return self.getKnowledgeLevelFor(req) >= reqlev
 
+    def addItem(self, item : Items):
+        self._inventory.add(item)
+        if self.hasItem(Items.Sword) and self.hasItem(Items.Tear):
+            Monitor.print("The sword and jewel begin to... flash?")
+            Monitor.print("Both vanish for a brief moment, then a brilliant sword appears in your hand!")
+            self.removeItem(Items.Sword)
+            self.removeItem(Items.Tear)
+            self._inventory.add(Items.SwordOfArariel)
+    
     def tookAction(self, action : Actions): self._actions.add(action)
     def hasAction(self, action : Actions): return action in self._actions
-    def hasActions(self, actions : list): return all(map(lambda a:self.hasAction(a),actions))
-    def addItem(self, item : Items): self._inventory.add(item)
+    def hasActions(self, actions : list): return all(map(lambda a:self.hasAction(a),actions))    
     def removeItem(self, item : Items): self._inventory.remove(item)
     def hasItem(self, item : Items): return item in self._inventory
     def hasAnyItem(self, items): return any(map(lambda a:self.hasItem(a),items))

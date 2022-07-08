@@ -270,7 +270,7 @@ class RoomShopkeeperDialogue(RoomDialog):
         if self.browseIndex >= len(self.browseOptions):
             self._gameState.updateKnowledge(Knowledge.FoundFuelHose)
             Monitor.print("You rummage around a pile of goods and see a piece of a plastic tube.")
-            Monitor.print("Too bad you don't have anything to buy it with...      ")
+            Monitor.print("Too bad you don't have anything to buy it with...                    ")
         self.reEnterRoom()
             
     def askHose(self):
