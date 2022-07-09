@@ -295,7 +295,7 @@ Fix the fuel hose first.""")
         def selectFromMenu(self, fromRoom : Rooms):            
             Monitor.readableLine("""You start the plane's engine and sigh from relief when nothing exploded.""")
             Monitor.readableLine("""You climb aboard the plane and take off.""")
-            Monitor.readableLine("""Congratulations! You have escaped the island alive!""", speed=Monitor.SLOW)
+            Monitor.readableLine("""Congratulations! You have escaped the island alive!""")
             
             fromRoom._gameState.endGame(GameEnd.WIN)
             
@@ -556,7 +556,7 @@ class RoomForest(Room):
             if fromRoom._gameState.hasAction(Actions.EagleQuest):
                 fromRoom.changeRoom(Rooms.FORESTINSIDE)
             else:
-                Monitor.readableLine("\nYou search the forest, but don't really know what to look for.", delay=False)
+                Monitor.readableLine("\nYou search the forest, but don't really know what to look for.")
 
     class SeekBeast(MenuItem):
         description = "In your vision, you saw the beast take flight from the forest."
