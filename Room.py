@@ -317,7 +317,7 @@ Fix the fuel hose first.""")
             self.description.append("After examining the plane, you might be able to fix it.\nYou only need fuel, a length of hose and some wheels")
         
     def _getEvents(self):
-        return [(self._addBirdEvent,10)]
+        return [(self._addBirdEvent,20)]
 
     def _addBirdEvent(self, tick):        
         birds = self.Birds()

@@ -11,8 +11,8 @@ class Monitor(threading.Thread):
     FAST = 1000
     INSTANT = 1
 
-    WIDTH = 60
-    HEIGHT = 30
+    WIDTH = 80
+    HEIGHT = 40
     
     pos = [0,0]
     readingSpeed=30.0
