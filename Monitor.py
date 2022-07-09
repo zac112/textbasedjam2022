@@ -1,97 +1,157 @@
 import time
 import os
 import sys
-from ctypes import wintypes
-import ctypes
+import threading
 import re
 
-class Monitor:
+
+class Monitor(threading.Thread):
     SLOW = 10
     MEDIUM = 100
     FAST = 1000
-    INSTANT = -1
+    INSTANT = 1
 
+    WIDTH = 60
+    HEIGHT = 30
+    
+    pos = [0,0]
     readingSpeed=30.0
+    
     """
     Prints the given text on the monitor
     text: the text to print
     speed: how many letters per second; see class attributes (optional)
     """
     @staticmethod
-    def print(text: str, pos: tuple = None, speed = INSTANT, delay=True, printline=True):
-        if speed == Monitor.INSTANT: 
-            Monitor.__instantPrint(text,delay=delay)
-            return
+    def print(text: str, pos: tuple = None, speed = INSTANT, delay=True, printline=True):        
         
-        oldPos = Monitor.getCursorPos()
+        Monitor.dirty = True
         if pos:
-            Monitor.setCursorPos(pos[0],pos[1])
+            oldPos = Monitor.pos
+            Monitor.setCursorPos(pos)
+
+        if speed == Monitor.INSTANT:
+            sleepFor = 0
+        else:
+            sleepFor = 1.0/speed
+
+        for char in text:
+            x,y = Monitor.pos
+            if char=="\n":
+                Monitor.printLine()
+                continue
+            if char=="\r":
+                Monitor.pos[0]=0
+                continue
+            if char=="\t":
+                raise Exception("Tabs are forbidden.")
+
+            
+            Monitor.buffer[y][x] = char
+            Monitor.delays[(x,y)] = sleepFor
+            Monitor.addX(1)
+            
+
+        if delay:
+            x,y=Monitor.pos
+            c = Monitor.buffer[y][x]
+            delay = Monitor.delays.setdefault((x,y),0)
+            delay += len(text)/Monitor.readingSpeed
+            Monitor.delays[x,y] = delay
+                                      
+        if printline:
+            Monitor.printLine()
         
-        speed = max(10, speed)
-        for c in text:
-            time.sleep(1.0/speed)
-            print(c, end="", flush=True)
+        if pos:
+            Monitor.setCursorPos(oldPos)
 
-        if printline:print()
+    @staticmethod
+    def readableLine(text,speed=INSTANT,printline=True):
+        input(text)
+        Monitor.print("",printline=printline)
         
-        if pos: Monitor.setCursorPos(oldpos[0],oldpos[1])
-
-        if delay: time.sleep(len(text)/Monitor.readingSpeed)
-
     @staticmethod
     def printLine():
-        Monitor.print("")
-
-    @staticmethod
-    def __instantPrint(text :str, delay: int=0):
-        print(text)
-        if delay: time.sleep(len(text)/Monitor.readingSpeed)
-        print()
+        Monitor.addY(1)
+        Monitor.pos[0]=0
 
     @staticmethod
     def clear():
-        os.system("cls")
+        Monitor.dirty = True
+        Monitor.buffer=[[' ']*Monitor.WIDTH for i in range(Monitor.HEIGHT)]
+        Monitor.setCursorPos((0,0))
 
+    #Clears lines from current position upwards
+    #does not wrap
     @staticmethod
     def clearLines(numLines=1):
-        for i in range(numLines):
-            Monitor.print("\033[A{}\033[A".format(' '*os.get_terminal_size().columns))
+        for delta in range(numLines):
+            for y,line in enumerate(Monitor.buffer):
+                Monitor.buffer[y] = [' ']*Monitor.WIDTH
+        Monitor.addY(max(-numLines+1,0))
+            
         
     @staticmethod
     def getCursorPos():
-        OldStdinMode = ctypes.wintypes.DWORD()
-        OldStdoutMode = ctypes.wintypes.DWORD()
-        kernel32 = ctypes.windll.kernel32
-        kernel32.GetConsoleMode(kernel32.GetStdHandle(-10), ctypes.byref(OldStdinMode))
-        kernel32.SetConsoleMode(kernel32.GetStdHandle(-10), 0)
-        kernel32.GetConsoleMode(kernel32.GetStdHandle(-11), ctypes.byref(OldStdoutMode))
-        kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
-
-        try:
-            _ = ""
-            sys.stdout.write("\x1b[6n")
-            #sys.stdout.write("")
-            sys.stdout.flush()
-            while not (_ := _ + sys.stdin.read(1)).endswith('R'): pass
-            res = re.match(r".*\[(?P<y>\d*);(?P<x>\d*)R", _)
-        finally:            
-            kernel32.SetConsoleMode(kernel32.GetStdHandle(-10), OldStdinMode)
-            kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), OldStdoutMode)
-            
-        if(res):
-            return (int(res.group("x")), int(res.group("y")))
-        return (-1, -1)        
-
-    @staticmethod
-    def positionCursor(pos):
-        if pos: return(f"\033[{pos[1]};{pos[0]}f")
-        return ""
+        return Monitor.pos
     
     @staticmethod
     def setCursorPos(pos):
-        print(Monitor.positionCursor(pos))        
+        Monitor.pos[0]=pos[0]
+        Monitor.pos[1]=pos[1]
 
     @staticmethod
-    def draw(text, pos:tuple=None, printline=False):
-        print(f"{Monitor.positionCursor(pos)}{text}", end="", flush=True)
+    def addX(amount):
+        pos = Monitor.pos
+        pos[0] = max(pos[0]+amount,0)
+        if pos[0] >= Monitor.WIDTH:
+            pos[0]=0
+            Monitor.addY(1)
         
+    
+    @staticmethod        
+    def addY(amount):
+        pos = Monitor.pos
+        pos[1]=max(pos[1]+amount,0)
+        if pos[1] >= Monitor.HEIGHT:
+            pos[1]=0
+            
+    @staticmethod
+    def draw(text, pos:tuple=None, printline=False):        
+        Monitor.print(text,pos=pos,printline=printline)
+
+    def __init__(self, threadID, name, lock ):
+        import random
+        threading.Thread.__init__(self)
+        self.threadID = threadID
+        self.name = name   
+        self.lock = lock
+        Monitor.buffer=[[' ']*Monitor.WIDTH for i in range(Monitor.HEIGHT)]
+        Monitor.dirty = True
+        
+    def run(self):
+        os.system("cls") #enable ANSI codes
+        print("\x1b[?25l") #hide cursor
+        os.system(f"mode {Monitor.WIDTH},{Monitor.HEIGHT}")            
+        while(self.running):                        
+            time.sleep(0.1)
+            if not Monitor.dirty:
+                continue
+
+            self.lock.acquire()
+            print("\033[H",end="")                     
+            for line in Monitor.buffer:
+                print("".join(line),end="",flush=False)
+            self.lock.release()
+            print(end="",flush=True)
+            
+            Monitor.dirty = False
+
+    def startDrawing(self):
+        self.running=True
+        self.start()
+        
+
+    def stopDrawing(self):
+        self.running=False
+

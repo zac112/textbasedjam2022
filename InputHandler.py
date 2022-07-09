@@ -1,6 +1,7 @@
 import msvcrt
 import threading
 import time
+import traceback
 
 class InputHandler(threading.Thread):
     keycodes = {
@@ -35,8 +36,13 @@ class InputHandler(threading.Thread):
     def keypress(self, key):
         #print(key)
         self.lock.acquire()
-        for obs in self.observers.get(key, []):            
-            obs()
+        for obs in self.observers.get(key, []):
+            try:
+                obs()
+            except Exception as e:
+                with open("error.txt","w") as f:
+                    traceback.print_exc(file=f)
+                    print(e)
         self.lock.release()
 
     def registerObserver(self, observer, key):

@@ -16,6 +16,7 @@ import time
 lock = Lock()
 timer = Timer(0,"Clock", lock)
 inp = InputHandler(1,"Input", lock)
+monitor = Monitor(2,"Monitor", lock)
 
 def quitGame(status : GameEnd):
     if status == GameEnd.LOSE:
@@ -24,12 +25,14 @@ def quitGame(status : GameEnd):
         print("Congratulations! You beat the game!")
     timer.stopCounting()
     inp.stopListening()
+    monitor.stopDrawing()
     input("<Press enter to quit>")
     sys.exit(0)
     
 def initGame():
+    monitor.startDrawing()
     timer.startCounting()    
-    inp.startListening()
+    inp.startListening()    
     inp.registerObserver(lambda:quitGame(GameEnd.QUIT),'q')
     inp.registerObserver(lambda:quitGame(GameEnd.QUIT),'Q')
 
@@ -43,11 +46,10 @@ def initGame():
             timer.registerTimeOfDayEvent(room.reEnterRoom)
 
     gameState.registerGlobalEvents()
-
-    Monitor.clear()
-    print("\x1b[?25l") #hide cursor
         
     gameState._rooms[Rooms.MAINMENU].enterRoom()
+    #gameState.addItem(Items.Lightbead)
+    #gameState._rooms[Rooms.CAVE1].enterRoom()
 
 
     

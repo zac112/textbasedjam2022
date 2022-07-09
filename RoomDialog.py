@@ -54,7 +54,7 @@ class RoomCastleInside(RoomDialog):
     
     def answerKing(self):
         self.getDialog=self.questGiveDialog
-        Monitor.print("You explain you crashed your plane and are looking for help.")
+        Monitor.readableLine("You explain you crashed your plane and are looking for help.")
         self.reEnterRoom()
 
     def questGiveDialog(self):
@@ -102,23 +102,24 @@ class RoomCastleInside(RoomDialog):
     
     def giveJewel(self):
         self._gameState.updateKnowledge(Knowledge.ReturnedTearOfArariel)
-        Monitor.print("You give the jewel to the king.")
-        Monitor.print("He examines it, smiles and hands it off to a nearby person, who quickly leaves the room.")
+        Monitor.readableLine("You give the jewel to the king.")
+        Monitor.readableLine("He examines it, smiles and hands it off to a nearby person, who quickly leaves the room.")
         
         self._gameState.updateKnowledge(Knowledge.VillagersAcceptYou)
         if self._gameState.fulfillsRequirement(Knowledge.FixedLighthouse):
             self.finishGame()            
         else:
-            Monitor.print("The man who was given the jewel returns and whispers to the king.")
-            Monitor.print('The king addresses you again:"It seems we still need your help."')
-            Monitor.print("The lighthouse that powers our magic has run out of fuel.")
-            Monitor.print("The lighthouse keeper kept the lighthouse working, unfortunately he was eaten by the Beast several years ago.")
-            Monitor.print("Seek out the means to relight the fire in the lighthouse. Hurry, there is not much time!")
+            Monitor.readableLine("The man who was given the jewel returns and whispers to the king.")
+            Monitor.readableLine('The king addresses you again:"It seems we still need your help."')
+            Monitor.readableLine("The lighthouse that powers our magic has run out of fuel.")
+            Monitor.readableLine("The lighthouse keeper kept the lighthouse working, unfortunately he was eaten by the Beast several years ago.")
+            Monitor.readableLine("Seek out the means to relight the fire in the lighthouse. Hurry, there is not much time!")
             self.getDialog = self.busyDialog
+            self.reEnterRoom()
 
     def finishGame(self):
-        Monitor.print("We thank you. We will begin preparations for submersion immediately.")
-        Monitor.print("You are a friend to Thurstan and are welcome to stay with us until you decide to leave.")            
+        Monitor.readableLine("We thank you. We will begin preparations for submersion immediately.")
+        Monitor.readableLine("You are a friend to Thurstan and are welcome to stay with us until you decide to leave.")            
         self._gameState.endGame(GameEnd.WIN)
             
     def acceptQuest(self, dialog):
@@ -138,7 +139,7 @@ class RoomCastleInside(RoomDialog):
     def theBeastAttacks(self):
         self.underAttack = True
         if self.roomActive:
-            Monitor.print("Everyone is alerted by explosions on the outside. They rush out and drag you along.")
+            Monitor.readableLine("Everyone is alerted by explosions on the outside. They rush out and drag you along.")
             self.exitRoom()
 
     def theBeastLeaves(self):
@@ -177,28 +178,28 @@ The third one depicts a battlefield with a two-headed figure in red armor victor
     def buttonPress(self, nextDialog, method):
         def a():
             method()
-            Monitor.print("Several (presumably) scientists barge in the room and begin questioning you.")
-            Monitor.print("To your great surprise, you undestand these people and are able to talk your way out of being thrown in jail.")
+            Monitor.readableLine("Several (presumably) scientists barge in the room and begin questioning you.")
+            Monitor.readableLine("To your great surprise, you undestand these people and are able to talk your way out of being thrown in jail.")
             self._gameState.updateKnowledge(Knowledge.LearnedLanguage)
             self.exitRoom()
         return a
     
     def redButton(self):
-        Monitor.print("You press the red button and the machine whirrs to life.")
-        Monitor.print("WHRR R R GZZGZZ (BLUB BLUB BLUB BLUB)",speed=Monitor.SLOW)
-        Monitor.print("You grab the bottle of blood-like liquid produced by the machine and chug it in one go.")
+        Monitor.readableLine("You press the red button and the machine whirrs to life.")
+        Monitor.readableLine("WHRR R R GZZGZZ (BLUB BLUB BLUB BLUB)",speed=Monitor.SLOW)
+        Monitor.readableLine("You grab the bottle of blood-like liquid produced by the machine and chug it in one go.")
         self._gameState.tookAction(Actions.RedPotion)
         
     def yellowButton(self):
-        Monitor.print("You press the yellow button and the machine whirrs to life.")
-        Monitor.print("CHUGCHUG CHCH CGCGCGCG (BLUB BLUB BLUB BLUB)",speed=Monitor.SLOW )
-        Monitor.print("You grab the bottle of almost transparent liquid produced by the machine and chug it in one go.")
+        Monitor.readableLine("You press the yellow button and the machine whirrs to life.")
+        Monitor.readableLine("CHUGCHUG CHCH CGCGCGCG (BLUB BLUB BLUB BLUB)",speed=Monitor.SLOW )
+        Monitor.readableLine("You grab the bottle of almost transparent liquid produced by the machine and chug it in one go.")
         self._gameState.tookAction(Actions.YellowPotion)
 
     def blueButton(self):
-        Monitor.print("You press the blue button and the machine whirrs to life.")
-        Monitor.print("WHOOSH WHOOSH WHS WHS WHS WSWSWSWSWS (BLUB BLUB BLUB BLUB)",speed=Monitor.SLOW )
-        Monitor.print("You grab the bottle of water-like liquid produced by the machine and chug it in one go.")
+        Monitor.readableLine("You press the blue button and the machine whirrs to life.")
+        Monitor.readableLine("WHOOSH WHOOSH WHS WHS WHS WSWSWSWSWS (BLUB BLUB BLUB BLUB)",speed=Monitor.SLOW )
+        Monitor.readableLine("You grab the bottle of water-like liquid produced by the machine and chug it in one go.")
         self._gameState.tookAction(Actions.BluePotion)
         
     def exitRoom(self):
@@ -224,10 +225,10 @@ class RoomArarielDialogue(RoomDialog):
         Monitor.clear()
 
     def pickupJewel(self):
-        Monitor.print("You pick up the beautiful jewel and are surprised by its weight. \nAs you stuff it in your pocket, you hear a faint rumble.")
-        Monitor.print("The rumbling grows lowder")
-        Monitor.print("You begin to feel light headed. Uh-oh; you now understand the situation: streams of vapor are rising from cracks in the floor.")
-        Monitor.print("POISON GAS!!!", speed=Monitor.SLOW)
+        Monitor.readableLine("You pick up the beautiful jewel and are surprised by its weight. \nAs you stuff it in your pocket, you hear a faint rumble.")
+        Monitor.readableLine("The rumbling grows lowder")
+        Monitor.readableLine("You begin to feel light headed. Uh-oh; you now understand the situation: streams of vapor are rising from cracks in the floor.")
+        Monitor.readableLine("POISON GAS!!!", speed=Monitor.SLOW)
         self._gameState.updateKnowledge(Knowledge.CollectedTearOfArariel)
         self._gameState.addItem(Items.Tear)
         self.exitRoom()
@@ -267,26 +268,26 @@ class RoomEagleDialogue(RoomDialog):
         Monitor.clear()
 
     def whatPlace(self):
-        Monitor.print("You have ended up on the island of Atlantis. \nThis is the lighthouse of Emradir, which has shed its protective light on the island for hundreds of years.")
-        Monitor.print("ATLANTIS??!?", speed=Monitor.SLOW, printline=False)
-        Monitor.print("You shout in dismay.")
-        Monitor.print("Yes, replied the eagle. The island is cursed; it sinks, only to be brought back by The Beast.")
-        Monitor.print("The Beast. At least the Atlanteans aren't good at naming things...")
-        Monitor.print("Your arrogance may yet be the end of you. No one who has went to face The Beast has ever returned.")
+        Monitor.readableLine("You have ended up on the island of Atlantis. \nThis is the lighthouse of Emradir, which has shed its protective light on the island for hundreds of years.")
+        Monitor.readableLine("ATLANTIS??!?", speed=Monitor.SLOW, printline=False)
+        Monitor.readableLine("You shout in dismay.")
+        Monitor.readableLine("Yes, replied the eagle. The island is cursed; it sinks, only to be brought back by The Beast.")
+        Monitor.readableLine("The Beast. At least the Atlanteans aren't good at naming things...")
+        Monitor.readableLine("Your arrogance may yet be the end of you. No one who has went to face The Beast has ever returned.")
         self._gameState.updateKnowledge(Knowledge.KnowsOfBeast)
 
     def acceptQuest(self):
-        Monitor.print("Here, take this axe and head to the forest of Vestunm beyond the mountain.")
+        Monitor.readableLine("Here, take this axe and head to the forest of Vestunm beyond the mountain.")
         self._gameState.tookAction(Actions.EagleQuest)
         self._gameState.addItem(Items.Axe)
         self._advanceDialog(None)
 
     def declineQuest(self):
-        Monitor.print("Your destiny is your own.")
+        Monitor.readableLine("Your destiny is your own.")
         self._advanceDialog(None)
 
     def howInMyHead(self):
-        Monitor.print("The world is a mysterious place, young human.")
+        Monitor.readableLine("The world is a mysterious place, young human.")
         
     def exitRoom(self):
         self.changeRoom(Rooms.LIGHTHOUSE)
@@ -348,27 +349,27 @@ class RoomShopkeeperDialogue(RoomDialog):
 
     def browse(self):
         self.browseIndex += 1
-        Monitor.print("You go through some stuff, but it's all junk.")
+        Monitor.readableLine("You go through some stuff, but it's all junk.")
         if self.browseIndex >= len(self.browseOptions):
             self._gameState.updateKnowledge(Knowledge.FoundFuelHose)
-            Monitor.print("You rummage around a pile of goods and see a piece of a plastic tube.")
-            Monitor.print("Too bad you don't have anything to buy it with...                    ")
+            Monitor.readableLine("You rummage around a pile of goods and see a piece of a plastic tube.")
+            Monitor.readableLine("Too bad you don't have anything to buy it with...                    ")
         self.reEnterRoom()
             
     def askHose(self):
-        Monitor.print("The shopkeeper thinks a while about your request.")
-        Monitor.print("After some time he moves to rummage around a pile of goods and digs up a length of a plastic tube.")
-        Monitor.print('"Will this do?" He asks. "I could part with it for a few gold coins."')
-        Monitor.print("You don't have any money, so you just thank him for his time.")
+        Monitor.readableLine("The shopkeeper thinks a while about your request.")
+        Monitor.readableLine("After some time he moves to rummage around a pile of goods and digs up a length of a plastic tube.")
+        Monitor.readableLine('"Will this do?" He asks. "I could part with it for a few gold coins."')
+        Monitor.readableLine("You don't have any money, so you just thank him for his time.")
         self._gameState.updateKnowledge(Knowledge.FoundFuelHose)
         self._gameState.tookAction(Actions.AskedHoseFromShopkeeper)
         self.reEnterRoom()
         
     
     def examineSword(self):
-        Monitor.print("The sword is a bit rusty and very dirty.")
-        Monitor.print("You notice a curious indentation in the crossguard; as if something was pried out of it.")
-        Monitor.print("The shopkeeper notices your interest and lets you know it is for sale.")
+        Monitor.readableLine("The sword is a bit rusty and very dirty.")
+        Monitor.readableLine("You notice a curious indentation in the crossguard; as if something was pried out of it.")
+        Monitor.readableLine("The shopkeeper notices your interest and lets you know it is for sale.")
 
         if self._gameState.hasAnyItem([Items.Tear, Items.Axe]):
             desc = ['You consider if you have anything valuable enough to barter for it.']
@@ -381,7 +382,7 @@ class RoomShopkeeperDialogue(RoomDialog):
             self._advanceDialog((desc,dialog))
 
     def tradeForSword(self, item):
-        Monitor.print("The shopkeeper examines your offer and accepts the trade.")
+        Monitor.readableLine("The shopkeeper examines your offer and accepts the trade.")
         self._gameState.removeItem(item)
         self._gameState.addItem(Items.Sword)
 
@@ -391,9 +392,9 @@ class RoomShopkeeperDialogue(RoomDialog):
         
         
     def stealItem(self,item,hadBefore = True):
-        Monitor.print("Now with all the commotion outside, you decide to act.")
+        Monitor.readableLine("Now with all the commotion outside, you decide to act.")
         if hadBefore:
-            Monitor.print("You steal back your item from the shopkeeper.")
+            Monitor.readableLine("You steal back your item from the shopkeeper.")
         self._gameState.addItem(item)
 
         act = self._gameState.tookAction
@@ -407,15 +408,15 @@ class RoomShopkeeperDialogue(RoomDialog):
         self.underAttack = True        
         self._gameState.updateKnowledge(Knowledge.SeenBeast)
         if self.roomActive:
-            Monitor.print("You hear a screech outside followed by an explosion")
-            Monitor.print("The shopkeeper grabs a nearby crowssbow and bolts, then runs outside.                         ")
+            Monitor.readableLine("You hear a screech outside followed by an explosion")
+            Monitor.readableLine("The shopkeeper grabs a nearby crowssbow and bolts, then runs outside.                         ")
             self.reEnterRoom()
 
     def theBeastLeaves(self):
         self.underAttack = False
         if self.roomActive:
-            Monitor.print("You hear the sounds of battle die down outside.")
-            Monitor.print("The shopkeeper returns behind the counter sweaty and bloodied.")
+            Monitor.readableLine("You hear the sounds of battle die down outside.")
+            Monitor.readableLine("The shopkeeper returns behind the counter sweaty and bloodied.")
             self.reEnterRoom()
             
 
@@ -438,20 +439,20 @@ class RoomBeastDialogue(RoomDialog):
         Monitor.clear()
 
     def kill(self):
-        Monitor.print("You lift the sword of Arariel over your head and drive the sword into the beat's heart")
-        Monitor.print("You victoriously stand over the corpse of the horrendous beast.")
-        Monitor.print("But wait, the corpse begins to shimmer; it transformed into a human")
-        Monitor.print('In his last breath he wispers: "I\'m sorry; the curse is now yours to bear."')
-        Monitor.print('...Wait what',speed=2)
-        Monitor.print("You scream in agony as your body is morphed into the Beast you just slew.")
+        Monitor.readableLine("You lift the sword of Arariel over your head and drive the sword into the beat's heart")
+        Monitor.readableLine("You victoriously stand over the corpse of the horrendous beast.")
+        Monitor.readableLine("But wait, the corpse begins to shimmer; it transformed into a human")
+        Monitor.readableLine('In his last breath he wispers: "I\'m sorry; the curse is now yours to bear."')
+        Monitor.readableLine('...Wait what',speed=2)
+        Monitor.readableLine("You scream in agony as your body is morphed into the Beast you just slew.")
         self._gameState.endGame(GameEnd.LOSE)
 
     def live(self):
-        Monitor.print("You strike the sword of Arariel to the ground next to the Beast.")
-        Monitor.print("The sword begins to shimmer. The still-living body of the Beast shimmers in sync.")
-        Monitor.print("Flash! ZAP!",speed=2)
-        Monitor.print("Both the sword and the Beast are gone; only the Tear of Arariel remains.")
-        Monitor.print("You pick up the tear and head out of the forest.                 ")
+        Monitor.readableLine("You strike the sword of Arariel to the ground next to the Beast.")
+        Monitor.readableLine("The sword begins to shimmer. The still-living body of the Beast shimmers in sync.")
+        Monitor.readableLine("Flash! ZAP!",speed=2)
+        Monitor.readableLine("Both the sword and the Beast are gone; only the Tear of Arariel remains.")
+        Monitor.readableLine("You pick up the tear and head out of the forest.                 ")
         self._gameState.updateKnowledge(Knowledge.DefeatedBeast)
         self._gameState.removeItem(Items.SwordOfArariel)
         self._gameState.addItem(Items.Tear)

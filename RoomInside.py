@@ -28,7 +28,7 @@ class RoomInside(Room):
         if not self.roomActive :return
 
         Monitor.clear()
-        [Monitor.draw(line) for line in self.textmap]
+        [Monitor.draw(line,printline=True) for line in self.textmap]
         self.drawPlayer()
     
     def drawPlayer(self):
@@ -38,23 +38,23 @@ class RoomInside(Room):
         x,y = self.pos
         newPos = movement(x,y)
         if newPos in self.forbidden: return
-        Monitor.draw(self.textmap[y-1][x], pos=self.pos)
+        Monitor.draw(self.textmap[y][x], pos=self.pos)
         self.pos = newPos
         self.drawPlayer()
         self.doors.get(self.pos,lambda:None)()
             
         
     def right(self):
-        self.move(lambda x,y: (min(x+1,len(self.textmap[0])), y))        
+        self.move(lambda x,y: (min(x+1,len(self.textmap[0])-1), y))        
         
     def left(self):
-        self.move(lambda x,y: (max(x-1,1), y))
+        self.move(lambda x,y: (max(x-1,0), y))
         
     def down(self):
-        self.move(lambda x,y: (x, min(y+1,len(self.textmap[0]))))
+        self.move(lambda x,y: (x, min(y+1,len(self.textmap[0])-1)))
         
     def up(self):
-        self.move(lambda x,y: (x, max(y-1,1)))
+        self.move(lambda x,y: (x, max(y-1,0)))
 
 class RoomVillageInside(RoomInside):
             
@@ -79,7 +79,7 @@ class RoomVillageInside(RoomInside):
 ║     ▒▒▒▒▒▒▒▒▒▒▒▒▒▒        ║¤
 ║           ▒▒▒             ║¤
 ║           ▒▒▒             ║¤
-╚═══════════■■■═════════════╝¤""".split('¤')
+╚═══════════■■■═════════════╝¤""".replace("\n","").split('¤')
 
     def _getTownAttackListener(self):
         return lambda isAttacked: self.theBeastAttacks() if isAttacked else self.theBeastLeaves()
@@ -88,7 +88,7 @@ class RoomVillageInside(RoomInside):
         Monitor.clear()
         
         self.forbidden = []
-        for y,line in enumerate(self.textmap,1):
+        for y,line in enumerate(self.textmap):
             for x,c in enumerate(line):
                 if c in self._getForbiddenChars():
                     self.forbidden.append((x,y))
@@ -96,14 +96,14 @@ class RoomVillageInside(RoomInside):
 
     def _getDoors(self):
         return {
-            (13,6):self.enterCastle,
-            (14,6):self.enterCastle,
-            (15,6):self.enterCastle,
-            (20,11):self.enterLab,
-            (7,11):lambda:self.changeRoom(Rooms.SHOPKEEPERDIALOG),
-            (13,15):lambda:self.changeRoom(Rooms.VILLAGE),
-            (14,15):lambda:self.changeRoom(Rooms.VILLAGE),
-            (15,15):lambda:self.changeRoom(Rooms.VILLAGE)
+            (12,5):self.enterCastle,
+            (13,5):self.enterCastle,
+            (14,5):self.enterCastle,
+            (19,10):self.enterLab,
+            (6,10):lambda:self.changeRoom(Rooms.SHOPKEEPERDIALOG),
+            (12,14):lambda:self.changeRoom(Rooms.VILLAGE),
+            (13,14):lambda:self.changeRoom(Rooms.VILLAGE),
+            (14,14):lambda:self.changeRoom(Rooms.VILLAGE)
             }
     
     def _getForbiddenChars(self):
@@ -112,29 +112,29 @@ class RoomVillageInside(RoomInside):
     def theBeastAttacks(self):        
         self.underAttack = True
         if self.roomActive:
-            Monitor.print("You hear a screech and look up. You see a monstrous flying creature.")
-            Monitor.print("A house near you explodes! The town is under attack!")
-            Monitor.print("Townsfolk emerge from their houses to fight the Beast.")
+            Monitor.readableLine("You hear a screech and look up. You see a monstrous flying creature.")
+            Monitor.readableLine("A house near you explodes! The town is under attack!")
+            Monitor.readableLine("Townsfolk emerge from their houses to fight the Beast.")
 
     def theBeastLeaves(self):
         self.underAttack = False
         if self.roomActive:
-            Monitor.print("The creature stops attacking the town and retreats towards the mountains")
+            Monitor.readableLine("The creature stops attacking the town and retreats towards the mountains")
 
     def enterCastle(self):
         if not self._gameState.fulfillsRequirement(Knowledge.LearnedLanguage):
-            Monitor.print("The guards at the gate stop you and ask you questions in a foreign language.")
+            Monitor.readableLine("The guards at the gate stop you and ask you questions in a foreign language.")
             return
         
         if self.underAttack:
-            Monitor.print("There is nobody here; they're all fighting outside!")
+            Monitor.readableLine("There is nobody here; they're all fighting outside!")
         else:
             self.changeRoom(Rooms.CASTLEINSIDE)
 
     def enterLab(self):
         if self._gameState.fulfillsRequirement(Knowledge.LearnedLanguage):
-            Monitor.print("You think about entering the room with the machine (and angry scientists).")
-            Monitor.print("...You decide against it.")
+            Monitor.readableLine("You think about entering the room with the machine (and angry scientists).")
+            Monitor.readableLine("...You decide against it.")
         else:
             self.changeRoom(Rooms.LABORATORYINSIDE)
 
@@ -154,10 +154,10 @@ class RoomCaveInside(RoomInside):
                     sleep(random.random())
                     self.torch = random.sample(self.anims,1)[0]
                     if not self.running: break
-                    if (self.pos[0],self.pos[1]-1) in self.room.visibleCells:
-                        self.lock.acquire()                        
+                    if self.pos in self.room.visibleCells:
+                        x,y=self.pos
+                        self.room.textmap[y][x]=self.torch
                         Monitor.draw(self.torch, pos=self.pos)
-                        self.lock.release()
 
             def terminate(self):
                 self.anims=[" "]
@@ -189,13 +189,13 @@ class RoomCaveInside(RoomInside):
                       ..       ......░▒▓▓¤
                       ..       ...y..░▒▓▓¤
                   «.....                 ¤
-                                         ¤""".split('¤')
+                                         ¤""".replace("\n","").split('¤')
 
     torchlight = """...░.¤
 .▒▓▒.¤
 ░▓y▓░¤
 .▒▓▒.¤
-..░..¤""".split("¤")
+..░..¤""".replace("\n","").split('¤')
         
     def _onEnter(self):
         self.visibility = 1000
@@ -203,8 +203,8 @@ class RoomCaveInside(RoomInside):
         self.visibleCells = self.floodFill(self.pos, distance=self.visibility)
         self.forbidden = []
         self.torches = []
-        for y,line in enumerate(self.textmap,1):
-            self.textmap[y-1] = list(line)
+        for y,line in enumerate(self.textmap):
+            self.textmap[y] = list(line)
             for x,c in enumerate(line):
                 if c in self._getForbiddenChars():
                     self.forbidden.append((x,y))
@@ -216,18 +216,18 @@ class RoomCaveInside(RoomInside):
 
     def _getDoors(self):
         return {
+            (1,13):lambda:self.changeRoom(Rooms.CAVEENTRANCE),
             (1,14):lambda:self.changeRoom(Rooms.CAVEENTRANCE),
             (1,15):lambda:self.changeRoom(Rooms.CAVEENTRANCE),
-            (1,16):lambda:self.changeRoom(Rooms.CAVEENTRANCE),
-            (17,2):lambda:self.enterCave1(),
-            (40,16):lambda:self.changeRoom(Rooms.CAVEEXIT),
-            (40,17):lambda:self.changeRoom(Rooms.CAVEEXIT),
-            (40,18):lambda:self.changeRoom(Rooms.CAVEEXIT)
+            (16,1):lambda:self.enterCave1(),
+            (39,15):lambda:self.changeRoom(Rooms.CAVEEXIT),
+            (39,16):lambda:self.changeRoom(Rooms.CAVEEXIT),
+            (39,17):lambda:self.changeRoom(Rooms.CAVEEXIT)
             }
 
     def enterCave1(self):
         if self._gameState.hasItem(Items.Tear):
-            Monitor.print("You better not go in there. The gas will kill you.")
+            Monitor.readableLine("You better not go in there. The gas will kill you.")
         else:
             self.changeRoom(Rooms.CAVE1)
             
@@ -240,8 +240,8 @@ class RoomCaveInside(RoomInside):
     
     def lightTorches(self):
         for pos in [t.pos for t in self.torches]:
-            for y, line in enumerate(self.torchlight,-3):                
-                for x, char in enumerate(line,-3):
+            for y, line in enumerate(self.torchlight,-2):                
+                for x, char in enumerate(line,-2):
                     mapx,mapy = x+pos[0],y+pos[1]           
                     try:
                         if self.textmap[mapy][mapx] != '.' or char == "\n" or mapy < 0 or mapx < 0: continue                        
@@ -262,29 +262,25 @@ class RoomCaveInside(RoomInside):
                     if (x,y) == torch.pos:
                         Monitor.draw(torch.torch,pos=(x,y))
                 else:
-                    Monitor.draw(self.textmap[y][x].replace("."," "),pos=(x,y+1))
+                    Monitor.draw(self.textmap[y][x].replace("."," "),pos=(x,y))
 
         self.drawPlayer()
 
-    def move(self, movement):
-        x,y = self.pos
-        newPos = movement(x,y)
-        if newPos in self.forbidden: return
-        if self.isLethalTile(newPos): self._gameState.endGame(GameEnd.LOSE)
-
-        self.visibleCells = self.floodFill(newPos, distance=self.visibility)        
-        self.pos = newPos
+    def move(self, movement):        
+        x,y=self.pos        
+        super().move(movement)
+        self.visibleCells = self.floodFill(self.pos, distance=self.visibility)
+        Monitor.draw(self.textmap[y][x].replace("."," "), pos=(x,y))
+        if self.isLethalTile(self.pos): self._gameState.endGame(GameEnd.LOSE)        
         self.refreshScreen()
         if self._gameState.hasItem(Items.Lightbead):
             self.lightSurroundings()
-        self.doors.get(self.pos,lambda:None)()
 
     def lightSurroundings(self):
         x,y = self.pos
-        y -= 1
         for x1,y1 in [(x+1,y),(x-1,y),(x,y+1),(x,y-1)]:
             if self.textmap[y1][x1] == ".":
-                Monitor.draw("░",pos=(x1,y1+1))
+                Monitor.draw("░",pos=(x1,y1))
         
     #returns set of visible cells from pos
     def floodFill(self, pos, distance=3) -> set:
@@ -299,7 +295,7 @@ class RoomCaveInside(RoomInside):
             return True
 
         level = 0
-        pos = (level,(pos[0],pos[1]-1))
+        pos = (level,(pos[0],pos[1]))
         queue = [pos]
         visited = set()
         while queue:            
@@ -331,11 +327,10 @@ class RoomCaveInside(RoomInside):
 class RoomCave1Inside(RoomCaveInside):
     room = Rooms.CAVE1
     availableActions = []    
-    pos = (14,2)
-    #pos = (27,17)    
+    #pos = (13,1)
+    pos = (27,17)    
     collapsing = False
-    textmap = """
-                                        ¤
+    textmap = """                                        ¤
    .....    ».......................    ¤
    .....       y....#####  .       .    ¤
    .........    ..###      .  ........  ¤
@@ -363,30 +358,31 @@ class RoomCave1Inside(RoomCaveInside):
                        ..└-┘..          ¤
                        .y...y.          ¤
                        .......          ¤
-                                        ¤""".split('¤')
+                                        ¤""".replace("\n","").split('¤')
 
     def _onEnter(self):        
         super()._onEnter()
         self.visibility = 5
-        if self._gameState.fulfillsRequirement(Knowledge.CollectedTearOfArariel):
-            
+        if self._gameState.fulfillsRequirement(Knowledge.CollectedTearOfArariel):            
             self.startCollapse()
-            self.collapsing = True
 
     def startCollapse(self):
-        if self.collapsing: return
+        if self.collapsing:
+            self.collapse(self._gameState.getTick()+2)
+            return
+        self.collapsing = True
         self._gameState.registerEvent(self.collapse, self._gameState.getTick()+2)
-        self.nextCollapses = [(27,27)]
+        self.nextCollapses = [(26,27)]
 
     def collapse(self, ticks):
         newPositions = []
         for pos in self.nextCollapses:
             x,y = pos
-            try:self.textmap[y-1][x]
+            try:self.textmap[y][x]
             except:continue
             
-            if self.textmap[y-1][x] in [" ","¤"]:continue
-            self.textmap[y-1][x] = "¤"            
+            if self.textmap[y][x] in [" ","¤"]:continue
+            self.textmap[y][x] = "¤"            
             if pos in self.visibleCells: Monitor.draw("¤",pos=pos)
 
             if self.roomActive:
@@ -397,21 +393,23 @@ class RoomCave1Inside(RoomCaveInside):
             self._gameState.registerEvent(self.collapse, ticks+random.randint(1,2))
             
     def _getDoors(self):
-        if self.collapsing:
-            option = lambda:Monitor.print("You admire the majestic pedestal of the tear of Arariel while the cavern around you is collapsing.",delay=False)
-        else:
-            option = lambda:self.changeRoom(Rooms.ARARIELJEWEL)
-            
-        return {(13,2):lambda:self.changeRoom(Rooms.CAVEINSIDE),
-                (27,25):option
+        return {(12,1):lambda:self.changeRoom(Rooms.CAVEINSIDE),
+                (26,24):self.getAltar
                 }
-    
+
+    def getAltar(self):
+        if self.collapsing:
+            Monitor.readableLine("You admire the majestic pedestal of the tear of Arariel while the cavern around you is collapsing.")
+        else:
+            self.changeRoom(Rooms.ARARIELJEWEL)
+            
     def _getForbiddenChars(self):
         return [' ','└','-','┘','┌','┐','#']
 
     def isLethalTile(self, pos):
-        result = self.textmap[pos[1]-1][pos[0]]=="¤"
+        result = self.textmap[pos[1]][pos[0]]=="¤"
         if result:
+            self.roomActive=False
             for t in self.torches:
                 t.terminate()
         return result
@@ -447,16 +445,16 @@ class RoomForestInside(RoomVillageInside):
 \'\'\'. ,\'\'  \',\'░░░, ,,, ..\'\' , . ..\'. ¤
  ¡ .  ,..,,,,░░░.\' ¡ .,,\',\'\' ¡ , ¡ ,¤
 .\' ,, ,,\',.\'\'░░░\'.\',.. ,, .,,,.\'.\' .¤
-                                    ¤""".split('¤')
+                                    ¤""".replace("\n","").split('¤')
 
         
     def _getDoors(self):
         width = len(self.textmap[0])
         height = len(self.textmap)-1
-        doors = {(15,16):self.chopWood}
-        bottom = {(x,height):lambda:self.changeRoom(Rooms.FOREST) for x in range(width)}
-        left = {(1,y):lambda:self.changeRoom(Rooms.FOREST) for y in range(height)}
-        right = {(width-2,y):lambda:self.changeRoom(Rooms.FOREST) for y in range(height)}
+        doors = {(14,15):self.chopWood}
+        bottom = {(x,height-1):lambda:self.changeRoom(Rooms.FOREST) for x in range(width)}
+        left = {(0,y-1):lambda:self.changeRoom(Rooms.FOREST) for y in range(height)}
+        right = {(width-2,y-1):lambda:self.changeRoom(Rooms.FOREST) for y in range(height)}
         doors.update(bottom)
         doors.update(left)
         doors.update(right)
@@ -468,7 +466,7 @@ class RoomForestInside(RoomVillageInside):
     
     def chopWood(self):
         if self._gameState.hasItem(Items.Axe):
-            Monitor.print("You chop some magical wood")
+            Monitor.readableLine("You chop some magical wood")
             self._gameState.addItem(Items.Wood)
         else:
-            Monitor.print("You could chop wood here, but you lack the tools")
+            Monitor.readableLine("You could chop wood here, but you lack the tools")

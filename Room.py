@@ -49,7 +49,6 @@ class Room:
         Monitor.clear()        
         self._displayApproximateTime()
         self._displayRoomDescription()
-        self.menupos = Monitor.getCursorPos()
         self._displayMenuItems()
         
     def selectFromMenu(self, fromRoom): fromRoom.changeRoom(self.room)
@@ -122,19 +121,19 @@ class Room:
     def _getTownAttackListener(self):
         def listener(isAttacking):
             if not self.roomActive: return
-            if isAttacking: Monitor.print("You have a vision of a terrible monster attacking the town.",speed=Monitor.SLOW)
-            #else: Monitor.print("You see the monstrous beast flying away from the town, over the mountain.")
+            if isAttacking: Monitor.readableLine("You have a vision of a terrible monster attacking the town.",speed=Monitor.SLOW)
+            #else: Monitor.readableLine("You see the monstrous beast flying away from the town, over the mountain.")
         return listener
 #endregion
 
 #region methods for menu
     def _menuUp(self):
         self.menuindex = max(0, self.menuindex-1)      
-        self._displayMenuItems()
+        self.refreshScreen()
     
     def _menuDown(self):
         self.menuindex = min(len(self._getMenuItems())-1, self.menuindex+1)
-        self._displayMenuItems()
+        self.refreshScreen()
 
     def _menuAccept(self):
         self._getMenuItems()[self.menuindex].selectFromMenu(self)
@@ -156,7 +155,6 @@ class Room:
         return menuitems
 
     def _displayMenuItems(self):
-        Monitor.setCursorPos(self.menupos)
         for i, item in enumerate([self._getMenuString(x) for x in self._getMenuItems()]):        
             if i==self.menuindex: item = '>'+item+'<'
             else: item = " "+item+" "
@@ -196,7 +194,7 @@ class RoomPlaneCrash(Room):
             return "Chase the birds"
 
         def selectFromMenu(self, fromRoom : Rooms):
-            Monitor.print("You chase the birds away")
+            Monitor.readableLine("You chase the birds away")
             fromRoom._gameState.tookAction(Actions.ChasedBirds)
             fromRoom._removeEvent(self)
             fromRoom.reEnterRoom()
@@ -209,11 +207,11 @@ class RoomPlaneCrash(Room):
 
         def selectFromMenu(self, fromRoom : Rooms):
             if fromRoom._gameState.getTimeOfDay() == GameTime.MIDNIGHT:
-                Monitor.print("It is too dark to examine the plane.")
+                Monitor.readableLine("It is too dark to examine the plane.")
                 return
             
             fromRoom._gameState.updateKnowledge(Knowledge.ExaminedPlane)
-            Monitor.print("""The damage isn't so bad as it looks.
+            Monitor.readableLine("""The damage isn't so bad as it looks.
 You ruptured a fuel line and both wheels on the landing gear are destroyed.
 You might be able to fix the plane given the right materials.""")            
 
@@ -231,7 +229,7 @@ You might be able to fix the plane given the right materials.""")
             return [Knowledge.CollectedWheelMaterial]
     
         def selectFromMenu(self, fromRoom : Rooms):            
-            Monitor.print("""You replace your broken wheels with the ones from the biplane.
+            Monitor.readableLine("""You replace your broken wheels with the ones from the biplane.
 Not a perfect fit, but you should be able to take off now.""")
             
             fromRoom._gameState.updateKnowledge(Knowledge.AttachedWheel)
@@ -253,7 +251,7 @@ Not a perfect fit, but you should be able to take off now.""")
         
         def selectFromMenu(self, fromRoom : Rooms):
             if not fromRoom._gameState.fulfillsRequirement(Knowledge.AttachedFuelHose):
-                Monitor.print("""If you add the fuel now, it would just leak to the ground.
+                Monitor.readableLine("""If you add the fuel now, it would just leak to the ground.
 Fix the fuel hose first.""")
                 return
             fromRoom._gameState.updateKnowledge(Knowledge.AddedFuelToPlane)
@@ -261,7 +259,7 @@ Fix the fuel hose first.""")
                 fromRoom._gameState.updateKnowledge(Knowledge.FixedPlane)
                 
             fromRoom._gameState.removeItem(Items.Fuel)
-            Monitor.print("""You fill your plane's tank to the brim with kerosene. Luckily the fuel tank wasn't damaged.""")
+            Monitor.readableLine("""You fill your plane's tank to the brim with kerosene. Luckily the fuel tank wasn't damaged.""")
             fromRoom._removeEvent(self)
             fromRoom.reEnterRoom()
 
@@ -279,7 +277,7 @@ Fix the fuel hose first.""")
             if fromRoom._gameState.fulfillsRequirements([Knowledge.AddedFuelToPlane,Knowledge.AttachedFuelHose,Knowledge.AttachedWheel]):
                 fromRoom._gameState.updateKnowledge(Knowledge.FixedPlane)
                 
-            Monitor.print("""You jerryrig the plastic tubing to your plane. You're pretty sure that it won't leak...""")            
+            Monitor.readableLine("""You jerryrig the plastic tubing to your plane. You're pretty sure that it won't leak...""")            
             fromRoom._gameState.removeItem(Items.Hose)
             fromRoom._removeEvent(self)
             fromRoom.reEnterRoom()
@@ -295,9 +293,9 @@ Fix the fuel hose first.""")
             return [Knowledge.FixedPlane]
     
         def selectFromMenu(self, fromRoom : Rooms):            
-            Monitor.print("""You start the plane's engine and sigh from relief when nothing exploded.""")
-            Monitor.print("""You climb aboard the plane and take off.""")
-            Monitor.print("""Congratulations! You have escaped the island alive!""", speed=Monitor.SLOW)
+            Monitor.readableLine("""You start the plane's engine and sigh from relief when nothing exploded.""")
+            Monitor.readableLine("""You climb aboard the plane and take off.""")
+            Monitor.readableLine("""Congratulations! You have escaped the island alive!""", speed=Monitor.SLOW)
             
             fromRoom._gameState.endGame(GameEnd.WIN)
             
@@ -319,7 +317,7 @@ Fix the fuel hose first.""")
             self.description.append("After examining the plane, you might be able to fix it.\nYou only need fuel, a length of hose and some wheels")
         
     def _getEvents(self):
-        return [(self._addBirdEvent,50)]
+        return [(self._addBirdEvent,10)]
 
     def _addBirdEvent(self, tick):        
         birds = self.Birds()
@@ -338,8 +336,8 @@ class RoomVillage(Room):
             return "Ignore the men and head inside the town."
 
         def selectFromMenu(self, fromRoom : Rooms):
-            Monitor.print("You decide to ignore them and keep walking towards the gates. ")
-            Monitor.print("The soldiers do not hesitate to impale you with their spear. You died.")
+            Monitor.readableLine("You decide to ignore them and keep walking towards the gates. ")
+            Monitor.readableLine("The soldiers do not hesitate to impale you with their spear. You died.")
             fromRoom._gameState.endGame(GameEnd.LOSE)
 
         def getAllowedTimes(self) -> list:
@@ -350,7 +348,7 @@ class RoomVillage(Room):
             return "Head inside the town."
 
         def selectFromMenu(self, fromRoom : Rooms):
-            Monitor.print("You enter the village")            
+            Monitor.readableLine("You enter the village")            
             fromRoom.changeRoom(Rooms.VILLAGEINSIDE)
 
         def getAllowedTimes(self) -> list:
@@ -424,12 +422,12 @@ class RoomBeach(Room):
             return "Scavenge the flotsam"
 
         def selectFromMenu(self, fromRoom : Rooms):
-            Monitor.print("You begin to rummage through the debris.")
+            Monitor.readableLine("You begin to rummage through the debris.")
             if fromRoom._gameState.getTimeOfDay() == GameTime.MIDNIGHT:
-                Monitor.print('However, it is too dark to find anything.')
+                Monitor.readableLine('However, it is too dark to find anything.')
                 return
-            Monitor.print('The sun glimmers from a metallic object half-buried in the sand.')
-            Monitor.print('You dig it out and find a jerry can full of kerosene!')
+            Monitor.readableLine('The sun glimmers from a metallic object half-buried in the sand.')
+            Monitor.readableLine('You dig it out and find a jerry can full of kerosene!')
             fromRoom._gameState.tookAction(Actions.FoundFuel)
             fromRoom._gameState.updateKnowledge(Knowledge.CollectedFuelMaterial)
             fromRoom._gameState.addItem(Items.Fuel)
@@ -453,14 +451,14 @@ class RoomBeach(Room):
 
     def shipwreck(self, ticks):
         if self._gameState.fulfillsRequirement(Knowledge.FixedLighthouse):
-            Monitor.print("You hear a plane fly over the island. Maybe there is a way to force the plane to (crash?)land")
+            Monitor.readableLine("You hear a plane fly over the island. Maybe there is a way to force the plane to (crash?)land")
             return
 
         if self.roomActive:
-            Monitor.print("You hear a crash and shortly thereafter flosam begins to float to the beach.")
+            Monitor.readableLine("You hear a crash and shortly thereafter flosam begins to float to the beach.")
             self.reEnterRoom()
         else:
-            Monitor.print("The winds from the beach carry the sounds of a faint explosion. Maybe you imagined it.")
+            Monitor.readableLine("The winds from the beach carry the sounds of a faint explosion. Maybe you imagined it.")
 
         self.availableActions.append(self.Shipwreck())
         
@@ -513,14 +511,14 @@ class RoomCliffs(Room):
             return "Climb down the cliffside"
 
         def selectFromMenu(self, fromRoom : Rooms):
-            Monitor.print("You begin to climb down the cliffside.")
+            Monitor.readableLine("You begin to climb down the cliffside.")
             if fromRoom._gameState.getTimeOfDay() == GameTime.MIDNIGHT:
-                Monitor.print('However, you lose your foothold in the darkness and fall to your death.')
+                Monitor.readableLine('However, you lose your foothold in the darkness and fall to your death.')
                 fromRoom._gameState.endGame(GameEnd.LOSE)
                 return
-            Monitor.print('You manage to reach the plane.')
-            Monitor.print('With a few good kicks, the wheels come off and you snatch them.')
-            Monitor.print('You find nothing else of use and climb back up.')
+            Monitor.readableLine('You manage to reach the plane.')
+            Monitor.readableLine('With a few good kicks, the wheels come off and you snatch them.')
+            Monitor.readableLine('You find nothing else of use and climb back up.')
             fromRoom._gameState.tookAction(Actions.ClimbedDownCliff)
             fromRoom._gameState.updateKnowledge(Knowledge.CollectedWheelMaterial)
             fromRoom._gameState.addItem(Items.Wheels)
@@ -543,7 +541,7 @@ class RoomCliffs(Room):
         if self._gameState.fulfillsRequirement(Knowledge.FixedLighthouse): return        
         self.availableActions.append(self.Shipwreck())
         if self.roomActive:
-            Monitor.print("You hear a crash at the cliffs")
+            Monitor.readableLine("You hear a crash at the cliffs")
             self.reEnterRoom()
 
 class RoomForest(Room):
@@ -558,7 +556,7 @@ class RoomForest(Room):
             if fromRoom._gameState.hasAction(Actions.EagleQuest):
                 fromRoom.changeRoom(Rooms.FORESTINSIDE)
             else:
-                Monitor.print("\nYou search the forest, but don't really know what to look for.", delay=False)
+                Monitor.readableLine("\nYou search the forest, but don't really know what to look for.", delay=False)
 
     class SeekBeast(MenuItem):
         description = "In your vision, you saw the beast take flight from the forest."
@@ -568,30 +566,30 @@ class RoomForest(Room):
 
         def selectFromMenu(self, fromRoom : Rooms):
             if fromRoom._gameState.fulfillsRequirement(Knowledge.DefeatedBeast):
-                Monitor.print("You have already slain the beast; or set it free... or whatever happened")
+                Monitor.readableLine("You have already slain the beast; or set it free... or whatever happened")
                 return
-            Monitor.print("You go deep into the woods.")
-            Monitor.print("Deeper than you've ever been.")
-            Monitor.print("GRRWAAAAARHH",speed=Monitor.SLOW)
-            Monitor.print("Uh-oh, I think you found what you were looking for.")
+            Monitor.readableLine("You go deep into the woods.")
+            Monitor.readableLine("Deeper than you've ever been.")
+            Monitor.readableLine("GRRWAAAAARHH",speed=Monitor.SLOW)
+            Monitor.readableLine("Uh-oh, I think you found what you were looking for.")
             if not fromRoom._gameState.hasItem(Items.SwordOfArariel):
                 if fromRoom._gameState.hasItem(Items.Sword):
-                    Monitor.print("You ready your rusty sword for battle with the Beast.")
-                    Monitor.print("The Beast breathes fire at you; melts your sword and kills you.")
+                    Monitor.readableLine("You ready your rusty sword for battle with the Beast.")
+                    Monitor.readableLine("The Beast breathes fire at you; melts your sword and kills you.")
                     fromRoom._gameState.endGame(GameEnd.LOSE)
                     return
                 else:
-                    Monitor.print("You walk up to the beast and punch it as hard as you can.")
-                    Monitor.print("The Beast eats you.")
+                    Monitor.readableLine("You walk up to the beast and punch it as hard as you can.")
+                    Monitor.readableLine("The Beast eats you.")
                     fromRoom._gameState.endGame(GameEnd.LOSE)
                     return
             else:
-                Monitor.print("The sword of Arariel begins to glow.")
-                Monitor.print("The Beast breathes fire at you, but the sword deflects the Beast's magic.")
-                Monitor.print("What follows is an intense battle, which I didn't have time to write for this game jam.")                
-                Monitor.print("But trust me, it was an ", speed=30, printline=False)
-                Monitor.print(" epic battle.       ", speed=Monitor.SLOW)
-                Monitor.print("Anyway,                                       ")
+                Monitor.readableLine("The sword of Arariel begins to glow.")
+                Monitor.readableLine("The Beast breathes fire at you, but the sword deflects the Beast's magic.")
+                Monitor.readableLine("What follows is an intense battle, which I didn't have time to write for this game jam.")                
+                Monitor.readableLine("But trust me, it was an ", speed=30, printline=False)
+                Monitor.readableLine(" epic battle.       ", speed=Monitor.SLOW)
+                Monitor.readableLine("Anyway,                                       ")
                 Monitor.clear()
                 fromRoom.changeRoom(Rooms.BEASTDIALOG)
                 
@@ -626,8 +624,8 @@ class RoomLighthouse(Room):
             return "Approach the eagle"
 
         def selectFromMenu(self, fromRoom : Rooms):
-            Monitor.print("As you cautiously walk towards the eagle, you hear a soft, calming voice in your head.")
-            Monitor.print('"Fear not, for I will not harm you."')
+            Monitor.readableLine("As you cautiously walk towards the eagle, you hear a soft, calming voice in your head.")
+            Monitor.readableLine('"Fear not, for I will not harm you."')
             fromRoom._gameState.tookAction(Actions.MetEagle)
             fromRoom.changeRoom(Rooms.EAGLEDIALOG)
 
@@ -639,13 +637,13 @@ class RoomLighthouse(Room):
 
         def selectFromMenu(self, fromRoom : Rooms):
             if not fromRoom._gameState.hasItem(Items.Wood):
-                Monitor.print("You already lit the lighthouse's flames")                
+                Monitor.readableLine("You already lit the lighthouse's flames")                
                 return
             
-            Monitor.print("You find the lighthouse door unlocked and walk in.")
-            Monitor.print("As you trek up numerous flights of stairs, you hope there's a way to light the magic wood you're carrying.")
-            Monitor.print("... your legs begin to hurt...",speed=Monitor.SLOW)
-            Monitor.print("You reach the top of the lighthouse and set the wood alight in the lamp.")
+            Monitor.readableLine("You find the lighthouse door unlocked and walk in.")
+            Monitor.readableLine("As you trek up numerous flights of stairs, you hope there's a way to light the magic wood you're carrying.")
+            Monitor.readableLine("... your legs begin to hurt...",speed=Monitor.SLOW)
+            Monitor.readableLine("You reach the top of the lighthouse and set the wood alight in the lamp.")
             fromRoom._gameState.updateKnowledge(Knowledge.FixedLighthouse)
             fromRoom._gameState.removeItem(Items.Wood)
             fromRoom.reEnterRoom()
@@ -673,9 +671,9 @@ class RoomLighthouse(Room):
     def eagleArrives(self,tick):
         self.addEvent(self.Eagle(),tick+60)
         if self.roomActive:
-            Monitor.print("An eagle lands near the lighthouse.",speed=Monitor.SLOW)
+            Monitor.readableLine("An eagle lands near the lighthouse.",speed=Monitor.SLOW)
         else:
-            Monitor.print("You have a vision of an eagle flying towards a lighthouse.",speed=Monitor.SLOW)
+            Monitor.readableLine("You have a vision of an eagle flying towards a lighthouse.",speed=Monitor.SLOW)
 
 class MainMenu(Room):
     class StartGame(MenuItem):
@@ -686,15 +684,15 @@ class MainMenu(Room):
 
         def selectFromMenu(self, fromRoom : Rooms):
                 Monitor.clear()
-                Monitor.print("You're flying at night across the Atlantic ocean on your trusted biplane.")
-                Monitor.print("Beep.")
-                Monitor.print("Hmmm.....",speed=Monitor.SLOW)
-                Monitor.print("Beep. Beep.")
-                Monitor.print("Beep. Beep. Beep. Beep. Beep. Beep.")
-                Monitor.print("One by one all your instruments light up and it occurs to you.")
-                Monitor.print("You're going down!",printline=False)
-                Monitor.print("MAYDAAAAAAAYYYYYYYYY!!!!",speed=Monitor.SLOW)
-                fromRoom.changeRoom(Rooms.PLANECRASH)
+                Monitor.readableLine("You're flying at night across the Atlantic ocean on your trusted biplane.")
+                Monitor.readableLine("Beep.")
+                Monitor.readableLine("Hmmm.....",speed=Monitor.SLOW)
+                Monitor.readableLine("Beep. Beep.")
+                Monitor.readableLine("Beep. Beep. Beep. Beep. Beep. Beep.")
+                Monitor.readableLine("One by one all your instruments light up and it occurs to you.")
+                Monitor.readableLine("You're going down!",printline=False)
+                Monitor.readableLine("MAYDAAAAAAAYYYYYYYYY!!!!",speed=Monitor.SLOW)
+                fromRoom.changeRoom(Rooms.PLANECRASH)                
 
     class Quit(MenuItem):
         description = ""
@@ -713,12 +711,12 @@ class MainMenu(Room):
   █   █ █ █    █  █ █   █   █    █   █
   █   █ █ ███  ████ ███ █   █ ████   █
   
-                 ███ 
-		█    
-		 █    
-		█ █
-		 █ █
-				
+                 ███           
+                █                       
+                 █                       
+                █ █                      
+                 █ █                    
+                                         
 █████ █ █ ███  █████ ████ █  ███  █ █   █
   █   █ █ █      █   █  █ █   █   █ ██  █
   █   ███ ███    █   █  █  █ █ █ █  █ █ █
