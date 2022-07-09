@@ -327,8 +327,8 @@ class RoomCaveInside(RoomInside):
 class RoomCave1Inside(RoomCaveInside):
     room = Rooms.CAVE1
     availableActions = []    
-    #pos = (13,1)
-    pos = (27,17)    
+    pos = (13,1)
+    #pos = (27,17)    
     collapsing = False
     textmap = """                                        ¤
    .....    ».......................    ¤

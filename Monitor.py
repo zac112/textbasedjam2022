@@ -48,16 +48,7 @@ class Monitor(threading.Thread):
 
             
             Monitor.buffer[y][x] = char
-            Monitor.delays[(x,y)] = sleepFor
             Monitor.addX(1)
-            
-
-        if delay:
-            x,y=Monitor.pos
-            c = Monitor.buffer[y][x]
-            delay = Monitor.delays.setdefault((x,y),0)
-            delay += len(text)/Monitor.readingSpeed
-            Monitor.delays[x,y] = delay
                                       
         if printline:
             Monitor.printLine()
